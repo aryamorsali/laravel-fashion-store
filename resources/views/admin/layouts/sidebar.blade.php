@@ -202,6 +202,15 @@
                                    Banners
                                </a>
                            @endcan
+                       <div class="sb-sidenav-menu-heading">notification</div>
+                       <a class="nav-link" href="{{ route('admin.notification.email.index') }}">
+                           <div class="sb-nav-link-icon"><i class="fas fa-envelope"></i></div>
+                           Email notification
+                       </a>
+                       <a class="nav-link" href="#">
+                           <div class="sb-nav-link-icon"><i class="fas fa-sms"></i></div>
+                           SMS notification
+                       </a>
 
                        @endcanany
 
@@ -259,6 +268,7 @@
                                Settings
                            </a>
                        @endif
+
 
                    </div>
                </div>
