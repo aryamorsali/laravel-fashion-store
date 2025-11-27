@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Models\Notification;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -12,4 +13,9 @@ class Email extends Model
     use HasFactory, SoftDeletes;
 
     protected $guarded = ['id'];
+
+    public function files()
+    {
+        return $this->hasMany(EmailFile::class, 'notification_email_id');
+    }
 }

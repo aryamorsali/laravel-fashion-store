@@ -53,22 +53,58 @@
                                 <td>{{ $email->published_at ?? '-' }}</td>
                                 <td>{{ $email->status }}</td>
 
-                                <td class="width-16-rem text-right">
-                                    <a href="{{ route('admin.notification.email.edit', $email->id) }}"
-                                        class="btn btn-primary btn-sm width-4-rem mi">
-                                        Edit</a>
-                                    <form class="d-inline"
-                                        action="{{ route('admin.notification.email.destroy', $email->id) }}" method="post">
-                                        @csrf
-                                        @method('delete')
-                                        <button class="btn btn-danger btn-sm width-4-rem mi delete" type="submit">Delete</button>
-                                    </form>
-                                    @if ($email->status !== 'sent')
-                                        <a href="{{ route('admin.notification.email.send', $email->id) }}"
-                                            class="btn btn-success btn-sm width-4-rem mi">Send now</a>
-                                    @endif
-                                </td>
+                                <td class="width-13-rem text-left">
+                                    <div class="dropdown">
+                                        <a href="#" class="btn btn-success btn-sm btn-block dropdown-toggle"
+                                            role="button" id="dropdownMenuLink" data-bs-toggle="dropdown"
+                                            aria-expanded="false">
+                                            <i class="fa fa-tools"></i> Operation
+                                        </a>
 
+                                        <ul class="dropdown-menu" aria-labelledby="dropdownMenuLink">
+
+                                            <!-- Attached files -->
+                                            <li>
+                                                <a href="{{ route('admin.notification.email.file.index', $email->id) }}"
+                                                    class="dropdown-item text-right">
+                                                    <i class="fa fa-paperclip"></i> Attached files
+                                                </a>
+                                            </li>
+
+                                            <!-- Edit -->
+                                            <li>
+                                                <a href="{{ route('admin.notification.email.edit', $email->id) }}"
+                                                    class="dropdown-item text-right">
+                                                    <i class="fa fa-edit"></i> Edit
+                                                </a>
+                                            </li>
+
+                                            <!-- Delete -->
+                                            <li>
+                                                <form class="d-inline"
+                                                    action="{{ route('admin.notification.email.destroy', $email->id) }}"
+                                                    method="post">
+                                                    @csrf
+                                                    @method('delete')
+                                                    <button class="dropdown-item text-right delete" type="submit">
+                                                        <i class="fa fa-trash"></i> Delete
+                                                    </button>
+                                                </form>
+                                            </li>
+
+                                            <!-- Send now -->
+                                            @if ($email->status !== 'sent')
+                                                <li>
+                                                    <a href="{{ route('admin.notification.email.send', $email->id) }}"
+                                                        class="dropdown-item text-right">
+                                                        <i class="fa fa-paper-plane"></i> Send now
+                                                    </a>
+                                                </li>
+                                            @endif
+
+                                        </ul>
+                                    </div>
+                                </td>
                             </tr>
                         @endforeach
 

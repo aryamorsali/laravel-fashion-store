@@ -312,23 +312,25 @@ Route::prefix('admin')->middleware(['auth', 'can:access-admin-panel'])->group(fu
 
     // notification 
     Route::prefix('notification')->group(function () {
-        //  email
+        // email
         Route::prefix('email')->group(function () {
+
             Route::get('/', [EmailController::class, 'index'])->name('admin.notification.email.index');
             Route::get('/create', [EmailController::class, 'create'])->name('admin.notification.email.create');
             Route::post('/store', [EmailController::class, 'store'])->name('admin.notification.email.store');
-            Route::get('/edit/{email}', [EmailController::class, 'edit'])->name('admin.notification.email.edit');
-            Route::put('/update/{email}', [EmailController::class, 'update'])->name('admin.notification.email.update');
-            Route::delete('/destroy/{email}', [EmailController::class, 'destroy'])->name('admin.notification.email.destroy');
+            Route::get('/{email}/edit', [EmailController::class, 'edit'])->name('admin.notification.email.edit');
+            Route::put('/{email}/update', [EmailController::class, 'update'])->name('admin.notification.email.update');
+            Route::delete('/{email}/destroy', [EmailController::class, 'destroy'])->name('admin.notification.email.destroy');
             Route::get('/{email}/send', [EmailController::class, 'send'])->name('admin.notification.email.send');
-            // email file
-            Route::prefix('file')->group(function () {
-                Route::get('/{email}', [EmailFileController::class, 'index'])->name('admin.notification.email.file.index');
-                Route::get('/{email}/create', [EmailFileController::class, 'create'])->name('admin.notification.email.file.create');
-                Route::post('/{email}/store', [EmailFileController::class, 'store'])->name('admin.notification.email.file.store');
-                Route::get('/edit/{file}', [EmailFileController::class, 'edit'])->name('admin.notification.email.file.edit');
-                Route::put('/update/{file}', [EmailFileController::class, 'update'])->name('admin.notification.email.file.update');
-                Route::delete('/destroy/{file}', [EmailFileController::class, 'destroy'])->name('admin.notification.email.file.destroy');
+
+            // email files
+            Route::prefix('{email}/file')->group(function () {
+                Route::get('/', [EmailFileController::class, 'index'])->name('admin.notification.email.file.index');
+                Route::get('/create', [EmailFileController::class, 'create'])->name('admin.notification.email.file.create');
+                Route::post('/store', [EmailFileController::class, 'store'])->name('admin.notification.email.file.store');
+                Route::get('/{file}/edit', [EmailFileController::class, 'edit'])->name('admin.notification.email.file.edit');
+                Route::put('/{file}/update', [EmailFileController::class, 'update'])->name('admin.notification.email.file.update');
+                Route::delete('/{file}/destroy', [EmailFileController::class, 'destroy'])->name('admin.notification.email.file.destroy');
             });
         });
     });
