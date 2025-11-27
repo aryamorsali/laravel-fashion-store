@@ -31,6 +31,7 @@ use App\Http\Controllers\Admin\Market\WarehouseVariantController;
 use App\Http\Controllers\Admin\Setting\SettingController;
 use App\Http\Controllers\Admin\Notification\EmailController;
 use App\Http\Controllers\Admin\Notification\EmailFileController;
+use App\Http\Controllers\Admin\Notification\SMSController;
 use App\Http\Controllers\Admin\Ticket\AdminTicketController;
 use App\Http\Controllers\Admin\Ticket\TicketCategoryController;
 use App\Http\Controllers\Admin\Ticket\TicketController;
@@ -332,6 +333,17 @@ Route::prefix('admin')->middleware(['auth', 'can:access-admin-panel'])->group(fu
                 Route::put('/{file}/update', [EmailFileController::class, 'update'])->name('admin.notification.email.file.update');
                 Route::delete('/{file}/destroy', [EmailFileController::class, 'destroy'])->name('admin.notification.email.file.destroy');
             });
+        });
+        // sms
+        Route::prefix('sms')->group(function () {
+
+            Route::get('/', [SMSController::class, 'index'])->name('admin.notification.sms.index');
+            Route::get('/create', [SMSController::class, 'create'])->name('admin.notification.sms.create');
+            Route::post('/store', [SMSController::class, 'store'])->name('admin.notification.sms.store');
+            Route::get('/{sms}/edit', [SMSController::class, 'edit'])->name('admin.notification.sms.edit');
+            Route::put('/{sms}/update', [SMSController::class, 'update'])->name('admin.notification.sms.update');
+            Route::delete('/{sms}/destroy', [SMSController::class, 'destroy'])->name('admin.notification.sms.destroy');
+            Route::get('/{sms}/send', [SMSController::class, 'send'])->name('admin.notification.sms.send');
         });
     });
 

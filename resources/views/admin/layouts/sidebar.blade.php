@@ -207,7 +207,7 @@
                            <div class="sb-nav-link-icon"><i class="fas fa-envelope"></i></div>
                            Email notification
                        </a>
-                       <a class="nav-link" href="#">
+                       <a class="nav-link" href="{{ route('admin.notification.sms.index') }}">
                            <div class="sb-nav-link-icon"><i class="fas fa-sms"></i></div>
                            SMS notification
                        </a>
