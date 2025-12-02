@@ -122,6 +122,11 @@
                            FAQ
                        </a>
 
+                       <a class="nav-link" href="{{ route('admin.content.banner.index') }}">
+                           <div class="sb-nav-link-icon"><i class="fas fa-bars"></i></div>
+                           Banners
+                       </a>
+
                        <div class="sb-sidenav-menu-heading">User</div>
 
                        <a class="nav-link" href="{{ route('admin.user.customer.index') }}">
