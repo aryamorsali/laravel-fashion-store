@@ -29,7 +29,7 @@
                                <a class="nav-link" href="{{ route('admin.market.color.index') }}">Colors</a>
                                <a class="nav-link" href="{{ route('admin.market.size.index') }}">Sizes</a>
                                <a class="nav-link" href="{{ route('admin.market.product.index') }}">Products</a>
-                                 <a class="nav-link" href="{{ route('admin.market.property.index') }}">Product
+                               <a class="nav-link" href="{{ route('admin.market.property.index') }}">Product
                                    Attribute</a>
                                <a class="nav-link" href="{{ route('admin.market.home-box.index') }}">Home Boxes</a>
                                <a class="nav-link" href="{{ route('admin.market.comment.index') }}">Comments</a>
@@ -153,16 +153,11 @@
                            </nav>
                        </div>
 
-                       <div class="sb-sidenav-menu-heading">Users</div>
-                       <a class="nav-link" href="charts.html">
-                           <div class="sb-nav-link-icon"><i class="fas fa-chart-area"></i></div>
-                           Charts
+                       <div class="sb-sidenav-menu-heading">Setting</div>
+                       <a class="nav-link" href="{{ route('admin.setting.index') }}">
+                           <div class="sb-nav-link-icon"><i class="fas fa-gear"></i></div>
+                           Settings
                        </a>
-                       <a class="nav-link" href="tables.html">
-                           <div class="sb-nav-link-icon"><i class="fas fa-table"></i></div>
-                           Tables
-                       </a>
-
 
                    </div>
                </div>

@@ -28,6 +28,7 @@ use App\Http\Controllers\Admin\Market\PropertyValueController;
 use App\Http\Controllers\Admin\Market\WarehouseController;
 use App\Http\Controllers\Admin\Market\WarehouseTransactionController;
 use App\Http\Controllers\Admin\Market\WarehouseVariantController;
+use App\Http\Controllers\Admin\Setting\SettingController;
 use App\Http\Controllers\Admin\Ticket\AdminTicketController;
 use App\Http\Controllers\Admin\Ticket\TicketCategoryController;
 use App\Http\Controllers\Admin\Ticket\TicketController;
@@ -370,5 +371,13 @@ Route::prefix('admin')->group(function () {
             Route::delete('/destroy/{banner}', [BannerController::class, 'destroy'])->name('admin.content.banner.destroy');
             Route::get('/status/{banner}', [BannerController::class, 'status'])->name('admin.content.banner.status');
         });
+    });
+
+    // settings
+    Route::prefix('settings')->group(function () {
+        Route::get('/', [SettingController::class, 'index'])->name('admin.setting.index');
+        Route::get('/edit/{setting}', [SettingController::class, 'edit'])->name('admin.setting.edit');
+        Route::put('/update/{setting}', [SettingController::class, 'update'])->name('admin.setting.update');
+        Route::get('/status/{setting}', [SettingController::class, 'status'])->name('admin.setting.status');
     });
 });
