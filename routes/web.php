@@ -6,6 +6,7 @@ use App\Http\Controllers\Admin\Content\CategoryController as ContentCategoryCont
 use App\Http\Controllers\Admin\Content\CommentController as ContentCommentController;
 use App\Http\Controllers\Admin\Content\FAQController;
 use App\Http\Controllers\Admin\Content\FaqsController;
+use App\Http\Controllers\Admin\Market\HomeBoxController;
 use App\Http\Controllers\Admin\Content\MenuController;
 use App\Http\Controllers\Admin\Content\PostController;
 use App\Http\Controllers\Admin\Market\AmazingSaleController;
@@ -54,6 +55,17 @@ Route::prefix('admin')->group(function () {
             Route::delete('/destroy/{productCategory}', [CategoryController::class, 'destroy'])->name('admin.market.category.destroy');
             Route::get('/status/{productCategory}', [CategoryController::class, 'status'])->name('admin.market.category.status');
             Route::get('/show-in-menu/{productCategory}', [CategoryController::class, 'showInMenu'])->name('admin.market.category.show-in-menu');
+        });
+
+        // home boxes
+        Route::prefix('home-box')->group(function () {
+            Route::get('/', [HomeBoxController::class, 'index'])->name('admin.market.home-box.index');
+            Route::get('/create', [HomeBoxController::class, 'create'])->name('admin.market.home-box.create');
+            Route::post('/store', [HomeBoxController::class, 'store'])->name('admin.market.home-box.store');
+            Route::get('/edit/{homeBox}', [HomeBoxController::class, 'edit'])->name('admin.market.home-box.edit');
+            Route::put('/update/{homeBox}', [HomeBoxController::class, 'update'])->name('admin.market.home-box.update');
+            Route::delete('/destroy/{homeBox}', [HomeBoxController::class, 'destroy'])->name('admin.market.home-box.destroy');
+            Route::get('/status/{homeBox}', [HomeBoxController::class, 'status'])->name('admin.market.home-box.status');
         });
 
         // brands
