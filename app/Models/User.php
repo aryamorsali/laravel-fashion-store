@@ -36,6 +36,7 @@ class User extends Authenticatable
         'user_type',
         'mobile_verified_at',
         'email_verified_at',
+        'loyalty_level',
     ];
   
     /**
