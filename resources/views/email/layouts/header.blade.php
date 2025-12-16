@@ -4,8 +4,8 @@
     <section class="top-header">
         <section class="container-xxl">
             <section class="d-flex justify-content-between align-items-center py-3">
-                <section class=""><a class="text-decoration-none" href="{{ route('customer.home') }}">
-                    <img src="{{ asset('customer-assets/images/icons/logo-02.png') }}" alt="logo"></a>
+                <section class=""><a class="text-decoration-none" href="#">
+                    <img src="{{ asset('images/icons/logo-02.png') }}" alt="logo"></a>
                 </section>
             </section>
         </section>

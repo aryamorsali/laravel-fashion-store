@@ -3,6 +3,7 @@
 namespace App\Http\Services\Message\Email;
 
 use App\Http\Interfaces\MessageInterface;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 
 class EmailService implements MessageInterface
@@ -18,14 +19,13 @@ class EmailService implements MessageInterface
 
     public function fire()
     {
-
         try {
             Mail::to($this->to)->send(
                 new MailViewProvider($this->details, $this->subject, $this->from, $this->emailFiles)
             );
         } catch (\Exception $e) {
-            $this->fail($e); 
-            throw $e; 
+            Log::error('Email sending failed: ' . $e->getMessage());
+            throw $e;
         }
     }
 

@@ -25,6 +25,11 @@ class LoginRegisterRequest extends FormRequest
             return [
                 'id' => 'required|min:11|max:64|regex:/^[a-zA-Z0-9_.@\+]*$/',
             ];
+        } elseif ($this->routeIs('auth.login-confirm.store')) {
+            return [
+                'otp' => 'required|digits:6',
+
+            ];
         }
     }
 

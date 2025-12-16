@@ -17,39 +17,35 @@ Route::middleware('guest')->group(function () {
 
     Route::post('/login-register', [LoginRegisterController::class, 'loginRegisterStore'])->middleware('throttle:login-register-limiter')->name('auth.login-register.store');
 
-    
-    // Route::get('forgot-password', [PasswordResetLinkController::class, 'create'])
-    //     ->name('password.request');
+    Route::get('/login-confirm/{token}', [LoginRegisterController::class, 'loginConfirmForm'])
+        ->name('auth.login-confirm.form');
 
-    // Route::post('forgot-password', [PasswordResetLinkController::class, 'store'])
-    //     ->name('password.email');
+    Route::post('/login-confirm/{token}', [LoginRegisterController::class, 'loginConfirmStore'])->middleware('throttle:login-confirm-limiter')->name('auth.login-confirm.store');
 
-    // Route::get('reset-password/{token}', [NewPasswordController::class, 'create'])
-    //     ->name('password.reset');
-
-    // Route::post('reset-password', [NewPasswordController::class, 'store'])
-    //     ->name('password.store');
+    Route::get('/login-resend-otp/{token}', [LoginRegisterController::class, 'resendOtp'])->middleware('throttle:login-resend-otp-limiter')
+        ->name('auth.login-resend-otp');
 });
+Route::get('/logout', [LoginRegisterController::class, 'logout'])
+    ->name('logout');
+// Route::middleware('auth')->group(function () {
 
-Route::middleware('auth')->group(function () {
-    Route::get('verify-email', EmailVerificationPromptController::class)
-        ->name('verification.notice');
+    //     Route::get('verify-email', EmailVerificationPromptController::class)
+    //         ->name('verification.notice');
 
-    Route::get('verify-email/{id}/{hash}', VerifyEmailController::class)
-        ->middleware(['signed', 'throttle:6,1'])
-        ->name('verification.verify');
+    //     Route::get('verify-email/{id}/{hash}', VerifyEmailController::class)
+    //         ->middleware(['signed', 'throttle:6,1'])
+    //         ->name('verification.verify');
 
-    Route::post('email/verification-notification', [EmailVerificationNotificationController::class, 'store'])
-        ->middleware('throttle:6,1')
-        ->name('verification.send');
+    //     Route::post('email/verification-notification', [EmailVerificationNotificationController::class, 'store'])
+    //         ->middleware('throttle:6,1')
+    //         ->name('verification.send');
 
-    Route::get('confirm-password', [ConfirmablePasswordController::class, 'show'])
-        ->name('password.confirm');
+    //     Route::get('confirm-password', [ConfirmablePasswordController::class, 'show'])
+    //         ->name('password.confirm');
 
-    Route::post('confirm-password', [ConfirmablePasswordController::class, 'store']);
+    //     Route::post('confirm-password', [ConfirmablePasswordController::class, 'store']);
 
-    Route::put('password', [PasswordController::class, 'update'])->name('password.update');
+    //     Route::put('password', [PasswordController::class, 'update'])->name('password.update');
 
-    Route::post('logout', [AuthenticatedSessionController::class, 'destroy'])
-        ->name('logout');
-});
+
+// });
