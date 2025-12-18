@@ -135,9 +135,9 @@ class LoginRegisterController extends Controller
 
             // check is otp match?
             if (!Hash::check($data['otp'], $otp->otp_code)) {
+
                 return redirect()->route('auth.login-confirm.form', $token)->withErrors(['otp' => 'Incorrect code']);
             }
-
             // if everything is ok :
             $otp->update(['is_used' => 1]);
 
@@ -151,7 +151,7 @@ class LoginRegisterController extends Controller
         });
 
         Auth::login($user);
-        return redirect()->route('customer.home');
+        return redirect('/');
     }
 
     public function resendOtp($token)
@@ -210,7 +210,7 @@ class LoginRegisterController extends Controller
         if (Auth::check()) {
             Auth::logout();
             return redirect('/');
-        }else{
+        } else {
             abort(404);
         }
     }
