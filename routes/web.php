@@ -33,6 +33,7 @@ use App\Http\Controllers\Admin\Ticket\TicketCategoryController;
 use App\Http\Controllers\Admin\Ticket\TicketController;
 use App\Http\Controllers\Admin\Ticket\TicketPriorityController;
 use App\Http\Controllers\Admin\User\CustomerController;
+use App\Http\Controllers\Customer\HomeController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -372,3 +373,13 @@ Route::prefix('admin')->group(function () {
         });
     });
 });
+
+
+// view shop
+// -------------------------------------------------------------------------
+
+Route::get('/', [HomeController::class, 'home'])->name('customer.home');
+Route::view('/about', 'customer.pages.about')->name('customer.about');
+Route::view('/contact', 'customer.pages.contact')->name('customer.contact');
+Route::view('/blog', 'customer.pages.blog')->name('customer.blog');
+Route::view('/products', 'customer.pages.product')->name('customer.products');
