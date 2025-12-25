@@ -387,3 +387,13 @@ Route::middleware('auth')->group(function () {
 
 require __DIR__ . '/auth.php';
 
+
+
+// view shop
+// -------------------------------------------------------------------------
+
+Route::get('/', [HomeController::class, 'home'])->name('customer.home');
+Route::view('/about', 'customer.pages.about')->name('customer.about');
+Route::view('/contact', 'customer.pages.contact')->name('customer.contact');
+Route::view('/blog', 'customer.pages.blog')->name('customer.blog');
+Route::view('/products', 'customer.pages.product')->name('customer.products');
