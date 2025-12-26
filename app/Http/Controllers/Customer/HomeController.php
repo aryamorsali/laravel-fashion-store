@@ -3,6 +3,8 @@
 namespace App\Http\Controllers\Customer;
 
 use App\Http\Controllers\Controller;
+use App\Models\Content\Banner;
+use App\Models\Market\HomeBox;
 use Illuminate\Http\Request;
 
 class HomeController extends Controller
@@ -12,7 +14,8 @@ class HomeController extends Controller
      */
     public function home()
     {
-       return view('customer.home');
+        $banners = Banner::where('status', 1)->get();
+       return view('customer.home' , compact('banners'));
     }
 
     /**

@@ -30,7 +30,7 @@ class BannerController extends Controller
     {
         $inputs = $request->validated();
         if ($request->hasFile('image')) {
-            $imageService->setExclusiveDirectory('images' . DIRECTORY_SEPARATOR . 'banner');
+            $imageService->setExclusiveDirectory('images/banner');
             $result = $imageService->save($request->file('image'));
 
             if ($result === false) {
@@ -39,7 +39,7 @@ class BannerController extends Controller
                     'There was an error uploading the photo.'
                 );
             }
-            $inputs['image'] = $result;
+            $inputs['image'] = str_replace('\\', '/', $result);
         }
 
         $banner = Banner::create($inputs);
@@ -73,10 +73,10 @@ class BannerController extends Controller
         $inputs = $request->validated();
 
         if ($request->hasFile('image')) {
-          if (!empty($banner->image) && file_exists(public_path($banner->image))) {
-    $imageService->deleteImage($banner->image);
-}
-            $imageService->setExclusiveDirectory('images' . DIRECTORY_SEPARATOR . 'banner');
+            if (!empty($banner->image) && file_exists(public_path($banner->image))) {
+                $imageService->deleteImage($banner->image);
+            }
+            $imageService->setExclusiveDirectory('images/banner');
             $result = $imageService->save($request->file('image'));
             if ($result === false) {
                 return redirect()->route('admin.content.banner.index')->with(
@@ -84,8 +84,8 @@ class BannerController extends Controller
                     'There was an error uploading the photo.'
                 );
             }
-            $inputs['image'] = $result;
-        } 
+            $inputs['image'] = str_replace('\\', '/', $result);
+        }
         $banner->update($inputs);
         return redirect(route('admin.content.banner.index'))->with(
             'alert-section-success',
