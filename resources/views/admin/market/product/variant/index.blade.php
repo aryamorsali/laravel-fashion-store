@@ -68,7 +68,7 @@
                                 </td>
 
                                 <td>{{ $variant->size->name ?? '-' }}</td>
-                                <td>{{ number_format($variant->price) }}</td>
+                                <td>${{ rtrim(rtrim(number_format($variant->price, 2), '0'), '.') }}</td>
 
                                 <td class="width-16-rem text-center">
                                     <a href="{{ route('admin.market.variant.edit', ['product' => $product, 'variant' => $variant]) }}"

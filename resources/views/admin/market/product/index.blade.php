@@ -51,18 +51,11 @@
                                 <td>
                                     <img class="rounded"
                                         src="{{ asset($product->image['indexArray'][$product->image['currentImage']]) }}"
-                                        alt="" width="75" height="65">
+                                        alt="" width="70" height="65">
                                 </td>
-                                <td>{{ number_format($product->base_price) }}</td>
+                                <td>${{ rtrim(rtrim(number_format($product->base_price, 2), '0'), '.') }}</td>
                                 <td>{{ $product->productCategory->name ?? '-' }}</td>
 
-                                {{-- <td>
-                                    <label>
-                                        <input id="{{ $post->id }}" onchange="changeStatus({{ $post->id }})"
-                                            data-url="{{ route('admin.content.post.status', $post->id) }}" type="checkbox"
-                                            @if ($post->status === 1) checked @endif>
-                                    </label>
-                                </td> --}}
                                 <td class="width-13-rem text-left">
                                     <div class="dropdown">
                                         <a href="#" class="btn btn-success btn-sm btn-block dropdown-toggle"
@@ -116,67 +109,7 @@
 @endsection
 
 @section('script')
-    {{-- <script type="text/javascript">
-        // status
-        function changeStatus(id) {
-            var element = $("#" + id)
-            var url = element.attr('data-url')
-            var elementValue = !element.prop('checked');
-            $.ajax({
-                url: url,
-                type: "GET",
-                success: function(response) {
-                    if (response.status) {
-                        if (response.checked) {
-                            element.prop('checked', true);
-                            successToast('Post successfully activated.');
-                        } else {
-                            element.prop('checked', false);
-                            successToast('Post successfully disabled.');
-                        }
-                    } else {
-                        element.prop('checked', elementValue);
-                        errorToast('There was a problem while editing.');
-                    }
-                },
-                error: function() {
-                    element.prop('checked', elementValue);
-                    errorToast('Connection not established.');
-                }
-            });
 
-            function successToast(message) {
-                var successToastTag =
-                    '<section class="toast" data-delay="5000">\n' +
-                    '<section class="toast-body py-2 d-flex toast-success">\n' +
-                    '<p class="ml-auto my-1">' + message + '</p>\n' +
-                    '<button type="button" class="mr-2 text-white mb-0 close" data-dismiss="toast" aria-label="Close">\n' +
-                    '<button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close">\n' +
-                    '</section>\n' +
-                    '</section>';
-                $('.toast-wrapper').append(successToastTag);
-                $('.toast').toast('show').delay(5500).queue(function() {
-                    $(this).remove();
-                });
-            }
-
-            function errorToast(message) {
-                var errorToastTag = ' <section class="toast" data-delay="5000">\n' +
-                    '<section class="toast-body py-3 d-flex bg-danger text-white">\n' +
-                    '<p class="ml-auto my-1">' + message + '</p>\n' +
-                    '<button type="button" class="mr-2 text-white mb-0 close" data-dismiss="toast" aria-label="Close">\n' +
-                    '<span aria-hidden="true">&times;</span>\n' +
-                    '</button>\n' +
-                    '</section>\n' +
-                    '</section>';
-                $('.toast-wrapper').append(errorToastTag);
-                $('.toast').toast('show').delay(5500).queue(function() {
-                    $(this).remove();
-                });
-            }
-        }
-
-    </script> --}}
 
     @include('admin.alerts.sweetalert.delete-confirm', ['className' => 'delete'])
 @endsection

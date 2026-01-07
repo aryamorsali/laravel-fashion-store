@@ -178,9 +178,9 @@
                             <div class="form-group">
                                 <label for="status">Status</label>
                                 <select name="status" class="form-control form-control-sm" id="status">
-                                    <option value="0" @if (old('status', $product->status) == 0) selected @endif>inactive
+                                    <option value="draft" @if (old('status', $product->status) == 'draft') selected @endif>draft
                                     </option>
-                                    <option value="1" @if (old('status', $product->status) == 1) selected @endif>active
+                                    <option value="published" @if (old('status', $product->status) == 'published') selected @endif>published
                                     </option>
                                 </select>
                             </div>

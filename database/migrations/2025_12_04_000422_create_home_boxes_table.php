@@ -15,13 +15,12 @@ return new class extends Migration
             $table->id();
             $table->string('title');                
             $table->string('subtitle')->nullable();  
-            $table->text('image')->nullable();   
+            $table->text('image');   
             $table->foreignId('category_id')        
                 ->nullable()
                 ->constrained('product_categories')
                 ->onUpdate('cascade')
-                ->onDelete('set null');
-            $table->string('url')->nullable();       
+                ->onDelete('set null');      
             $table->tinyInteger('status')->default(1);
             $table->timestamps();
             $table->softDeletes();                   

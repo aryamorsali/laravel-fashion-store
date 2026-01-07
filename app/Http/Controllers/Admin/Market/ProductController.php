@@ -37,7 +37,7 @@ class ProductController extends Controller
      */
     public function store(ProductRequest $request, ImageService $imageService)
     {
-        $inputs = $request->all();
+        $inputs = $request->validated();
 
         if (empty($inputs['published_at'])) {
             $inputs['published_at'] = Carbon::now()->format('Y-m-d H:i:s');
@@ -86,9 +86,9 @@ class ProductController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, Product $product, ImageService $imageService)
+    public function update(ProductRequest $request, Product $product, ImageService $imageService)
     {
-        $inputs = $request->all();
+        $inputs = $request->validated();
 
         if (empty($inputs['published_at'])) {
             $inputs['published_at'] = Carbon::now()->format('Y-m-d H:i:s');
@@ -126,7 +126,7 @@ class ProductController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-   public function destroy(Product $product)
+    public function destroy(Product $product)
     {
         $product->delete();
         return redirect(route('admin.market.product.index'))->with(

@@ -55,7 +55,7 @@
                                     @if (!empty($productCategory->image) && isset($productCategory->image['indexArray'][$productCategory->image['currentImage']]))
                                         <img class="rounded"
                                             src="{{ asset($productCategory->image['indexArray'][$productCategory->image['currentImage']]) }}"
-                                            alt="" width="80" height="60">
+                                            alt="" width="75" height="65">
                                     @else
                                     <p class="text-danger mt-3">without image</p>
                                     @endif

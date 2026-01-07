@@ -45,4 +45,43 @@ class Product extends Model
     {
         return $this->hasMany(ProductAttributeValue::class);
     }
+
+
+    public function amazingSale()
+    {
+        return $this->hasOne(AmazingSale::class);
+    }
+
+    public function orderItems()
+    {
+        return $this->hasMany(OrderItem::class);
+    }
+
+
+
+    /////////////////////////////////////////////////////
+
+    public function scopeBestSellers($query, $days = 30)
+    {
+        // سفارش های درست
+        $validOrders = function ($q) use ($days) {
+            $q->where('payment_status', 'paid')
+                ->whereNotIn('order_status', ['canceled', 'returned'])
+                ->where('created_at', '>=', now()->subDays($days));
+        };
+
+        return $query
+            ->where('status', 'published')
+            ->where(function ($q) {
+                $q->whereNull('published_at')
+                    ->orWhere('published_at', '<=', now());
+            })
+            // فقط محصولاتی که حداقل یک فروش معتبر دارن
+            ->whereHas('orderItems.order', $validOrders)
+            // محاسبه مجموع تعداد فروش
+            ->withSum(['orderItems as total_sold' => function ($q) use ($validOrders) {
+                $q->whereHas('order', $validOrders);
+            }], 'quantity')
+            ->orderByDesc('total_sold');
+    }
 }

@@ -8,29 +8,29 @@ use Intervention\Image\Facades\Image;
 class ImageService extends ImageToolsService
 {
 
-  public function save($image)
-{
-    $this->setImage($image);
-    $this->provider();
+    public function save($image)
+    {
+        $this->setImage($image);
+        $this->provider();
 
-    $extension = strtolower($image->getClientOriginalExtension());
+        $extension = strtolower($image->getClientOriginalExtension());
 
-    if ($extension === 'gif') {
-        // فقط کپی کن، پردازش نکن
-        $result = $image->move(
-            public_path(dirname($this->getImageAddress())),
-            basename($this->getImageAddress())
-        );
+        if ($extension === 'gif') {
+            // فقط کپی کن، پردازش نکن
+            $result = $image->move(
+                public_path(dirname($this->getImageAddress())),
+                basename($this->getImageAddress())
+            );
+
+            return $result ? $this->getImageAddress() : false;
+        }
+
+        // نسخه صحیح برای Intervention Image v2
+        $result = Image::make($image->getRealPath())
+            ->save(public_path($this->getImageAddress()), null, $this->getImageFormat());
 
         return $result ? $this->getImageAddress() : false;
     }
-
-    // نسخه صحیح برای Intervention Image v2
-    $result = Image::make($image->getRealPath())
-        ->save(public_path($this->getImageAddress()), null, $this->getImageFormat());
-
-    return $result ? $this->getImageAddress() : false;
-}
 
 
 
@@ -86,6 +86,52 @@ class ImageService extends ImageToolsService
 
         return $images;
     }
+
+
+    public function createBlogImagesAndSave($image)
+    {
+        $imageSizes = Config::get('image.blog-image-sizes');
+
+        $this->setImage($image);
+
+        $this->getImageDirectory()
+            ?? $this->setImageDirectory(date('Y') . DIRECTORY_SEPARATOR . date('m') . DIRECTORY_SEPARATOR . date('d'));
+
+        $this->getImageName() ?? $this->setImageName(time());
+        $imageName = $this->getImageName();
+
+        $imagesArray = [];
+
+        foreach ($imageSizes as $sizeAlias => $imageSize) {
+
+            $currentImageName = $imageName . '_' . $sizeAlias;
+            $this->setImageName($currentImageName);
+
+            $this->provider();
+
+            $result = Image::make($image->getRealPath())
+                ->fit($imageSize['width'], $imageSize['height'])
+                ->save(
+                    public_path($this->getImageAddress()),
+                    null,
+                    $this->getImageFormat()
+                );
+
+            if (!$result) {
+                return false;
+            }
+
+            $imagesArray[$sizeAlias] = $this->getImageAddress();
+        }
+
+        return [
+            'blogArray'   => $imagesArray,
+            'directory'   => $this->getFinalImageDirectory(),
+            'currentImage' => Config::get('image.default-current-blog-image'),
+        ];
+    }
+
+
 
     public function deleteImage($imagePath)
     {

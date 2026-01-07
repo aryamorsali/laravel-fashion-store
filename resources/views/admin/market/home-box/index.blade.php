@@ -25,7 +25,7 @@
                 <div class="me-auto" style="max-width: 16rem;">
                     <input type="text" class="form-control form-control-sm form-text" placeholder="search..">
                 </div>
-                @if ($boxes->count() < 3)
+                @if ($boxes->count() < 5)
                     <a href="{{ route('admin.market.home-box.create') }}" class="btn btn-dark btn-sm my-btn ">Create new
                         box</a>
                 @endif
@@ -42,7 +42,7 @@
                             <th scope="col">Subtitle</th>
                             <th scope="col">Category</th>
                             <th scope="col">Image</th>
-                            <th scope="col">Link</th>
+                            <th scope="col">Position</th>
                             <th scope="col">Status</th>
                             <th class="max-width-16-rem text-center"><i class="fa fa-cogs"></i> Action</th>
                         </tr>
@@ -64,7 +64,7 @@
                                         <span class="text-danger">No image</span>
                                     @endif
                                 </td>
-                                <td>{{ $box->url ?? '-' }}</td>
+                                <td>{{ $box->position }}</td>
 
                                 <td>
                                     <label>
