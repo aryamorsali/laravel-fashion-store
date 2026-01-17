@@ -95,7 +95,7 @@ class PostController extends Controller
 
         if ($request->hasFile('image')) {
             if (!empty($post->image)) {
-                $imageService->deleteIndexFiles($post->image['indexArray']);
+                $imageService->deleteIndexFiles($post->image['blogArray']);
             }
             $imageService->setExclusiveDirectory('images' . DIRECTORY_SEPARATOR . 'post');
             $result = $imageService->createIndexAndSave($request->file('image'));

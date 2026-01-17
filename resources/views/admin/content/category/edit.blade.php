@@ -162,10 +162,6 @@
                         <section class="col-12 my-3 d-flex justify-content-end">
                             <button class="btn btn-primary">Submit</button>
                         </section>
-
-                        @error('g-recaptcha-response')
-                            <div class="text-danger">{{ $message }}</div>
-                        @enderror
                     </section>
                 </form>
             </section>

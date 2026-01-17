@@ -2,6 +2,7 @@
 
 namespace App\Models\Content;
 
+use App\Models\User;
 use Cviebrock\EloquentSluggable\Sluggable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -34,5 +35,10 @@ class Post extends Model
     public function comments()
     {
         return $this->morphMany(Comment::class, 'commentable');
+    }
+
+    public function admin()
+    {
+        return $this->belongsTo(User::class, 'author_id');
     }
 }

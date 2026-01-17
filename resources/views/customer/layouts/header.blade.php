@@ -35,31 +35,23 @@
                      <ul class="main-menu">
                          <li class="{{ Route::is('customer.home') ? 'active-menu' : '' }}">
                              <a href="{{ route('customer.home') }}">Home</a>
-                             <ul class="sub-menu">
-                                 <li><a href="index.html">Homepage 1</a></li>
-                                 <li><a href="home-02.html">Homepage 2</a></li>
-                                 <li><a href="home-03.html">Homepage 3</a></li>
-                             </ul>
+                             
                          </li>
 
                          <li class="{{ Route::is('customer.products') ? 'active-menu' : '' }}">
                              <a href="{{ route('customer.products') }}">Shop</a>
                          </li>
 
-                         <li class="label1" data-label1="hot">
-                             <a href="shoping-cart.html">Features</a>
-                         </li>
-
-                         <li class="{{ Route::is('customer.blog') ? 'active-menu' : '' }}">
-                             <a href="{{ route('customer.blog') }}">Blog</a>
+                         <li class="{{ Route::is('customer.page.blog') ? 'active-menu' : '' }}">
+                             <a href="{{ route('customer.page.blogs') }}">Blog</a>
                          </li>
 
                          <li class="{{ Route::is('customer.about') ? 'active-menu' : '' }}">
-                             <a href="{{ route('customer.about') }}">About</a>
+                             <a href="{{ route('customer.page.about') }}">About</a>
                          </li>
 
-                         <li class="{{ Route::is('customer.contact') ? 'active-menu' : '' }}">
-                             <a href="{{ route('customer.contact') }}">Contact</a>
+                         <li class="{{ Route::is('customer.contact-us') ? 'active-menu' : '' }}">
+                             <a href="{{ route('customer.page.contact-us') }}">Contact</a>
                          </li>
                      </ul>
                  </div>

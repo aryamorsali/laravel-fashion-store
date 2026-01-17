@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Admin\AdminDashboardController;
+use App\Http\Controllers\Admin\Content\AboutController;
 use App\Http\Controllers\Admin\Content\BannerController;
 use App\Http\Controllers\Admin\Content\CategoryController as ContentCategoryController;
 use App\Http\Controllers\Admin\Content\CommentController as ContentCommentController;
@@ -34,6 +35,7 @@ use App\Http\Controllers\Admin\Ticket\TicketController;
 use App\Http\Controllers\Admin\Ticket\TicketPriorityController;
 use App\Http\Controllers\Admin\User\CustomerController;
 use App\Http\Controllers\Customer\HomeController;
+use App\Http\Controllers\Customer\PagesController;
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
 
@@ -372,6 +374,12 @@ Route::prefix('admin')->group(function () {
             Route::delete('/destroy/{banner}', [BannerController::class, 'destroy'])->name('admin.content.banner.destroy');
             Route::get('/status/{banner}', [BannerController::class, 'status'])->name('admin.content.banner.status');
         });
+        // about
+        Route::prefix('about')->group(function () {
+            Route::get('/', [AboutController::class, 'index'])->name('admin.content.about.index');
+            Route::get('/edit/{about}', [AboutController::class, 'edit'])->name('admin.content.about.edit');
+            Route::put('/update/{about}', [AboutController::class, 'update'])->name('admin.content.about.update');
+        });
     });
 });
 
@@ -393,7 +401,14 @@ require __DIR__ . '/auth.php';
 // -------------------------------------------------------------------------
 
 Route::get('/', [HomeController::class, 'home'])->name('customer.home');
-Route::view('/about', 'customer.pages.about')->name('customer.about');
-Route::view('/contact', 'customer.pages.contact')->name('customer.contact');
-Route::view('/blog', 'customer.pages.blog')->name('customer.blog');
+
+Route::prefix('page')->group(function () {
+    Route::get('/about', [PagesController::class, 'about'])->name('customer.page.about');
+    Route::get('/contact-us', [PagesController::class, 'contactForm'])->name('customer.page.contact-us');
+    Route::post('/contact-us', [PagesController::class, 'store'])->name('customer.page.contact-us.store');
+    Route::get('/blogs', [PagesController::class, 'blogs'])->name('customer.page.blogs');
+    Route::get('/blog-detail/{blog}', [PagesController::class, 'blogDetail'])->name('customer.page.blog-detail');
+});
+
+
 Route::view('/products', 'customer.pages.product')->name('customer.products');

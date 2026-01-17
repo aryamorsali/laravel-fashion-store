@@ -135,7 +135,7 @@
                             @php
                                 $number = 2;
                             @endphp
-                            @foreach ($post->image['indexArray'] as $key => $value)
+                            @foreach ($post->image['blogArray'] as $key => $value)
                                 <section class="col-md-{{ 6 / $number }} mr-5">
                                     <div class="form-check  p-1">
                                         <input type="radio" name="currentImage" class="form-check-input"
