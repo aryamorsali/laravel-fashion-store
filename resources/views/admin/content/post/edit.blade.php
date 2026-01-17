@@ -180,6 +180,38 @@
 
                         <section class="col-12 col-md-6 my-3">
                             <div class="form-group">
+                                <label for="image">Image</label>
+                                <input type="file" class="form-control form-control-sm" name="image" id="image">
+                            </div>
+                            @error('image')
+                                <div class="text-danger" style="margin-top: 9px; font-size: 12px; font-weight: 400;">
+                                    <strong>{{ $message }}</strong>
+                                </div>
+                            @enderror
+                        </section>
+                        <section class="row my-2">
+                            @php
+                                $number = 2;
+                            @endphp
+                            @foreach ($post->image['blogArray'] as $key => $value)
+                                <section class="col-md-{{ 6 / $number }} mr-5">
+                                    <div class="form-check  p-1">
+                                        <input type="radio" name="currentImage" class="form-check-input"
+                                            value="{{ $key }}" id="{{ $number }}"
+                                            @if ($post->image['currentImage'] == $key) checked @endif>
+                                        <label for="{{ $number }}" class="form-check-label mx-3">
+                                            <img src="{{ asset($value) }}" class="img-fluid rounded w-100" alt="">
+                                        </label>
+                                    </div>
+                                </section>
+                                @php
+                                    $number++;
+                                @endphp
+                            @endforeach
+                        </section>
+
+                        <section class="col-12 col-md-6 my-3">
+                            <div class="form-group">
                                 <label for="commentable">Commentable</label>
                                 <select name="commentable" class="form-control form-control-sm" id="commentable">
                                     <option value="0" @if (old('commentable', $post->commentable) == 0) selected @endif>inactive

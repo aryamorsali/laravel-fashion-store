@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Admin\AdminDashboardController;
+use App\Http\Controllers\Admin\Content\AboutController;
 use App\Http\Controllers\Admin\Content\BannerController;
 use App\Http\Controllers\Admin\Content\CategoryController as ContentCategoryController;
 use App\Http\Controllers\Admin\Content\CommentController as ContentCommentController;
@@ -42,13 +43,13 @@ use App\Http\Controllers\Admin\User\PermissionController;
 use App\Http\Controllers\Admin\User\RoleController;
 use App\Http\Controllers\Customer\Content\ContentController;
 use App\Http\Controllers\Customer\HomeController;
-use App\Http\Controllers\Customer\Market\ProductController as MarketProductController;
 use App\Http\Controllers\Customer\Market\ShopController;
+use App\Http\Controllers\Customer\Market\ProductController as MarketProductController;
 use App\Http\Controllers\Customer\SalesProcess\AddressController;
 use App\Http\Controllers\Customer\SalesProcess\CartController;
-use App\Http\Controllers\Customer\SalesProcess\PaymentController as SalesProcessPaymentController;
 use App\Http\Controllers\LikeController;
-use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\Customer\SalesProcess\PaymentController as SalesProcessPaymentController;
+
 use Illuminate\Support\Facades\Route;
 
 // admin
@@ -466,6 +467,12 @@ Route::prefix('admin')->middleware(['auth', 'can:access-admin-panel'])->group(fu
             Route::put('/update/{banner}', [BannerController::class, 'update'])->name('admin.content.banner.update')->middleware('can:update-banner');
             Route::delete('/destroy/{banner}', [BannerController::class, 'destroy'])->name('admin.content.banner.destroy')->middleware('can:delete-banner');
             Route::get('/status/{banner}', [BannerController::class, 'status'])->name('admin.content.banner.status')->middleware('can:update-banner');
+        });
+        // about
+        Route::prefix('about')->group(function () {
+            Route::get('/', [AboutController::class, 'index'])->name('admin.content.about.index');
+            Route::get('/edit/{about}', [AboutController::class, 'edit'])->name('admin.content.about.edit');
+            Route::put('/update/{about}', [AboutController::class, 'update'])->name('admin.content.about.update');
         });
     });
 
