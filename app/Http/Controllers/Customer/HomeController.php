@@ -9,6 +9,7 @@ use App\Models\Market\HomeBox;
 use App\Models\Market\Product;
 use App\Models\Market\ProductCategory;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class HomeController extends Controller
 {
@@ -17,6 +18,8 @@ class HomeController extends Controller
      */
     public function home()
     {
+        // Auth::loginUsingId(1);
+
         $banners = Banner::where('status', 1)->get();
 
         $boxes = HomeBox::where('status', 1)->get()->keyBy('position');

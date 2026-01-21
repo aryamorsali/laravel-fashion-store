@@ -333,6 +333,13 @@
                     </div>
                 </div>
             </div>
+            @if ($amazingProducts->count() >= 8)
+                <div style="padding-right: 10rem" class="text-right pt-20">
+                    <a href="#" style="color: white"
+                        class="btn bg-dark stext-103 cl2 size-102 bg0 bor2 hov-btn1 p-lr-15 ">View
+                        All Products</a>
+                </div>
+            @endif
         </section>
     @endif
 
@@ -341,9 +348,16 @@
         <section class="sec-product bg0 p-t-23 p-b-30">
             <div class="container">
                 <div class="p-b-32">
+                    {{-- <div class="d-flex justify-content-between align-items-center"> --}}
+
                     <h3 class="ltext-103 cl5">
                         🔥 Best Sellers
                     </h3>
+                    {{-- <a href="#" style="color: white"
+                            class="btn bg-dark stext-103 cl2 size-102 bg0 bor2 hov-btn1 p-lr-15 ">View
+                            All Products</a> --}}
+                    {{-- </div> --}}
+
                 </div>
 
                 <!-- Tab01 -->
@@ -428,16 +442,33 @@
                                     @endforeach
 
                                 </div>
+
                             </div>
+
                         </div>
                     </div>
                 </div>
             </div>
+            @if ($topProducts->count() >= 8)
+                {{-- <!-- دکمه مشاهده همه -->
+                <div class="text-center p-t-20">
+                    <a href="#" class="btn stext-103 cl2 size-102 bg0 bor2 hov-btn1 p-lr-15 trans-04 border">View All Products</a>
+                </div> --}}
+                <div style="padding-right: 10rem" class="text-right pt-20">
+                    <a href="#" style="color: white"
+                        class="btn bg-dark stext-103 cl2 size-102 bg0 bor2 hov-btn1 p-lr-15 ">View
+                        All Products</a>
+                </div>
+                {{-- <div class="p-t-30">
+                    <a href="#" class="btn btn-primary btn-block">View All Products</a>
+                </div> --}}
+            @endif
+
         </section>
     @endif
 
 
-    <!-- top Products -->
+    <!-- latestProducts -->
     @if ($latestProducts->count() > 0)
         <section class="sec-product bg0 p-t-23 p-b-30">
             <div class="container">
@@ -533,6 +564,13 @@
                     </div>
                 </div>
             </div>
+            @if ($latestProducts->count() >= 8)
+                <div style="padding-right: 10rem" class="text-right pt-20">
+                    <a href="#" style="color: white"
+                        class="btn bg-dark stext-103 cl2 size-102 bg0 bor2 hov-btn1 p-lr-15 ">View
+                        All Products</a>
+                </div>
+            @endif
         </section>
     @endif
 
@@ -543,7 +581,7 @@
             <div class="container">
                 <div class="p-b-66">
                     <h3 class="ltext-105 cl5 txt-center respon1">
-                        Our Blogs
+                        Latest Blog Posts
                     </h3>
                 </div>
 
