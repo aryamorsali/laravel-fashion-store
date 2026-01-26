@@ -10,9 +10,13 @@ use App\Models\Setting\Setting;
 
 class SettingController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $settings = Setting::all();
+        if ($request->search) {
+            $settings = Setting::where('key', 'LIKE', '%' . $request->search . '%')->orderBy('created_at', 'DESC')->get();
+        } else {
+            $settings = Setting::all();
+        }
         return view('admin.setting.index', compact('settings'));
     }
 

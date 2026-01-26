@@ -23,7 +23,9 @@
 
             <section class="d-flex align-items-center mt-4 mb-3 border-bottom pb-2">
                 <div class="me-auto" style="max-width: 16rem;">
-                    <input type="text" class="form-control form-control-sm form-text" placeholder="search..">
+                    <form action="{{route('admin.setting.index')}}" method="get">
+                        <input name="search" type="text" value="{{ request()->search }}" class="form-control form-control-sm form-text" placeholder="search..">
+                    </form>
                 </div>
 
             </section>
