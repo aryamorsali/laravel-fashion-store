@@ -17,4 +17,7 @@ class HomeBox extends Model
     {
         return $this->belongsTo(ProductCategory::class);
     }
+
+
+    public static $positions = ['top-left','top-right','center','bottom-left','bottom-right'];
 }

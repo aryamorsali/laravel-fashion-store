@@ -45,6 +45,25 @@
             color: #000000;
         }
     </style>
+
+    <style>
+        .image-option {
+            cursor: pointer;
+            transition: all 0.2s ease;
+            border: 2px solid transparent;
+            border-radius: 8px;
+        }
+
+        input[type="radio"] {
+            display: none;
+        }
+
+        input[type="radio"]:checked+label img {
+            border: 3px solid #3586fe;
+            transform: scale(1.05);
+            box-shadow: 0 0 12px rgba(13, 110, 253, 0.5);
+        }
+    </style>
 @endsection
 
 @section('content')
@@ -131,26 +150,47 @@
                                 </div>
                             @enderror
                         </section>
-                        <section class="row my-2">
-                            @php
-                                $number = 2;
-                            @endphp
-                            @foreach ($post->image['indexArray'] as $key => $value)
-                                <section class="col-md-{{ 6 / $number }} mr-5">
-                                    <div class="form-check  p-1">
-                                        <input type="radio" name="currentImage" class="form-check-input"
-                                            value="{{ $key }}" id="{{ $number }}"
-                                            @if ($post->image['currentImage'] == $key) checked @endif>
-                                        <label for="{{ $number }}" class="form-check-label mx-3">
-                                            <img src="{{ asset($value) }}" class="img-fluid rounded w-100" alt="">
+                        {{-- @if ($post->image)
+                            <section class="row mt-4 my-2">
+                                @foreach ($post->image['blogArray'] as $key => $value)
+                                    <section class="col-md-3 col-sm-6 mb-3">
+                                        <input type="radio" name="currentImage" id="image-{{ $key }}"
+                                            value="{{ $key }}" @checked($post->image['currentImage'] == $key)>
+                                        <label for="image-{{ $key }}" class="d-block text-center">
+                                            <img src="{{ asset($value) }}" class="img-fluid rounded image-option"
+                                                alt="">
                                         </label>
-                                    </div>
-                                </section>
-                                @php
-                                    $number++;
-                                @endphp
-                            @endforeach
-                        </section>
+                                    </section>
+                                @endforeach
+                            </section>
+                        @endif --}}
+                        @if ($post->image)
+                            <section class="row mt-4">
+
+                                {{-- Cover --}}
+                                <div class="col-md-6 mb-3 mx-5">
+                                    <input type="radio" id="cover" name="currentImage" value="cover"
+                                        @checked($post->image['currentImage'] === 'cover')>
+                                    <label for="cover" class="fw-bold d-block mb-2 text-center">
+                                        <img src="{{ asset($post->image['blogArray']['cover']) }}"
+                                            class="img-fluid rounded border" style="max-height: 200px;">
+                                    </label>
+                                </div>
+
+                                {{-- Thumbnail --}}
+                                <div class="col-md-3 mb-3">
+                                    <input type="radio" id="thumb" name="currentImage" value="thumb"
+                                        @checked($post->image['currentImage'] === 'thumb')>
+                                    <label for="thumb" class="fw-bold d-block mb-2 text-center">
+                                        <img src="{{ asset($post->image['blogArray']['thumb']) }}"
+                                            class="img-fluid rounded border" style="max-height: 120px;">
+                                    </label>
+                                </div>
+
+                            </section>
+                        @endif
+
+
 
                         <section class="col-12 col-md-6 my-3">
                             <div class="form-group">

@@ -35,20 +35,16 @@
                      <ul class="main-menu">
                          <li class="{{ Route::is('customer.home') ? 'active-menu' : '' }}">
                              <a href="{{ route('customer.home') }}">Home</a>
-                             <ul class="sub-menu">
-                                 <li><a href="index.html">Homepage 1</a></li>
-                                 <li><a href="home-02.html">Homepage 2</a></li>
-                                 <li><a href="home-03.html">Homepage 3</a></li>
-                             </ul>
+
                          </li>
 
                          <li class="{{ Route::is('customer.products') ? 'active-menu' : '' }}">
                              <a href="{{ route('customer.products') }}">Shop</a>
                          </li>
 
-                         <li class="label1" data-label1="hot">
+                         {{-- <li class="label1" data-label1="hot">
                              <a href="shoping-cart.html">Features</a>
-                         </li>
+                         </li> --}}
 
                          <li class="{{ Route::is('customer.blog') ? 'active-menu' : '' }}">
                              <a href="{{ route('customer.blog') }}">Blog</a>
@@ -75,11 +71,64 @@
                          <i class="zmdi zmdi-shopping-cart"></i>
                      </div>
 
-                     <a href="#"
-                         class="dis-block icon-header-item cl2 hov-cl1 trans-04 p-l-22 p-r-11 icon-header-noti"
-                         data-notify="0">
-                         <i class="zmdi zmdi-favorite-outline"></i>
-                     </a>
+                     <div class="d-inline px-md-3">
+                         @auth
+                             <button
+                                 class="dropdown-toggle profile-button icon-header-item cl2 hov-cl1 trans-04 p-l-22 p-r-11"
+                                 type="button" id="dropdownMenuButton1" data-toggle="dropdown" aria-expanded="false">
+                                 <i class="zmdi zmdi-account"></i>
+                             </button>
+                             <div class="dropdown-menu dropdown-menu-end mt-2 w-48 bg-white border border-gray-200 rounded-lg shadow-xl py-1"
+                                 aria-labelledby="dropdownMenuButton1">
+                                 <a class="dropdown-item flex items-center px-4 py-2 text-gray-700 hover:bg-gray-100"
+                                     href="#">
+                                     <i class="zmdi zmdi-account text-base mr-2"></i>User Profile
+                                 </a>
+                                 <a class="dropdown-item flex items-center px-4 py-2 text-gray-700 hover:bg-gray-100"
+                                     href="#">
+                                     <i class="zmdi zmdi-case text-base mr-2"></i>Orders
+                                 </a>
+                                 <a class="dropdown-item flex items-center px-4 py-2 text-gray-700 hover:bg-gray-100"
+                                     href="#">
+                                     <i class="zmdi zmdi-favorite-outline text-base mr-2"></i>Wishlist
+                                 </a>
+                                 <hr class="border-t border-gray-200 my-1">
+                                 <a class="dropdown-item flex items-center px-4 py-2 text-red-600 hover:bg-red-50"
+                                     href="{{ route('logout') }}">
+                                     <i class="zmdi zmdi-power text-base mr-2"></i>Logout
+                                 </a>
+                             </div>
+                         @endauth
+
+                         {{-- @guest
+                             <a href="{{ route('auth.login-register.form') }}"
+                                 class="btn btn-outline-dark btn-sm px-3 py-2 cl2 hov-cl1 trans-04 p-l-22 p-r-11">
+                                 Login / Register
+                             </a>
+                         @endguest --}}
+
+                         @guest
+                             <a href="{{ route('auth.login-register.form') }}"
+                                 class="btn btn-outline-dark btn-sm px-3 py-2">
+                                 Login / Register
+                             </a>
+                         @endguest
+
+                         {{-- @guest
+                             <div class="border border-dark rounded ">
+                                 <a href="{{ route('auth.login-register.form') }}" class="btn btn-sm px-3 py-2">
+                                     Login / Register
+                                 </a>
+                             </div>
+                         @endguest --}}
+
+                     </div>
+
+
+
+
+
+
                  </div>
              </nav>
          </div>
@@ -89,7 +138,8 @@
      <div class="wrap-header-mobile">
          <!-- Logo moblie -->
          <div class="logo-mobile">
-             <a href="index.html"><img src="{{ asset('customer-assets/images/icons/logo-01.png') }}" alt="IMG-LOGO"></a>
+             <a href="index.html"><img src="{{ asset('customer-assets/images/icons/logo-01.png') }}"
+                     alt="IMG-LOGO"></a>
          </div>
 
          <!-- Icon header -->

@@ -25,12 +25,13 @@ class HomeBoxController extends Controller
      */
     public function create()
     {
-        if (HomeBox::count() >= 3) {
+        if (HomeBox::count() >= 5) {
             return redirect()->route('admin.market.home-box.index')
-                ->with('alert-section-error', 'فقط مجاز به ساخت سه باکس هستید.');
+                ->with('alert-section-error', 'You are only allowed to build five boxes.');
         }
         $categories = ProductCategory::where('status', 1)->get();
-        return view('admin.market.home-box.create', compact('categories'));
+        $positions = HomeBox::$positions;
+        return view('admin.market.home-box.create', compact('categories', 'positions'));
     }
 
     /**
@@ -38,9 +39,9 @@ class HomeBoxController extends Controller
      */
     public function store(HomeBoxRequest $request, ImageService $imageService)
     {
-        if (HomeBox::count() >= 3) {
+        if (HomeBox::count() >= 5) {
             return redirect()->route('admin.market.home-box.index')
-                ->with('alert-section-error', 'حداکثر ۳ باکس می‌توانید بسازید.');
+                ->with('alert-section-error', 'You are only allowed to build five boxes.');
         }
         $inputs = $request->validated();
 
@@ -77,8 +78,9 @@ class HomeBoxController extends Controller
      */
     public function edit(HomeBox $homeBox)
     {
+        $positions = HomeBox::$positions;
         $categories = ProductCategory::where('status', 1)->get();
-        return view('admin.market.home-box.edit', compact('categories', 'homeBox'));
+        return view('admin.market.home-box.edit', compact('categories', 'homeBox', 'positions'));
     }
 
     /**
@@ -86,8 +88,8 @@ class HomeBoxController extends Controller
      */
     public function update(HomeBoxRequest $request, HomeBox $homeBox, ImageService $imageService)
     {
-        $inputs = $request->validated();
 
+        $inputs = $request->validated();
         if ($request->hasFile('image')) {
             if (!empty($homeBox->image) && file_exists(public_path($homeBox->image))) {
                 $imageService->deleteImage($homeBox->image);

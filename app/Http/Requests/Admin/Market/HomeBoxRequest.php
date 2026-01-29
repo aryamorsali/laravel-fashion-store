@@ -2,7 +2,9 @@
 
 namespace App\Http\Requests\Admin\Market;
 
+use App\Models\Market\HomeBox;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 class HomeBoxRequest extends FormRequest
 {
@@ -21,14 +23,19 @@ class HomeBoxRequest extends FormRequest
      */
     public function rules(): array
     {
+        $homeBoxId = $this->route('homeBox')->id ?? null;
         return [
             'title' => 'required|max:120|min:2|regex:/^[ا-یa-zA-Z0-9\-۰-۹ء-ي., ]+$/u',
             'subtitle' => 'nullable|max:150|min:3|regex:/^[ا-یa-zA-Z0-9\-۰-۹ء-ي.,><\/;\n\r& ]+$/u',
-            'image' => 'nullable|image|max:4096|dimensions:min_width=1200,min_height=770',
+            'image' => 'required|image|max:4096|dimensions:min_width=1200,min_height=770',
+            'position' => [
+                'required',
+                Rule::in(HomeBox::$positions),
+                Rule::unique('home_boxes', 'position')->ignore($homeBoxId)
+            ],
 
             'status' => 'required|numeric|in:0,1',
-            'category_id' => 'nullable|numeric|exists:product_categories,id',
-            'url' => 'nullable|min:5|max:500|url',
+            'category_id' => 'required|numeric|exists:product_categories,id',
         ];
     }
 }

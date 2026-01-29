@@ -27,7 +27,8 @@ class ProductRequest extends FormRequest
                 'category_id' => 'required|min:1|max:100000000|regex:/^[0-9]+$/u|exists:product_categories,id',
                 'brand_id' => 'required|min:1|max:100000000|regex:/^[0-9]+$/u|exists:brands,id',
                 'image' => 'required|image|mimes:png,jpg,jpeg,gif|max:2048',
-                'status' => 'required|numeric|in:0,1',
+                'status' => 'required|in:draft,published',
+
                 'tags' => 'required|regex:/^[ا-یa-zA-Z0-9\-۰-۹ء-ي., ]+$/u',
                 'description' => 'required|max:600|min:5|regex:/^[ا-یa-zA-Z0-9\-۰-۹ء-ي.,><\/;\n\r& ]+$/u',
                 'published_at' => 'nullable|date_format:Y-m-d H:i',
@@ -39,7 +40,8 @@ class ProductRequest extends FormRequest
                 'category_id' => 'required|min:1|max:100000000|regex:/^[0-9]+$/u|exists:product_categories,id',
                 'brand_id' => 'required|min:1|max:100000000|regex:/^[0-9]+$/u|exists:brands,id',
                 'image' => 'image|mimes:png,jpg,jpeg,gif|max:2048',
-                'status' => 'required|numeric|in:0,1',
+                'status' => 'required|in:draft,published',
+
                 'tags' => 'required|regex:/^[ا-یa-zA-Z0-9\-۰-۹ء-ي., ]+$/u',
                 'description' => 'required|max:600|min:5|regex:/^[ا-یa-zA-Z0-9\-۰-۹ء-ي.,><\/;\n\r& ]+$/u',
                 'published_at' => 'nullable|date_format:Y-m-d H:i',

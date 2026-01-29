@@ -23,8 +23,8 @@
             </section>
 
             <section>
-                <form action="{{ route('admin.content.banner.update', $banner) }}" method="post" enctype="multipart/form-data"
-                    id="form">
+                <form action="{{ route('admin.content.banner.update', $banner) }}" method="post"
+                    enctype="multipart/form-data" id="form">
                     @csrf
                     @method('put')
                     <section class="row">
@@ -32,7 +32,7 @@
                             <div class="form-group">
                                 <label for="title">Title</label>
                                 <input type="text" class="form-control form-control-sm" name="title" id="title"
-                                    placeholder="Small text above(optional)" value="{{ old('title' , $banner->title) }}">
+                                    placeholder="Small text above(optional)" value="{{ old('title', $banner->title) }}">
                             </div>
                             @error('title')
                                 <div class="text-danger" style="margin-top: 9px; font-size: 12px; font-weight: 400;">
@@ -44,7 +44,7 @@
                             <div class="form-group">
                                 <label for="subtitle">Subtitle</label>
                                 <input type="text" class="form-control form-control-sm" name="subtitle" id="subtitle"
-                                    placeholder="Large text(optional)" value="{{ old('subtitle' , $banner->subtitle) }}">
+                                    placeholder="Large text(optional)" value="{{ old('subtitle', $banner->subtitle) }}">
                             </div>
                             @error('subtitle')
                                 <div class="text-danger" style="margin-top: 9px; font-size: 12px; font-weight: 400;">
@@ -57,7 +57,8 @@
                             <div class="form-group">
                                 <label for="button_text">Button text</label>
                                 <input type="text" class="form-control form-control-sm" name="button_text"
-                                    id="button_text" placeholder="optioal" value="{{ old('button_text' , $banner->button_text) }}">
+                                    id="button_text" placeholder="optioal"
+                                    value="{{ old('button_text', $banner->button_text) }}">
                             </div>
                             @error('button_text')
                                 <div class="text-danger" style="margin-top: 9px; font-size: 12px; font-weight: 400;">
@@ -70,7 +71,7 @@
                             <div class="form-group">
                                 <label for="button_url">Button url</label>
                                 <input type="text" class="form-control form-control-sm" name="button_url" id="button_url"
-                                    placeholder="optioal" value="{{ old('button_url' , $banner->button_url) }}">
+                                    placeholder="optioal" value="{{ old('button_url', $banner->button_url) }}">
                             </div>
                             @error('button_url')
                                 <div class="text-danger" style="margin-top: 9px; font-size: 12px; font-weight: 400;">
@@ -89,15 +90,21 @@
                                     <strong>{{ $message }}</strong>
                                 </div>
                             @enderror
+                            @if ($banner->image)
+                                <div class="mt-3">
+                                    <img class="rounded" src="{{ asset($banner->image) }}" alt=""
+                                        style="width:100px; height:auto;">
+                                </div>
+                            @endif
                         </section>
 
                         <section class="col-12 col-md-6 my-3">
                             <div class="form-group">
                                 <label for="status">Status</label>
                                 <select name="status" class="form-control form-control-sm" id="status">
-                                    <option value="0" @if (old('status'  , $banner->status) == 0) selected @endif>inactive
+                                    <option value="0" @if (old('status', $banner->status) == 0) selected @endif>inactive
                                     </option>
-                                    <option value="1" @if (old('status' , $banner->status) == 1) selected @endif>active
+                                    <option value="1" @if (old('status', $banner->status) == 1) selected @endif>active
                                     </option>
                                 </select>
                             </div>

@@ -87,20 +87,20 @@
 
                         <section class="col-12 col-md-6 my-3">
                             <div class="form-group">
-                                <label for="url">URL</label>
-                                <input type="text" class="form-control form-control-sm" name="url" id="url"
-                                    placeholder="Optional, e.g., https://yourWebsite.com" value="{{ old('url') }}">
+                                <label for="position">Position</label>
+                                <select name="position" id="position" class="form-control form-control-sm">
+                                    @foreach ($positions as $value)
+                                        <option value="{{ $value }}"
+                                            @if (old('position') == $value) selected @endif>{{ $value }}</option>
+                                    @endforeach
+                                </select>
                             </div>
-                            @error('url')
+                            @error('position')
                                 <div class="text-danger" style="margin-top: 9px; font-size: 12px; font-weight: 400;">
-                                    <strong>
-                                        {{ $message }}. لطفاً URL کامل وارد کنید، شامل http:// یا https://. مثال:
-                                        https://test.com
-                                    </strong>
+                                    <strong>{{ $message }}</strong>
                                 </div>
                             @enderror
                         </section>
-
 
                         <section class="col-12 col-md-6 my-3">
                             <div class="form-group">

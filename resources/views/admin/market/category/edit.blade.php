@@ -44,6 +44,26 @@
             color: #000000;
         }
     </style>
+
+   <style>
+        .image-option {
+            cursor: pointer;
+            transition: all 0.2s ease;
+            border: 2px solid transparent;
+            border-radius: 8px;
+        }
+
+        input[type="radio"] {
+            display: none;
+        }
+
+        input[type="radio"]:checked+label img {
+            border: 3px solid #3586fe;
+            transform: scale(1.05);
+            box-shadow: 0 0 12px rgba(13, 110, 253, 0.5);
+        }
+    </style>
+
 @endsection
 
 @section('content')
@@ -125,29 +145,22 @@
                                 </div>
                             @enderror
                         </section>
+
                         @if ($productCategory->image)
-                            <section class="row my-2">
-                                @php
-                                    $number = 2;
-                                @endphp
+                            <section class="row mt-4 my-2">
                                 @foreach ($productCategory->image['indexArray'] as $key => $value)
-                                    <section class="col-md-{{ 6 / $number }} mr-5">
-                                        <div class="form-check  p-1">
-                                            <input type="radio" name="currentImage" class="form-check-input"
-                                                value="{{ $key }}" id="{{ $number }}"
-                                                @if ($productCategory->image['currentImage'] == $key) checked @endif>
-                                            <label for="{{ $number }}" class="form-check-label mx-3">
-                                                <img src="{{ asset($value) }}" class="img-fluid rounded w-100"
-                                                    alt="">
-                                            </label>
-                                        </div>
+                                    <section class="col-md-3 col-sm-6 mb-3">
+                                        <input type="radio" name="currentImage" id="image-{{ $key }}"
+                                            value="{{ $key }}" @checked($productCategory->image['currentImage'] == $key)>
+                                        <label for="image-{{ $key }}" class="d-block text-center">
+                                            <img src="{{ asset($value) }}" class="img-fluid rounded image-option"
+                                                alt="">
+                                        </label>
                                     </section>
-                                    @php
-                                        $number++;
-                                    @endphp
                                 @endforeach
                             </section>
                         @endif
+
 
 
                         <section class="col-12 col-md-6 my-3">

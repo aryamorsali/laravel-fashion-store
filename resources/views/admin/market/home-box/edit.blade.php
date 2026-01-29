@@ -72,21 +72,7 @@
                             @enderror
                         </section>
 
-                        <section class="col-12 col-md-6 my-3">
-                            <div class="form-group">
-                                <label for="url">URL</label>
-                                <input type="text" class="form-control form-control-sm" name="url" id="url"
-                                    placeholder="Optional, e.g., https://yourWebsite.com" value="{{ old('url' , $homeBox->url) }}">
-                            </div>
-                            @error('url')
-                                <div class="text-danger" style="margin-top: 9px; font-size: 12px; font-weight: 400;">
-                                    <strong>
-                                        {{ $message }}. لطفاً URL کامل وارد کنید، شامل http:// یا https://. مثال:
-                                        https://test.com
-                                    </strong>
-                                </div>
-                            @enderror
-                        </section>
+
 
                         <section class="col-12 col-md-6 my-3">
                             <div class="form-group">
@@ -106,13 +92,31 @@
                             @endif
                         </section>
 
+
+                        <section class="col-12 col-md-6 my-3">
+                            <div class="form-group">
+                                <label for="position">Position</label>
+                                <select name="position" id="position" class="form-control form-control-sm">
+                                    @foreach ($positions as $value)
+                                        <option value="{{ $value }}"
+                                            @if (old('position', $homeBox->position) == $value) selected @endif>{{ $value }}</option>
+                                    @endforeach
+                                </select>
+                            </div>
+                            @error('position')
+                                <div class="text-danger" style="margin-top: 9px; font-size: 12px; font-weight: 400;">
+                                    <strong>{{ $message }}</strong>
+                                </div>
+                            @enderror
+                        </section>
+
                         <section class="col-12 col-md-6 my-3">
                             <div class="form-group">
                                 <label for="status">Status</label>
                                 <select name="status" class="form-control form-control-sm" id="status">
-                                    <option value="0" @if (old('status') == 0) selected @endif>inactive
+                                    <option value="0" @if (old('status', $homeBox->status) == 0) selected @endif>inactive
                                     </option>
-                                    <option value="1" @if (old('status') == 1 || old('status') == null) selected @endif>active
+                                    <option value="1" @if (old('status', $homeBox->status) == 1 || old('status') == null) selected @endif>active
                                     </option>
                                 </select>
                             </div>
