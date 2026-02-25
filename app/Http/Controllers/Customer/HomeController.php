@@ -24,18 +24,36 @@ class HomeController extends Controller
 
         $boxes = HomeBox::where('status', 1)->get()->keyBy('position');
 
-        $amazingProducts = Product::where('status', 'published')->whereHas('amazingSale', function ($q) {
-            $q->where('start_date', '<=', now())
-                ->where('end_date', '>=', now());
-        })->with('amazingSale')->get()->sortByDesc(fn($p) => $p->amazingSale->percentage)->take(8);
+        $amazingProducts = Product::where('status', 'published')
+            ->whereHas('variants.amazingSale', function ($q) {
+                $q->where('is_active', true)
+                    ->where('start_date', '<=', now())
+                    ->where('end_date', '>=', now());
+            })
+            ->with([
+                'variants.amazingSale' => function ($q) {
+                    $q->where('is_active', true)
+                        ->where('start_date', '<=', now())
+                        ->where('end_date', '>=', now());
+                }
+            ])
+            ->get()
+            // بیشترین درصد تخفیف بین واریانت‌ها
+            ->sortByDesc(function ($product) {
+                return $product->variants
+                    ->pluck('amazingSale.percentage')
+                    ->filter()
+                    ->max() ?? 0;
+            })
+            ->take(8);
 
-        $topProducts = Product::bestSellers(30)->whereNotIn('id', $amazingProducts->pluck('id'))->take(8)->with('amazingSale')->get();
+        $topProducts = Product::bestSellers(30)->whereNotIn('id', $amazingProducts->pluck('id'))->take(8)->with('variants.amazingSale')->get();
 
         $latestProducts = Product::where('status', 'published')->where('published_at', '<=', now())
-        ->whereNotIn('id', $amazingProducts->pluck('id')->merge($topProducts->pluck('id')))->with('amazingSale')->orderBy('published_at', 'desc')->take(8)->get();
-            
+            ->whereNotIn('id', $amazingProducts->pluck('id')->merge($topProducts->pluck('id')))->with('variants.amazingSale')->orderBy('published_at', 'desc')->take(8)->get();
+
         $blogs = Post::where('status', 1)->where('published_at', '<=', now())->orderBy('published_at', 'desc')->take(3)->get();
-    
+
         return view('customer.home', compact('banners', 'boxes', 'amazingProducts', 'blogs', 'topProducts', 'latestProducts'));
     }
 

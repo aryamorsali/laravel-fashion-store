@@ -24,7 +24,9 @@
             </section>
 
             <section>
-                <form action="{{ route('admin.market.warehouse.variant.update', ['warehouse' => $warehouse, 'warehouseVariant' => $warehouseVariant]) }}" method="post">
+                <form
+                    action="{{ route('admin.market.warehouse.variant.update', ['warehouse' => $warehouse, 'warehouseVariant' => $warehouseVariant]) }}"
+                    method="post">
                     @csrf
                     @method('put')
                     <section class="col-12 mt-3">
@@ -40,24 +42,14 @@
                     {{-- Select Variant --}}
                     <section class="col-12 my-3">
                         <div class="form-group">
-                        <label for="product_variant_id">Product
-                            Variant</label>
-                            <select name="product_variant_id" id="product_variant_id" class="form-control">
-                                <option value="">Select variant</option>
-                                @foreach ($variants as $variant)
-                                    <option value="{{ $variant->id }}"
-                                        {{ old('product_variant_id', $warehouseVariant->product_variant_id) == $variant->id ? 'selected' : '' }}>
-                                        {{ $variant->product->name }} - {{ $variant->color?->name }} -
-                                        {{ $variant->size?->name }}
-                                    </option>
-                                @endforeach
-                            </select>
+                            <label>Product Variant</label>
+
+                                <p style="background-color: white; color: #333;  border: 1px solid #c7d2fe; border-radius: 6px; padding: 6px 12px; font-size: 14px;">  
+                                    {{ $warehouseVariant->productVariant->product->name }} - {{ $warehouseVariant->productVariant->color?->name }} -
+                                    {{ $warehouseVariant->productVariant->size?->name }}
+                                </p>
                         </div>
-                        @error('product_variant_id')
-                            <div class="text-danger" style="margin-top: 9px; font-size: 12px; font-weight: 400;">
-                                <strong>{{ $message }}</strong>
-                            </div>
-                        @enderror
+
                     </section>
 
                     <section class="col-12 my-3">
@@ -82,4 +74,3 @@
         </section>
     </section>
 @endsection
-

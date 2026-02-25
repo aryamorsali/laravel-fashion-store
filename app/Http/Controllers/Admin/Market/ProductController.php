@@ -8,6 +8,7 @@ use App\Http\Services\Image\ImageService;
 use App\Models\Market\Brand;
 use App\Models\Market\Product;
 use App\Models\Market\ProductCategory;
+use App\Models\Market\ProductVariant;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 
@@ -18,7 +19,7 @@ class ProductController extends Controller
      */
     public function index()
     {
-        $products = Product::all();
+        $products = Product::orderBy('created_at', 'desc')->get();
         return view('admin.market.product.index', compact('products'));
     }
 
@@ -37,7 +38,11 @@ class ProductController extends Controller
      */
     public function store(ProductRequest $request, ImageService $imageService)
     {
+
         $inputs = $request->validated();
+
+        $inputs['has_color'] = (int) $request->has_color;
+        $inputs['has_size']  = (int) $request->has_size;
 
         if (empty($inputs['published_at'])) {
             $inputs['published_at'] = Carbon::now()->format('Y-m-d H:i:s');
@@ -58,7 +63,24 @@ class ProductController extends Controller
             $inputs['image'] = $result;
         }
 
-        Product::create($inputs);
+        $product = Product::create($inputs);
+
+        if ($product->has_color == 0 && $product->has_size == 0) {
+            ProductVariant::create([
+                'product_id' => $product->id,
+                'color_id' => null,
+                'size_id' => null,
+                'price' => $product->base_price,
+            ]);
+        } else {
+            return redirect()->route('admin.market.variant.create', $product)->with(
+                'alert-section-warning',
+                'Please create product variants.'
+            );
+        }
+
+
+
         return redirect()->route('admin.market.product.index')->with(
             'alert-section-success',
             'Your new product was successfully registered.'
@@ -90,6 +112,10 @@ class ProductController extends Controller
     {
         $inputs = $request->validated();
 
+
+        $inputs['has_color'] = (int) $request->has_color;
+        $inputs['has_size']  = (int) $request->has_size;
+
         if (empty($inputs['published_at'])) {
             $inputs['published_at'] = Carbon::now()->format('Y-m-d H:i:s');
         } else {
@@ -117,6 +143,49 @@ class ProductController extends Controller
             }
         }
         $product->update($inputs);
+
+        if ($product->has_color == 0 && $product->has_size == 0 && $product->variants()->count() == 0) {
+            ProductVariant::create([
+                'product_id' => $product->id,
+                'color_id' => null,
+                'size_id' => null,
+                'price' => $product->base_price,
+            ]);
+            return redirect(route('admin.market.product.index'))->with(
+                'alert-section-success',
+                'Product editing completed successfully.'
+            );
+        }
+        if (($product->has_color || $product->has_size) && $product->variants()->count() == 0) {
+            $product->update(['status' => 'draft']);
+        }
+
+        // حذف واریانت سیستمی در صورت تغییر ماهیت
+        if ($product->wasChanged(['has_color', 'has_size'])) {
+            $product->variants()
+                ->whereNull('color_id')
+                ->whereNull('size_id')
+                ->delete();
+
+            if ($product->has_color == 0 && $product->has_size == 0) {
+                ProductVariant::create([
+                    'product_id' => $product->id,
+                    'color_id' => null,
+                    'size_id' => null,
+                    'price' => $product->base_price,
+                ]);
+                return redirect(route('admin.market.product.index'))->with(
+                    'alert-section-success',
+                    'Product editing completed successfully.'
+                );
+            }
+
+            return redirect()->route('admin.market.variant.create', $product)->with(
+                'alert-section-warning',
+                'The nature of the product has changed. Please create new product variants.'
+            );
+        }
+
         return redirect(route('admin.market.product.index'))->with(
             'alert-section-success',
             'Product editing completed successfully.'

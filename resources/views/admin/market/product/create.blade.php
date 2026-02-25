@@ -45,6 +45,41 @@
             color: #000000;
         }
     </style>
+
+    <style>
+        .variant-section {
+            background-color: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 8px;
+            padding: 15px 20px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+            transition: all 0.2s ease-in-out;
+        }
+
+        .variant-section:hover {
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+        }
+
+        .variant-section label {
+            font-weight: 600;
+            color: #343a40;
+            margin-bottom: 8px;
+            display: block;
+        }
+
+        .variant-section input[type="checkbox"] {
+            transform: scale(1.2);
+            accent-color: #0d6efd;
+            margin-right: 6px;
+            cursor: pointer;
+        }
+
+        .variant-hint {
+            font-size: 0.85rem;
+            color: #6c757d;
+            margin-top: 4px;
+        }
+    </style>
 @endsection
 
 @section('content')
@@ -161,7 +196,7 @@
                                     </option>
                                     <option value="published" @if (old('status') == 'published') selected @endif>published
                                     </option>
-                     
+
                                 </select>
                             </div>
                             @error('status')
@@ -208,6 +243,52 @@
                                 </div>
                             @enderror
                         </section>
+
+                        {{-- <section class="col-12 col-md-6 my-3">
+                            <div class="form-group">
+                                <label for="has_color">Does it have color? (use for variant)</label>
+                                <input type="checkbox" name="has_color" id="has_color" value="1">
+                            </div>
+                        </section>
+
+                        <section class="col-12 col-md-6 my-3">
+                            <div class="form-group">
+                                <label for="has_size">Does it have size? (use for variant)</label>
+                                <input type="checkbox" name="has_size" id="has_size" value="1">
+                            </div>
+                        </section> --}}
+
+                        <section class="col-12 col-md-6 my-3">
+                            <div class="form-group variant-section">
+                                <label for="has_color">
+                                    Does it have color? <small class="text-muted">(use for variant)</small>
+                                </label>
+
+                                <input type="checkbox" name="has_color" id="has_color" value="1">
+
+                                <div class="variant-hint">
+                                    If enabled, this product can have color-based variants.
+                                </div>
+                            </div>
+                        </section>
+
+
+                        <section class="col-12 col-md-6 my-3">
+                            <div class="form-group variant-section">
+                                <label for="has_size">
+                                    Does it have size? <small class="text-muted">(use for variant)</small>
+                                </label>
+
+                                <input type="checkbox" name="has_size" id="has_size" value="1">
+
+                                <div class="variant-hint">
+                                    If enabled, this product can have size-based variants.
+                                </div>
+                            </div>
+                        </section>
+
+
+
 
                         <section class="col-12 my-3 d-flex justify-content-end">
                             <button class="btn btn-primary">Submit</button>

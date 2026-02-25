@@ -29,24 +29,71 @@
                     <section class="row">
 
                         <section class="col-12 col-md-6 my-3">
+                            {{-- انتخاب محصول --}}
                             <div class="form-group">
                                 <label for="product_id">Product selection</label>
-                                <select name="product_id" id="product_id" class="form-control form-control-sm">
+                                <select id="product_id" class="form-control form-control-sm">
                                     <option value="">Select the product</option>
                                     @foreach ($products as $product)
-                                        <option value="{{ $product->id }}"
-                                            @if (old('product_id') == $product->id) selected @endif>
+                                        <option value="{{ $product->id }}" @selected(old('product_id') == $product->id)>
                                             {{ $product->name }}
                                         </option>
                                     @endforeach
                                 </select>
                             </div>
-                            @error('product_id')
-                                <div class="text-danger" style="margin-top: 9px; font-size: 12px; font-weight: 400;">
+
+                            {{-- واریانت‌ها --}}
+                            <div id="variants-container">
+                                @foreach ($products as $product)
+                                    <div class="card variants-wrapper d-none shadow-sm mt-3"
+                                        data-product-id="{{ $product->id }}">
+                                        <div class="card-body">
+                                            @if ($product->variants->count() > 1)
+                                                <div class="form-check mb-2">
+                                                    <input type="checkbox" class="form-check-input select-all"
+                                                        id="select-all-{{ $product->id }}">
+                                                    <label class="form-check-label fw-semibold"
+                                                        for="select-all-{{ $product->id }}">
+                                                        Apply to all variants
+                                                    </label>
+                                                </div>
+                                            @endif
+
+                                            @foreach ($product->variants as $variant)
+                                                <div class="form-check mb-1">
+                                                    <input type="checkbox" class="form-check-input"
+                                                        name="product_variant_ids[]" id="variant-{{ $variant->id }}"
+                                                        value="{{ $variant->id }}">
+                                                    <label class="form-check-label" for="variant-{{ $variant->id }}">
+                                                        {{ $product->name }}
+                                                        @if ($variant->color || $variant->size)
+                                                            - {{ $variant->color?->name }}
+                                                            @if ($variant->size)
+                                                                / {{ $variant->size->name }}
+                                                            @else
+                                                                <span class="text-danger">/ no size</span>
+                                                            @endif
+                                                        @endif
+                                                        <span
+                                                            class="text-muted small">(${{ rtrim(rtrim(number_format($variant->price, 2), '0'), '.') }})</span>
+                                                    </label>
+                                                </div>
+                                            @endforeach
+                                        </div>
+                                    </div>
+                                @endforeach
+
+
+                            </div>
+
+                            @error('product_variant_ids')
+                                <div class="text-danger mt-2" style="font-size: 12px">
                                     <strong>{{ $message }}</strong>
                                 </div>
                             @enderror
+
                         </section>
+
 
                         <section class="col-12 col-md-6 my-3">
                             <div class="form-group">
@@ -89,16 +136,16 @@
 
                         <section class="col-12 my-3">
                             <div class="form-group">
-                                <label for="status">Status</label>
-                                <select name="status" class="form-control form-control-sm" id="status">
-                                    <option value="0" @if (old('status') == 0) selected @endif>
+                                <label for="is_active">Status</label>
+                                <select name="is_active" class="form-control form-control-sm" id="is_active">
+                                    <option value="0" @if (old('is_active') == 0) selected @endif>
                                         inactive
                                     </option>
-                                    <option value="1" @if (old('status') == 1 || old('status') === null) selected @endif>active
+                                    <option value="1" @if (old('is_active') == 1 || old('is_active') === null) selected @endif>active
                                     </option>
                                 </select>
                             </div>
-                            @error('status')
+                            @error('is_active')
                                 <div class="text-danger" style="margin-top: 9px; font-size: 12px; font-weight: 400;">
                                     <strong>{{ $message }}</strong>
                                 </div>
@@ -132,6 +179,44 @@
                 dateFormat: "Y-m-d H:i",
                 altInput: true,
                 altFormat: "F j, Y H:i",
+            });
+        </script>
+
+        <script>
+            document.addEventListener('DOMContentLoaded', () => {
+
+                const productSelect = document.getElementById('product_id');
+                const wrappers = document.querySelectorAll('.variants-wrapper');
+
+                productSelect.addEventListener('change', () => {
+                    // همه رو پنهان کن
+                    wrappers.forEach(wrapper => {
+                        wrapper.classList.add('d-none');
+                        // غیرفعال‌کردن تیک‌ها
+                        wrapper.querySelectorAll('input[type=checkbox]').forEach(cb => cb.checked =
+                            false);
+                    });
+
+                    const productId = productSelect.value;
+                    if (!productId) return;
+
+                    // نمایش گروه مربوط به محصول انتخاب‌شده
+                    const active = document.querySelector(`.variants-wrapper[data-product-id="${productId}"]`);
+                    if (active) active.classList.remove('d-none');
+                });
+
+                // "انتخاب همه" برای هر محصول
+                document.querySelectorAll('.variants-wrapper').forEach(wrapper => {
+                    const selectAll = wrapper.querySelector('.select-all');
+                    if (!selectAll) return; // بعضی محصولات یه واریانت دارن
+
+                    selectAll.addEventListener('change', () => {
+                        const allBoxes = wrapper.querySelectorAll(
+                            'input[name="product_variant_ids[]"]');
+                        allBoxes.forEach(cb => cb.checked = selectAll.checked);
+                    });
+                });
+
             });
         </script>
     @endsection

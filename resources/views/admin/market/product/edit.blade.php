@@ -63,6 +63,58 @@
             transform: scale(1.05);
             box-shadow: 0 0 12px rgba(13, 110, 253, 0.5);
         }
+
+        /* /////////////////////////////////////////// */
+
+        <style>.variant-section {
+            background-color: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 8px;
+            padding: 15px 20px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+            transition: all 0.2s ease-in-out;
+        }
+
+        .variant-section:hover {
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+        }
+
+        .variant-section label {
+            font-weight: 600;
+            color: #343a40;
+            margin-bottom: 8px;
+            display: block;
+        }
+
+        .variant-section input[type="checkbox"] {
+            transform: scale(1.2);
+            accent-color: #0d6efd;
+            margin-right: 6px;
+        }
+
+        .variant-section .locked-message {
+            background: rgba(255, 243, 205, 0.8);
+            color: #856404 !important;
+            border-radius: 6px;
+            padding: 6px 10px;
+            margin-top: 6px;
+            font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .variant-section .locked-message i {
+            color: #856404;
+            font-size: 0.95rem;
+        }
+
+        /* ✅ حالت غیرفعال واضح‌تر */
+        input[type="checkbox"]:disabled {
+            cursor: not-allowed;
+            opacity: 0.6;
+        }
+    </style>
     </style>
 @endsection
 
@@ -176,14 +228,24 @@
 
                         <section class="col-12 col-md-6 my-3">
                             <div class="form-group">
+                                @php
+                                    $canPublish = $product->variants()->exists();
+                                @endphp
                                 <label for="status">Status</label>
-                                <select name="status" class="form-control form-control-sm" id="status">
+                                <input type="hidden" name="status" value="{{ $product->status }}">
+                                <select name="status" class="form-control form-control-sm" id="status"
+                                    {{ $canPublish ? '' : 'disabled' }}>
                                     <option value="draft" @if (old('status', $product->status) == 'draft') selected @endif>draft
                                     </option>
                                     <option value="published" @if (old('status', $product->status) == 'published') selected @endif>published
                                     </option>
                                 </select>
                             </div>
+                            @if (!$canPublish)
+                                <small class="text-warning">
+                                    To publish this product, you must first create at least one variant.
+                                </small>
+                            @endif
                             @error('status')
                                 <div class="text-danger" style="margin-top: 9px; font-size: 12px; font-weight: 400;">
                                     <strong>{{ $message }}</strong>
@@ -194,7 +256,8 @@
                         <section class="col-12 my-3">
                             <div class="form-group">
                                 <label for="image" class="fw-bold mb-2">Image</label>
-                                <input type="file" class="form-control form-control-sm" name="image" id="image">
+                                <input type="file" class="form-control form-control-sm" name="image"
+                                    id="image">
                                 @error('image')
                                     <div class="text-danger mt-2" style="font-size: 12px;">
                                         <strong>{{ $message }}</strong>
@@ -248,13 +311,57 @@
                             @enderror
                         </section>
 
+                        @php
+                            // فقط واریانت‌های واقعی قفل‌کننده هستند
+                            $hasColorVariants = $product->variants()->whereNotNull('color_id')->exists();
+
+                            $hasSizeVariants = $product->variants()->whereNotNull('size_id')->exists();
+                        @endphp
+
+                        <section class="col-12 col-md-6 my-3">
+                            <div class="form-group variant-section">
+                                <label for="has_color">
+                                    Does it have color? <small class="text-muted">(use for variant)</small>
+                                </label>
+
+                                <input type="checkbox" id="has_color" name="has_color" value="1"
+                                    {{ old('has_color', $product->has_color) ? 'checked' : '' }}
+                                    {{ $hasColorVariants || $hasSizeVariants ? 'disabled' : '' }}>
+
+                                @if ($hasColorVariants || $hasSizeVariants)
+                                    <input type="hidden" name="has_color" value="{{ (int) $product->has_color }}">
+                                    <div class="locked-message">
+                                        <i class="fa fa-lock"></i>
+                                        This product has variants; to change the nature, first delete its variants.
+                                    </div>
+                                @endif
+                            </div>
+                        </section>
+
+
+                        <section class="col-12 col-md-6 my-3">
+                            <div class="form-group variant-section">
+                                <label for="has_size">
+                                    Does it have size? <small class="text-muted">(use for variant)</small>
+                                </label>
+
+                                <input type="checkbox" id="has_size" name="has_size" value="1"
+                                    {{ old('has_size', $product->has_size) ? 'checked' : '' }}
+                                    {{ $hasColorVariants || $hasSizeVariants ? 'disabled' : '' }}>
+
+                                @if ($hasColorVariants || $hasSizeVariants)
+                                    <input type="hidden" name="has_size" value="{{ (int) $product->has_size }}">
+                                    <div class="locked-message">
+                                        <i class="fa fa-lock"></i>
+                                        This product has variants; to change the nature, first delete its variants.
+                                    </div>
+                                @endif
+                            </div>
+                        </section>
+
                         <section class="col-12 my-3 d-flex justify-content-end">
                             <button class="btn btn-primary">Submit</button>
                         </section>
-
-                        @error('g-recaptcha-response')
-                            <div class="text-danger">{{ $message }}</div>
-                        @enderror
                     </section>
                 </form>
             </section>

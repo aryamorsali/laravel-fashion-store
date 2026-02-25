@@ -84,4 +84,36 @@ class Product extends Model
             }], 'quantity')
             ->orderByDesc('total_sold');
     }
+
+    //////////////////////////////////////////////////////////////////////////////////////
+
+    public function scopeWithTotalSold($query)
+    {
+        $validOrders = function ($q) {
+            $q->where('payment_status', 'paid')
+                ->whereNotIn('order_status', ['canceled', 'returned']);
+        };
+
+        return $query->withSum([
+            'orderItems as total_sold' => function ($q) use ($validOrders) {
+                $q->whereHas('order', $validOrders);
+            }
+        ], 'quantity');
+    }
+
+
+    //////////////////////////////////////////////////////////////////////////////////////
+
+    protected static function booted()
+    {
+        static::saving(function ($product) {
+            // بررسی اینکه آیا ماهیت سایز یا رنگ دارد
+            $hasVariableNature = $product->has_color || $product->has_size;
+
+            // اگر ماهیت متغیر دارد ولی هیچ واریانتی ندارد → draft شود
+            if ($hasVariableNature && $product->variants()->doesntExist()) {
+                $product->status = 'draft';
+            }
+        });
+    }
 }

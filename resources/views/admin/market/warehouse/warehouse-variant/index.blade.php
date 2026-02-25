@@ -25,8 +25,7 @@
                 <div class="me-auto" style="max-width: 16rem;">
                     <input type="text" class="form-control form-control-sm form-text" placeholder="search..">
                 </div>
-                <a href="{{ route('admin.market.warehouse.index') }}"
-                    class="btn btn-info btn-sm me-1 my-btn">Back</a>
+                <a href="{{ route('admin.market.warehouse.index') }}" class="btn btn-info btn-sm me-1 my-btn">Back</a>
                 <a href="{{ route('admin.market.warehouse.variant.create', $warehouse) }}"
                     class="btn btn-dark btn-sm my-btn ">Add new stock</a>
             </section>
@@ -53,12 +52,17 @@
                         @foreach ($warehouseVariants as $variant)
                             <tr>
                                 <th scope="row">{{ $loop->iteration }}</th>
-                                <td>{{ $variant->productVariant->product->name }}</td>
+                                <td>{{ $variant->productVariant->product->name ?? '-' }}</td>
                                 <td>
-                                    {{ $variant->productVariant->color->name }}
-                                    <div
-                                        style="width: 15px; height: 15px; border-radius: 3px; background-color: {{ $variant->productVariant->color->hex_code }}; display: inline-block; vertical-align: middle;">
-                                    </div>
+                                    @if ($variant->productVariant->color)
+                                        {{ $variant->productVariant->color->name ?? '-' }}
+                                        <div
+                                            style="width: 15px; height: 15px; border-radius: 3px; background-color: {{ $variant->productVariant->color->hex_code }}; display: inline-block; vertical-align: middle;">
+                                        </div>
+                                    @else
+                                        -
+                                    @endif
+
                                 </td>
                                 <td>{{ $variant->productVariant->size->name ?? '-' }}</td>
                                 <td>{{ number_format($variant->productVariant->price) }}</td>

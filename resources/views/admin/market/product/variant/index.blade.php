@@ -61,10 +61,13 @@
                                 <th scope="row">{{ $loop->iteration }}</th>
                                 <td>{{ $product->name }}</td>
                                 <td>
-                                    {{ $variant->color->name }}
-                                    <div
-                                        style="width: 15px; height: 15px; border-radius: 3px; background-color: {{ $variant->color->hex_code }}; display: inline-block; vertical-align: middle;">
-                                    </div>
+                                    {{ $variant->color->name ?? '-' }}
+                                    @if ($variant->color)
+                                        <div
+                                            style="width: 15px; height: 15px; border-radius: 3px; background-color: {{ $variant->color->hex_code }}; display: inline-block; vertical-align: middle;">
+                                        </div>
+                                    @endif
+
                                 </td>
 
                                 <td>{{ $variant->size->name ?? '-' }}</td>

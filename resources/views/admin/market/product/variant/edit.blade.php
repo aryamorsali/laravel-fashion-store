@@ -45,7 +45,7 @@
                             <div class="form-group">
                                 <label>Color</label>
                                 <input type="text" class="form-control form-control-sm"
-                                    value="{{ $variant->color->name }}" readonly
+                                    value="{{ $variant->color->name ?? '-' }}" readonly
                                     style="background-color: #f8f9fa; cursor: not-allowed;">
                             </div>
                         </section>
@@ -54,7 +54,7 @@
                             <div class="form-group">
                                 <label>Size</label>
                                 <input type="text" class="form-control form-control-sm"
-                                    value="{{ $variant->size->name ?? '—' }}" readonly
+                                    value="{{ $variant->size->name ?? '-' }}" readonly
                                     style="background-color: #f8f9fa; cursor: not-allowed;">
                             </div>
                         </section>

@@ -3,6 +3,7 @@
 namespace App\Http\Requests\Admin\Market;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 class AmazingSaleRequest extends FormRequest
 {
@@ -19,14 +20,33 @@ class AmazingSaleRequest extends FormRequest
      *
      * @return array<string, \Illuminate\Contracts\Validation\ValidationRule|array<mixed>|string>
      */
-    public function rules(): array
+    public function rules()
     {
-        return [
-            'percentage' => 'required|min:1|max:100|numeric',
-            'product_id' => 'required|numeric|integer|exists:products,id',
-            'status' => 'required|numeric|in:0,1,2',
-            'start_date' => 'required|date_format:Y-m-d H:i',
-            'end_date' => 'required|date_format:Y-m-d H:i|after_or_equal:start_date',
-        ];
+        if ($this->isMethod('post')) {
+            return [
+                'percentage' => ['required', 'numeric', 'min:1', 'max:100'],
+
+                'product_variant_ids' => ['required', 'array', 'min:1'],
+
+                'product_variant_ids.*' => [
+                    'required',
+                    'exists:product_variants,id'
+                ],
+
+                'is_active' => ['required', 'boolean'],
+
+                'start_date' => ['required', 'date', 'after_or_equal:today'],
+                'end_date'   => ['required', 'date', 'after_or_equal:start_date'],
+            ];
+        } else {
+            return [
+
+                'percentage' => ['required', 'numeric', 'min:1', 'max:100'],
+                'is_active' => ['required', 'boolean'],
+
+                'start_date' => ['required', 'date', 'after_or_equal:today'],
+                'end_date'   => ['required', 'date', 'after_or_equal:start_date'],
+            ];
+        }
     }
 }
