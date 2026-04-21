@@ -37,6 +37,7 @@ use App\Http\Controllers\Admin\User\CustomerController;
 use App\Http\Controllers\Customer\HomeController;
 use App\Http\Controllers\Customer\Market\ProductController as MarketProductController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\SalesProcess\CartController;
 use Illuminate\Support\Facades\Route;
 
 // admin
@@ -148,7 +149,6 @@ Route::prefix('admin')->group(function () {
             Route::get('/', [CommentController::class, 'index'])->name('admin.market.comment.index');
             Route::get('/show/{comment}', [CommentController::class, 'show'])->name('admin.market.comment.show');
             Route::delete('/destroy/{comment}', [CommentController::class, 'destroy'])->name('admin.market.comment.destroy');
-            Route::get('/status/{comment}', [CommentController::class, 'status'])->name('admin.market.comment.status');
             Route::get('/approved/{comment}', [CommentController::class, 'approved'])->name('admin.market.comment.approved');
             Route::post('/answer/{comment}', [CommentController::class, 'answer'])->name('admin.market.comment.answer');
         });
@@ -396,10 +396,11 @@ require __DIR__ . '/auth.php';
 
 // view shop
 // -------------------------------------------------------------------------
-
 Route::get('/', [HomeController::class, 'home'])->name('customer.home');
-Route::get('/product/{product:slug}', [MarketProductController::class, 'product'])->name('customer.market.product');
-
+Route::prefix('/product')->group(function () {
+    Route::get('/{product:slug}', [MarketProductController::class, 'product'])->name('customer.market.product');
+    Route::post('/{product:slug}/add-comment', [MarketProductController::class, 'addComment'])->name('customer.market.add-comment');
+});
 
 Route::view('/about', 'customer.pages.about')->name('customer.about');
 Route::view('/contact', 'customer.pages.contact')->name('customer.contact');

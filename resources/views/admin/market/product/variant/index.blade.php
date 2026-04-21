@@ -20,6 +20,7 @@
 
             @include('admin.alerts.alert-section.success')
             @include('admin.alerts.alert-section.error')
+            @include('admin.alerts.alert-section.warning')
 
             <section class="d-flex align-items-center mt-1 mb-3 border-bottom pb-2">
                 <div class="me-auto" style="max-width: 16rem;">

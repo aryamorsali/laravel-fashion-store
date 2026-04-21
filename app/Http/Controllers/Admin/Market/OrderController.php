@@ -28,6 +28,13 @@ class OrderController extends Controller
 
     public function detail(Order $order)
     {
+        $order = Order::with([
+            'orderItems.productVariant.product.attributeValues.productAttribute',
+            'orderItems.amazingSale',
+            'orderItems.productVariant.color',
+            'orderItems.productVariant.size',
+        ])->whereKey($order->getKey())->firstOrFail();
+            
         return view('admin.market.order.detail', compact('order'));
     }
 

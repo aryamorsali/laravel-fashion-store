@@ -49,7 +49,7 @@
                         @foreach ($order->orderItems as $item)
                             <tr>
                                 <th scope="row">{{ $loop->iteration }}</th>
-                                <td>{{ $item->singleProduct->name ?? '-' }}</td>
+                                <td>{{ $item->productVariant?->product->name ?? '-' }}</td>
                                 <td>{{ $item->amazingSale->percentage ?? '-' }}%</td>
                                 <td>{{ number_format($item->amazing_sale_discount_amount ?? 0) }}</td>
                                 <td>{{ $item->quantity ?? '-' }}</td>
@@ -59,7 +59,7 @@
                                 <td>{{ $item->size->name ?? '-' }}</td>
                                 <td>
                                     @php
-                                        $product = $item->singleProduct;
+                                        $product = $item->productVariant?->product;
                                     @endphp
                                     @if ($product && $product->attributeValues->count())
                                        <ul style="list-style: none; padding: 0; margin: 0;">

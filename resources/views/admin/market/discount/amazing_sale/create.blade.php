@@ -27,12 +27,12 @@
                 <form action="{{ route('admin.market.discount.amazingSale.store') }}" method="post">
                     @csrf
                     <section class="row">
-
+                        {{-- 
                         <section class="col-12 col-md-6 my-3">
-                            {{-- انتخاب محصول --}}
+              
                             <div class="form-group">
                                 <label for="product_id">Product selection</label>
-                                <select id="product_id" class="form-control form-control-sm">
+                                <select id="product_id" class="form-control form-control-sm" name="product_id" value="{{ $product->id }}">
                                     <option value="">Select the product</option>
                                     @foreach ($products as $product)
                                         <option value="{{ $product->id }}" @selected(old('product_id') == $product->id)>
@@ -42,7 +42,7 @@
                                 </select>
                             </div>
 
-                            {{-- واریانت‌ها --}}
+                           
                             <div id="variants-container">
                                 @foreach ($products as $product)
                                     <div class="card variants-wrapper d-none shadow-sm mt-3"
@@ -63,7 +63,7 @@
                                                 <div class="form-check mb-1">
                                                     <input type="checkbox" class="form-check-input"
                                                         name="product_variant_ids[]" id="variant-{{ $variant->id }}"
-                                                        value="{{ $variant->id }}">
+                                                        value="{{ $variant->id }}" @disabled($variant->availableStock() === 0)>
                                                     <label class="form-check-label" for="variant-{{ $variant->id }}">
                                                         {{ $product->name }}
                                                         @if ($variant->color || $variant->size)
@@ -76,6 +76,9 @@
                                                         @endif
                                                         <span
                                                             class="text-muted small">(${{ rtrim(rtrim(number_format($variant->price, 2), '0'), '.') }})</span>
+                                                        @if ($variant->availableStock() === 0)
+                                                            <span class="text-danger small">(out of stock)</span>
+                                                        @endif
                                                     </label>
                                                 </div>
                                             @endforeach
@@ -92,6 +95,78 @@
                                 </div>
                             @enderror
 
+                        </section> --}}
+                        <section class="col-12 col-md-6 my-3">
+                            {{-- انتخاب محصول --}}
+                            <div class="form-group">
+                                <label for="product_id">Product selection</label>
+
+                                <select id="product_id" name="product_id" class="form-control form-control-sm">
+                                    <option value="">Select the product</option>
+                                    @foreach ($products as $product)
+                                        <option value="{{ $product->id }}" @selected(old('product_id') == $product->id)>
+                                            {{ $product->name }}
+                                        </option>
+                                    @endforeach
+                                </select>
+                            </div>
+
+                            {{-- واریانت‌ها --}}
+                            <div id="variants-container">
+                                @foreach ($products as $product)
+                                    <div class="card variants-wrapper d-none shadow-sm mt-3"
+                                        data-product-id="{{ $product->id }}">
+
+                                        <div class="card-body">
+
+                                            @if ($product->variants->count() > 1)
+                                                <div class="form-check mb-2">
+
+                                                    <input type="checkbox" class="form-check-input select-all"
+                                                        id="select-all-{{ $product->id }}">
+
+                                                    <label class="form-check-label fw-semibold"
+                                                        for="select-all-{{ $product->id }}">
+                                                        Apply to all variants
+                                                    </label>
+                                                </div>
+                                            @endif
+
+                                            @foreach ($product->variants as $variant)
+                                                <div class="form-check mb-1">
+                                                    <input type="checkbox" class="form-check-input"
+                                                        name="product_variant_ids[]" id="variant-{{ $variant->id }}"
+                                                        value="{{ $variant->id }}" @disabled($variant->availableStock() === 0)>
+
+                                                    <label class="form-check-label" for="variant-{{ $variant->id }}">
+                                                        {{ $product->name }}
+
+                                                        @if ($variant->color || $variant->size)
+                                                            - {{ $variant->color?->name ?? 'No color' }}
+                                                            / {{ $variant->size?->name ?? 'No size' }}
+                                                        @endif
+
+                                                        <span class="text-muted small">
+                                                            (${{ rtrim(rtrim(number_format($variant->price, 2), '0'), '.') }})
+                                                        </span>
+
+                                                        @if ($variant->availableStock() === 0)
+                                                            <span class="text-danger small">(out of stock)</span>
+                                                        @endif
+                                                    </label>
+                                                </div>
+                                            @endforeach
+
+                                        </div>
+                                    </div>
+                                @endforeach
+                            </div>
+
+                            @error('product_variant_ids')
+                                <div class="text-danger mt-2" style="font-size: 12px">
+                                    <strong>{{ $message }}</strong>
+                                </div>
+                            @enderror
                         </section>
 
 
@@ -182,7 +257,7 @@
             });
         </script>
 
-        <script>
+        {{-- <script>
             document.addEventListener('DOMContentLoaded', () => {
 
                 const productSelect = document.getElementById('product_id');
@@ -214,6 +289,49 @@
                         const allBoxes = wrapper.querySelectorAll(
                             'input[name="product_variant_ids[]"]');
                         allBoxes.forEach(cb => cb.checked = selectAll.checked);
+                    });
+                });
+
+            });
+        </script> --}}
+
+        <script>
+            document.addEventListener('DOMContentLoaded', () => {
+
+                const productSelect = document.getElementById('product_id');
+                const wrappers = document.querySelectorAll('.variants-wrapper');
+
+                productSelect.addEventListener('change', () => {
+
+                    // ✅ فقط variant checkboxها reset می‌شوند
+                    wrappers.forEach(wrapper => {
+                        wrapper.classList.add('d-none');
+                        wrapper.querySelectorAll('input[name="product_variant_ids[]"]')
+                            .forEach(cb => cb.checked = false);
+
+                        const selectAll = wrapper.querySelector('.select-all');
+                        if (selectAll) selectAll.checked = false;
+                    });
+
+                    const productId = productSelect.value;
+                    if (!productId) return;
+
+                    const active = document.querySelector(
+                        `.variants-wrapper[data-product-id="${productId}"]`
+                    );
+
+                    if (active) active.classList.remove('d-none');
+                });
+
+                // ✅ select-all فقط variantها را کنترل می‌کند
+                document.querySelectorAll('.variants-wrapper').forEach(wrapper => {
+                    const selectAll = wrapper.querySelector('.select-all');
+                    if (!selectAll) return;
+
+                    selectAll.addEventListener('change', () => {
+                        wrapper
+                            .querySelectorAll('input[name="product_variant_ids[]"]:not(:disabled)')
+                            .forEach(cb => cb.checked = selectAll.checked);
                     });
                 });
 

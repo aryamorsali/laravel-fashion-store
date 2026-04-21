@@ -4,6 +4,7 @@ namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
 
+use App\Models\Market\CartItem;
 use App\Models\Ticket\AdminTicket;
 use App\Models\Ticket\Ticket;
 use App\Models\Ticket\TicketCategory;
@@ -23,7 +24,7 @@ class User extends Authenticatable
      * @var list<string>
      */
 
-      protected $fillable = [
+    protected $fillable = [
         'first_name',
         'last_name',
         'mobile',
@@ -38,7 +39,7 @@ class User extends Authenticatable
         'email_verified_at',
         'loyalty_level',
     ];
-  
+
     /**
      * The attributes that should be hidden for serialization.
      *

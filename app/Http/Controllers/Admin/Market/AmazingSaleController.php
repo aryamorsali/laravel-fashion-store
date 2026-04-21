@@ -19,9 +19,9 @@ class AmazingSaleController extends Controller
     {
         $amazingSales = AmazingSale::with([
             'productVariant.product'
-        ])
-            ->orderBy('created_at', 'desc')
-            ->get();
+        ])->orderBy('created_at', 'desc')->get();
+
+
         return view('admin.market.discount.amazing_sale.index', compact('amazingSales'));
     }
 
@@ -30,21 +30,34 @@ class AmazingSaleController extends Controller
      */
     public function create()
     {
-        $products = Product::with('variants')->get();
+        $products = Product::with([
+            'variants.color',
+            'variants.size',
+        ])->whereHas('variants')->get();
         return view('admin.market.discount.amazing_sale.create', compact('products'));
     }
 
     /**
      * Store a newly created resource in storage.
      */
+
     public function store(AmazingSaleRequest $request)
     {
+        $product = Product::findOrFail($request->product_id);
 
-        foreach ($request->product_variant_ids as $variantId) {
+        $variants = $product->variants()
+            ->whereIn('id', $request->product_variant_ids)
+            ->get();
+
+        if ($variants->count() !== count($request->product_variant_ids)) {
+            abort(422, 'Invalid variant selection.');
+        }
+
+        foreach ($variants as $variant) {
             AmazingSale::updateOrCreate(
                 [
-                    'product_variant_id' => $variantId,
-                    'deleted_at' => null, 
+                    'product_variant_id' => $variant->id,
+                    'deleted_at' => null,
                 ],
                 [
                     'percentage' => $request->percentage,
@@ -61,6 +74,7 @@ class AmazingSaleController extends Controller
     }
 
 
+
     /**
      * Display the specified resource.
      */
@@ -74,8 +88,12 @@ class AmazingSaleController extends Controller
      */
     public function edit(AmazingSale $amazingSale)
     {
-        $products = Product::with('variants')->get();
-        return view('admin.market.discount.amazing_sale.edit', compact('amazingSale', 'products'));
+        $amazingSale->load([
+            'productVariant.product',
+            'productVariant.color',
+            'productVariant.size',
+        ]);
+        return view('admin.market.discount.amazing_sale.edit', compact('amazingSale'));
     }
 
     /**
@@ -83,11 +101,10 @@ class AmazingSaleController extends Controller
      */
     public function update(AmazingSaleRequest $request, AmazingSale $amazingSale)
     {
-        
+
         $data = $request->validated();
 
         $amazingSale->update([
-            'product_variant_id' => $amazingSale->product_variant_id,
             'percentage'         => $data['percentage'],
             'is_active'          => $data['is_active'],
             'start_date'         => $data['start_date'],

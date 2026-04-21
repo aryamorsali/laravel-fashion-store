@@ -264,7 +264,7 @@
                                             <div class="block2">
                                                 <div class="block2-pic hov-img0">
 
-                                                    @php
+                                                    {{-- @php
                                                         $activeAmazingSale = $product->variants
                                                             ->pluck('amazingSale')
                                                             ->filter(
@@ -275,7 +275,30 @@
                                                             )
                                                             ->sortByDesc('percentage')
                                                             ->first();
+                                                    @endphp --}}
+
+
+                                                    @php
+                                                        $activeAmazingSale = $product->variants
+                                                            // Only available variants
+                                                            ->filter(
+                                                                fn($v) => $v->warehouseVariants->sum('stock') >
+                                                                    $v->warehouseVariants->sum('reserved'),
+                                                            )
+                                                            // Extract sales
+                                                            ->pluck('amazingSale')
+                                                            ->flatten()
+                                                            // Only valid sales
+                                                            ->filter(function ($sale) {
+                                                                return $sale &&
+                                                                    $sale->is_active &&
+                                                                    $sale->start_date <= now() &&
+                                                                    $sale->end_date >= now();
+                                                            })
+                                                            ->sortByDesc('percentage')
+                                                            ->first();
                                                     @endphp
+
 
 
                                                     @if ($activeAmazingSale)
@@ -305,7 +328,7 @@
                                                             {{ $product->name }}
                                                         </a>
 
-                                                        @php
+                                                        {{-- @php
                                                             $variant = $product->variants->firstWhere(
                                                                 'id',
                                                                 $activeAmazingSale?->product_variant_id,
@@ -318,7 +341,24 @@
                                                             $finalPrice = $discount
                                                                 ? $price - ($price * $discount) / 100
                                                                 : $price;
+                                                        @endphp --}}
+
+
+                                                        @php
+                                                            $variant = $product->variants->firstWhere(
+                                                                'id',
+                                                                optional($activeAmazingSale)->product_variant_id,
+                                                            );
+
+                                                            $price = $variant?->price ?? $product->base_price;
+
+                                                            $discount = $activeAmazingSale->percentage ?? 0;
+
+                                                            $finalPrice = $discount
+                                                                ? $price - ($price * $discount) / 100
+                                                                : $price;
                                                         @endphp
+
 
 
 
@@ -397,7 +437,12 @@
                                                 <div class="block2-pic hov-img0">
                                                     @php
                                                         $activeAmazingSale = $product->variants
+                                                            ->filter(
+                                                                fn($v) => $v->warehouseVariants->sum('stock') >
+                                                                    $v->warehouseVariants->sum('reserved'),
+                                                            )
                                                             ->pluck('amazingSale')
+                                                            ->flatten()
                                                             ->filter(
                                                                 fn($sale) => $sale &&
                                                                     $sale->is_active &&
@@ -411,7 +456,7 @@
 
                                                     @if ($activeAmazingSale)
                                                         <span class="badge-amazing">
-                                                        Up to {{ $activeAmazingSale->percentage }}% off
+                                                            Up to {{ $activeAmazingSale->percentage }}% off
                                                         </span>
 
                                                         <span class="amazing-timer"
@@ -437,17 +482,39 @@
                                                         <p>Number of sales : {{ $product->total_sold ?? 0 }}</p>
 
                                                         @php
-                                                            $variant = $product->variants->firstWhere(
-                                                                'id',
-                                                                $activeAmazingSale?->product_variant_id,
-                                                            );
-                                                            $price = $variant?->price ?? $product->base_price;
-                                                            $discount = $activeAmazingSale?->percentage ?? 0;
+                                                            $variant =
+                                                                $product->variants
+                                                                    ->filter(
+                                                                        fn(
+                                                                            $variant,
+                                                                        ) => $variant->warehouseVariants->sum('stock') >
+                                                                            $variant->warehouseVariants->sum(
+                                                                                'reserved',
+                                                                            ),
+                                                                    )
+                                                                    ->sortByDesc(
+                                                                        fn($variant) => $variant->orderItems->sum(
+                                                                            'quantity',
+                                                                        ),
+                                                                    )
+                                                                    ->first() ?? $product->variants->first();
 
-                                                            $finalPrice = $discount
-                                                                ? $price - ($price * $discount) / 100
-                                                                : $price;
+                                                            $price = $variant?->price;
+                                                            $finalPrice = $price;
+                                                            $discount = null;
+
+                                                            if (
+                                                                $variant &&
+                                                                $variant->amazingSale &&
+                                                                $variant->amazingSale->is_active &&
+                                                                $variant->amazingSale->start_date <= now() &&
+                                                                $variant->amazingSale->end_date >= now()
+                                                            ) {
+                                                                $discount = $variant->amazingSale->percentage;
+                                                                $finalPrice = $price - ($price * $discount) / 100;
+                                                            }
                                                         @endphp
+
 
                                                         <span class="stext-105 cl3">
                                                             @if ($discount)
@@ -529,7 +596,12 @@
 
                                                     @php
                                                         $activeAmazingSale = $product->variants
+                                                            ->filter(
+                                                                fn($v) => $v->warehouseVariants->sum('stock') >
+                                                                    $v->warehouseVariants->sum('reserved'),
+                                                            )
                                                             ->pluck('amazingSale')
+                                                            ->flatten()
                                                             ->filter(
                                                                 fn($sale) => $sale &&
                                                                     $sale->is_active &&
@@ -567,12 +639,20 @@
                                                         </a>
 
                                                         @php
-                                                            $variant = $product->variants->firstWhere(
-                                                                'id',
-                                                                $activeAmazingSale?->product_variant_id,
-                                                            );
-                                                            $price = $variant?->price ?? $product->base_price;
-                                                            $discount = $activeAmazingSale?->percentage ?? 0;
+                                                            $variant =
+                                                                $product->variants
+                                                                    ->filter(
+                                                                        fn($v) => $v->warehouseVariants->sum('stock') >
+                                                                            $v->warehouseVariants->sum('reserved'),
+                                                                    )
+                                                                    ->firstWhere(
+                                                                        'id',
+                                                                        optional($activeAmazingSale)
+                                                                            ->product_variant_id,
+                                                                    ) ?? $product->variants->first();
+
+                                                            $price = $variant->price;
+                                                            $discount = $activeAmazingSale->percentage ?? 0;
 
                                                             $finalPrice = $discount
                                                                 ? $price - ($price * $discount) / 100
@@ -776,6 +856,7 @@
 
 
     <script>
+        // amazingSale js timer
         document.querySelectorAll('.amazing-timer').forEach(timer => {
 
             const endTime = new Date(timer.dataset.end).getTime();

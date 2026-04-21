@@ -24,11 +24,11 @@ class WarehouseVariantRequest extends FormRequest
         if ($this->isMethod('post')) {
             return [
                 'product_variant_id' => 'required|integer|exists:product_variants,id',
-                'stock' => 'required|integer|min:1',
+                'stock' => 'required|integer|min:1|max:10000',
             ];
         } else {
             return [
-                'stock' => 'required|integer|min:0',
+                'stock' => 'required|integer|min:0|max:10000',
             ];
         }
     }

@@ -23,8 +23,10 @@
             </section>
 
             <section class="card mb-3">
-                <section class="card-header text-white bg-success">
+                <section class="card-header text-white bg-success d-flex justify-content-between">
                     {{ $comment->user->fullName ?? 'User deleted' }} - {{ $comment->user->id ?? '-' }}
+                    <small>{{ $comment->created_at }}</small>
+
                 </section>
                 <section class="card-body">
                     <h5 class="card-title my-2">
@@ -42,7 +44,7 @@
                     @foreach ($comment->children as $child)
                         <section class="card m-4 my-3">
                             <section class="card-header bg-secondary text-white d-flex justify-content-between">
-                                <div>Respondent : {{ $child->user ? $child->user->fullName : 'نامشخص' }}</div >
+                                <div>Respondent : {{ $child->user ? $child->user->fullName : 'نامشخص' }}</div>
                                 <small>{{ $child->created_at }}</small>
                             </section>
                             <section class="card-body">
@@ -58,10 +60,10 @@
                     <form action="{{ route('admin.market.comment.answer', $comment->id) }}" method="post">
                         @csrf
                         <section class="row">
-                            <section class="col-12 my-2">
+                            <section class="col-12 my-3">
                                 <div class="form-group">
-                                    <label for="body">Admin's response</label>
-                                    <textarea name="body" id="body" rows="4" class="form-control form-control-sm ">{{ old('body') }}</textarea>
+                                    <label style="font-weight: 500; font-size: 18px" for="body">Admin's response:</label>
+                                    <textarea name="body" id="body" rows="5" class="form-control form-control-sm ">{{ old('body') }}</textarea>
                                 </div>
                                 @error('body')
                                     <div class="text-danger" style="margin-top: 9px; font-size: 12px; font-weight: 400;">
@@ -70,7 +72,7 @@
                                 @enderror
                             </section>
                             <section class="col-12 my-2">
-                                <button class="btn btn-primary btn-sm">Submit</button>
+                                <button class="btn btn-primary">Submit</button>
                             </section>
                         </section>
                     </form>

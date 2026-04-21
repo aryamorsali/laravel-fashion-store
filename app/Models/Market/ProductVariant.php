@@ -38,6 +38,11 @@ class ProductVariant extends Model
             ->where('end_date', '>=', now());
     }
 
+    public function orderItems()
+    {
+        return $this->hasMany(OrderItem::class, 'product_variant_id');
+    }
+
 
     public function warehouseVariants()
     {

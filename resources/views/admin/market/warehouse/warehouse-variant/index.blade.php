@@ -65,7 +65,7 @@
 
                                 </td>
                                 <td>{{ $variant->productVariant->size->name ?? '-' }}</td>
-                                <td>{{ number_format($variant->productVariant->price) }}</td>
+                                <td>${{ number_format($variant->productVariant->price) }}</td>
                                 <td>{{ $variant->stock }}</td>
                                 <td>{{ $variant->reserved ?? 0 }}</td>
                                 <td>{{ $variant->sold ?? 0 }}</td>

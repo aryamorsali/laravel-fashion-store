@@ -59,7 +59,8 @@
                                             <span class="text-danger">no size</span>
                                         @endif
                                         ,
-                                        Price: ${{ rtrim(rtrim(number_format($amazingSale->productVariant?->price, 2), '0'), '.') }}
+                                        Price: ${{ rtrim(rtrim(number_format($amazingSale->productVariant?->price, 2), '0'), '.') }},
+                                        Stock: {{ $amazingSale->productVariant?->availableStock() ?? '—' }},
                                     </div>
                                 </td>
 
@@ -69,11 +70,11 @@
                                 <td>
                                     @switch($amazingSale->is_active)
                                         @case(0)
-                                            inactive
+                                            <span class="text-danger">inactive</span>
                                         @break
 
                                         @case(1)
-                                            active
+                                            <span class="text-success">active</span>
                                         @break
                                     @endswitch
                                 </td>

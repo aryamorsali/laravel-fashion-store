@@ -21,17 +21,15 @@
     <style>
         .addBtn {}
 
+        /* ===== COLOR ===== */
+
         .color-option {
             margin-right: 8px;
             margin-bottom: 8px;
+
+            position: relative;
         }
 
-        .size-option {
-            margin-right: 8px;
-            margin-bottom: 8px;
-        }
-
-        /* ===== COLOR ===== */
         /* hide inputs */
         .color-option input,
         .size-option input {
@@ -56,8 +54,30 @@
             border: 3px solid rgb(113, 127, 224);
         }
 
+        .color-option.disabled {
+            pointer-events: none;
+            opacity: 0.35;
+            cursor: not-allowed;
+        }
+
+        .color-option.disabled::before {
+            content: 'X';
+            color: #ffffff;
+            position: absolute;
+            top: 42%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 20px;
+        }
+
+
 
         /* ===== SIZE ===== */
+
+        .size-option {
+            margin-right: 8px;
+            margin-bottom: 8px;
+        }
 
         .size-box {
             width: 60px;
@@ -135,14 +155,14 @@
         }
 
         .old-price {
-            font-size: 14px;
+            font-size: 15px;
             color: #9b9b9b;
             text-decoration: line-through;
         }
 
         .new-price {
-            font-size: 22px;
-            font-weight: 700;
+            font-size: 24px;
+            font-weight: 500;
             color: #111;
         }
 
@@ -179,16 +199,73 @@
             border-top: 1px dashed #ddd;
         }
 
-        /* سکشن رنگ اگر موجودی نداشتیم */
-        .color-option.disabled {
-            pointer-events: none;
-            opacity: 0.4;
-            cursor: not-allowed;
+
+
+        /* span تخفیف شگفت انگیز */
+        .badge-amazing {
+            position: absolute;
+            top: 10px;
+            right: 70px;
+            background: #e53935;
+            color: #fff;
+            padding: 6px 10px;
+            font-size: 12px;
+            font-weight: 600;
+            border-radius: 4px;
+            z-index: 2;
+        }
+
+
+        /* amazingSale timer css */
+        .badge-amazing-slider {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            background: #e53935;
+            color: #fff;
+            padding: 6px 10px;
+            font-size: 12px;
+            font-weight: 600;
+            border-radius: 4px;
+            z-index: 2;
+        }
+
+        .old-price-slider {
+            color: #777;
+            font-size: 0.9em;
+            text-decoration: line-through;
+            margin-right: 6px;
+        }
+
+        .new-price-slider {
+            color: #e53935;
+            font-weight: 700;
+            font-size: 1.05em;
+        }
+
+        .amazing-timer {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+
+            background: rgba(0, 0, 0, 0.7);
+            color: #fff;
+
+            font-size: 12px;
+            font-weight: 500;
+
+            padding: 4px 8px;
+            border-radius: 4px;
+
+            z-index: 2;
         }
     </style>
 @endsection
 
 @section('content')
+    @include('admin.alerts.toast.success')
+    @include('admin.alerts.toast.error')
+
     <!-- breadcrumb -->
     <div class="container">
         <div class="bread-crumb flex-w p-l-25 p-r-15 p-t-30 p-lr-0-lg">
@@ -257,31 +334,21 @@
                 </div>
                 <div class="col-md-6 col-lg-5 p-b-30">
                     <div class="p-r-50 p-t-5 p-lr-0-lg">
-                        {{-- <h4 class="mtext-105 cl2 js-name-detail p-b-14">
-                            {{ $product->name }}
-                        </h4>
-
-                        <span class="mtext-106 cl2">
-                            ${{ rtrim(rtrim(number_format($product->base_price, 2), '0'), '.') }}
-                        </span> --}}
-
-
-                        <h4 class="mtext-105 cl2 js-name-detail" style="margin-bottom: 12px;">
+                        <h4 class="mtext-105 cl2 js-name-detail p-b-14" style="font-size: 26px">
                             {{ $product->name }}
                         </h4>
                         <div class="price-row">
                             <div class="price-left">
-
-                                {{-- @php
-                                    $price = $product?->variants?->activeAmazingSale?->percentage;
-                                @endphp --}}
-
-                                {{-- @if ($amazingSale)
-                                    <span class="old-price">${{ rtrim(rtrim(number_format($product->base_price, 2), '0'), '.') }}</span>
-                                    <span class="new-price">${{ rtrim(rtrim(number_format($product->base_price, 2), '0'), '.') }}</span>
-                                @endif --}}
+                                <span class="old-price"></span>
+                                <span class="new-price"></span>
 
                             </div>
+                            <div>
+                                <span class="badge-amazing"></span>
+                                <span class="amazing-timer"></span>
+
+                            </div>
+
 
                             <div class="price-right">
                                 <span class="sold-count">{{ $product->total_sold ?? 0 }} Sold</span>
@@ -299,156 +366,12 @@
                         <div class="p-t-20">
 
                             @if ($product->variants->count() != 0)
-                                {{-- <div class="box">
-
-                                    <!-- COLOR -->
-                                    <p class="label">Color: <span class="value">Royal Brown</span></p>
-
-                                    <div class="colors">
-                                        <label>
-                                            <input type="radio" name="color" class="color-input" checked>
-                                            <div class="color-swatch" style="background:#5b4636"></div>
-                                        </label>
-
-                                        <label>
-                                            <input type="radio" name="color" class="color-input">
-                                            <div class="color-swatch" style="background:#d9d9d9"></div>
-                                        </label>
-
-                                        <label>
-                                            <input type="radio" name="color" class="color-input">
-                                            <div class="color-swatch" style="background:#3d5a80"></div>
-                                        </label>
-
-                                        <label>
-                                            <input type="radio" name="color" class="color-input">
-                                            <div class="color-swatch" style="background:#111"></div>
-                                        </label>
-                                    </div>
-
-                                    <br><br>
-
-                                    <!-- SIZE -->
-                                    <div style="display:flex;justify-content:space-between;align-items:center">
-                                        <p class="label">Size: <span class="value">8</span></p>
-                                        <small style="color:#777; text-decoration:underline; cursor:pointer">Size
-                                            chart</small>
-                                    </div>
-
-                                    <div class="sizes">
-                                        <label>
-                                            <input type="radio" name="size" class="size-input">
-                                            <div class="size-box">6</div>
-                                        </label>
-
-                                        <label>
-                                            <input type="radio" name="size" class="size-input" checked>
-                                            <div class="size-box">8</div>
-                                        </label>
-
-                                        <label>
-                                            <input type="radio" name="size" class="size-input">
-                                            <div class="size-box">10</div>
-                                        </label>
-
-                                        <label>
-                                            <input type="radio" name="size" class="size-input">
-                                            <div class="size-box">14</div>
-                                        </label>
-
-                                        <label>
-                                            <input type="radio" name="size" class="size-input" disabled>
-                                            <div class="size-box">18</div>
-                                        </label>
-                                    </div>
-
-                                </div> --}}
-
-                                {{-- <div class="card border-0 shadow-sm p-4 rounded-4">
-                                    <!-- COLOR -->
-                                    <div class="mb-4">
-                                        <p class="text-muted small mb-2">
-                                            Color: <span style="font-size: 13px;" class="fw-semibold text-dark">Royal
-                                                Brown</span>
-                                        </p>
-
-                                        <div class="d-flex flex-wrap">
-
-                                            <label class="color-option">
-                                                <input type="radio" name="color" checked>
-                                                <span class="swatch" style="background:#5b4636"></span>
-                                            </label>
-
-                                            <label class="color-option">
-                                                <input type="radio" name="color">
-                                                <span class="swatch" style="background:#d9d9d9"></span>
-                                            </label>
-
-                                            <label class="color-option">
-                                                <input type="radio" name="color">
-                                                <span class="swatch" style="background:#3d5a80"></span>
-                                            </label>
-
-                                            <label class="color-option">
-                                                <input type="radio" name="color">
-                                                <span class="swatch" style="background:#111"></span>
-                                            </label>
-
-                                        </div>
-                                    </div>
-                                    <!-- SIZE -->
-                                    <div class="mb-3 d-flex justify-content-between align-items-center">
-                                        <p class="text-muted small mb-0">
-                                            Size: <span class="fw-semibold text-dark">8</span>
-                                        </p>
-
-                                        <a href="#" class="small text-decoration-underline text-muted">
-                                            Size chart
-                                        </a>
-                                    </div>
-
-                                    <div class="d-flex flex-wrap">
-
-                                        <label class="size-option">
-                                            <input type="radio" name="size">
-                                            <span class="size-box">6</span>
-                                        </label>
-
-                                        <label class="size-option">
-                                            <input type="radio" name="size" checked>
-                                            <span class="size-box">8</span>
-                                        </label>
-
-                                        <label class="size-option">
-                                            <input type="radio" name="size">
-                                            <span class="size-box">10</span>
-                                        </label>
-
-                                        <label class="size-option">
-                                            <input type="radio" name="size">
-                                            <span class="size-box">14</span>
-                                        </label>
-
-                                        <label class="size-option">
-                                            <input type="radio" name="size">
-                                            <span class="size-box">16</span>
-                                        </label>
-
-                                        <label class="size-option">
-                                            <input type="radio" name="size" disabled>
-                                            <span class="size-box">18</span>
-                                        </label>
-
-                                    </div>
-
-                                </div> --}}
-
                                 <div class="card border-0 shadow-sm p-4 rounded-4">
 
                                     <!-- COLOR -->
 
                                     <div id="color-div" class="mb-4">
-                                        <p class="text-muted small mb-2">
+                                        <p class="text-muted small mb-3">
                                             Selected color: <span id="selected-color-text"
                                                 class="fw-semibold text-dark"></span>
                                         </p>
@@ -460,7 +383,7 @@
                                     <!-- SIZE -->
                                     <div id="size-wrapper">
                                         <div id="size-div" class="mb-3 d-flex justify-content-between align-items-center">
-                                            <p class="text-muted small mb-0">
+                                            <p class="text-muted small mb-1">
                                                 Selected size: <span id="selected-size-text"
                                                     class="fw-semibold text-dark"></span>
                                             </p>
@@ -472,6 +395,16 @@
 
                                         <div class="d-flex flex-wrap" id="size-options"></div>
                                     </div>
+                                    <div class="mt-2">
+                                        <p id="stock" class="text-danger small">
+                                            Only 5 items left
+                                        </p>
+                                    </div>
+
+                                    <div id="totalDiv" class="mt-3">
+                                        <p class="text-dark" style="font-size: 18px">Total: $<span id="totalPrice">351.09</span></p>
+
+                                    </div>
 
                                 </div>
                             @endif
@@ -482,18 +415,24 @@
                                 <div class="d-flex align-items-center border overflow-hidden qty-wrapper"
                                     style="width: max-content; border-radius: 2px;">
                                     <button type="button" class="btn-qty minus">−</button>
-                                    <input type="number" value="1" min="1" max="5"
+                                    <input type="number" value="1" min="1" id="num-product"
                                         class="qty-input mtext-104 cl3 txt-center">
                                     <button type="button" class="btn-qty plus">+</button>
                                 </div>
 
 
                                 <!-- add to cart -->
-                                <button id="add-to-cart"
-                                    class="flex-c-m stext-101 cl0 size-101 bg1 bor1 hov-btn1 p-lr-15 trans-04 js-addcart-detail">
-                                    Add to cart
-                                </button>
+                                <form action="#" method="POST">
+                                    @csrf
 
+                                    <input type="hidden" name="variant_id" id="variant_id">
+                                    <input type="hidden" name="quantity" id="quantity">
+
+                                    <button id="add-to-cart"
+                                        class="flex-c-m stext-101 cl0 size-101 bg1 bor1 hov-btn1 p-lr-15 trans-04 js-addcart-detail">
+                                        Add to cart
+                                    </button>
+                                </form>
                             </div>
                         </div>
 
@@ -542,7 +481,8 @@
                         @endif
 
                         <li class="nav-item p-b-10">
-                            <a class="nav-link" data-toggle="tab" href="#reviews" role="tab">Reviews (1)</a>
+                            <a class="nav-link" data-toggle="tab" href="#reviews" role="tab">Reviews
+                                ({{ $product->activeComments()->count() }})</a>
                         </li>
                     </ul>
 
@@ -586,75 +526,145 @@
                                 <div class="col-sm-10 col-md-8 col-lg-6 m-lr-auto">
                                     <div class="p-b-30 m-lr-15-sm">
                                         <!-- Review -->
-                                        <div class="flex-w flex-t p-b-68">
-                                            <div class="wrap-pic-s size-109 bor0 of-hidden m-r-18 m-t-6">
-                                                <img src="images/avatar-01.jpg" alt="AVATAR">
-                                            </div>
 
-                                            <div class="size-207">
-                                                <div class="flex-w flex-sb-m p-b-17">
-                                                    <span class="mtext-107 cl2 p-r-20">
-                                                        Ariana Grande
-                                                    </span>
 
-                                                    <span class="fs-18 cl11">
-                                                        <i class="zmdi zmdi-star"></i>
-                                                        <i class="zmdi zmdi-star"></i>
-                                                        <i class="zmdi zmdi-star"></i>
-                                                        <i class="zmdi zmdi-star"></i>
-                                                        <i class="zmdi zmdi-star-half"></i>
-                                                    </span>
+                                        <div id="comments-container">
+                                            @foreach ($approvedComments as $comment)
+                                                <div class="flex-w flex-t p-b-50">
+
+                                                    {{-- Parent Avatar --}}
+                                                    <div class="wrap-pic-s size-109 bor0 of-hidden m-r-18 m-t-6">
+                                                        <img src="{{ asset($comment->user->profile_photo_path ?? 'images/users/default-avatar.png') }}"
+                                                            alt="avatar">
+                                                    </div>
+
+                                                    {{-- Parent Content --}}
+                                                    <div class="size-207">
+
+                                                        {{-- Name + Rating --}}
+                                                        <div class="flex-w flex-sb-m p-b-17">
+                                                            <span class="mtext-107 cl2 p-r-20">
+                                                                {{ $comment->user->full_name ?? 'ناشناس' }}
+                                                            </span>
+
+                                                            <span class="fs-18 cl11">
+                                                                @for ($i = 1; $i <= 5; $i++)
+                                                                    <i
+                                                                        class="zmdi zmdi-star{{ $i <= $comment->rating ? '' : '-outline' }}"></i>
+                                                                @endfor
+                                                            </span>
+                                                        </div>
+
+                                                        {{-- Comment Body --}}
+                                                        <p class="stext-102 cl6">
+                                                            {{ $comment->body }}
+                                                        </p>
+
+
+                                                        {{-- Replies --}}
+                                                        @foreach ($comment->children as $childComment)
+                                                            @if ($childComment->approved)
+                                                                <div class="flex-w flex-t p-t-30"
+                                                                    style="padding-left: 50px;">
+
+                                                                    {{-- Reply Avatar --}}
+                                                                    <div
+                                                                        class="wrap-pic-s size-108 bor0 of-hidden m-r-18 m-t-6">
+                                                                        <img src="{{ asset($childComment->user->profile_photo_path ?? 'images/users/default-avatar.png') }}"
+                                                                            alt="avatar">
+                                                                    </div>
+
+                                                                    {{-- Reply Content --}}
+                                                                    <div class="size-207">
+                                                                        <span class="mtext-107 cl2 p-r-20">
+                                                                            {{ $childComment->user->full_name ?? 'ناشناس' }}
+                                                                        </span>
+
+                                                                        <p class="stext-102 cl6 p-t-10">
+                                                                            {{ $childComment->body }}
+                                                                        </p>
+                                                                    </div>
+
+                                                                </div>
+                                                            @endif
+                                                        @endforeach
+
+                                                    </div>
+
                                                 </div>
-
-                                                <p class="stext-102 cl6">
-                                                    Quod autem in homine praestantissimum atque optimum est, id deseruit.
-                                                    Apud ceteros autem philosophos
-                                                </p>
-                                            </div>
+                                            @endforeach
                                         </div>
+                                        @if ($approvedComments->hasMorePages())
+                                            <div class="text-center p-b-30">
+                                                <button id="load-more-comments"
+                                                    data-next-page="{{ $approvedComments->currentPage() + 1 }}"
+                                                    class="btn btn-primary py-2">
+                                                    see more commets
+                                                </button>
+                                            </div>
+                                        @endif
 
                                         <!-- Add review -->
-                                        <form class="w-full">
+                                        <form action="{{ route('customer.market.add-comment', $product) }}"
+                                            method="post" class="w-full">
+                                            @csrf
                                             <h5 class="mtext-108 cl2 p-b-7">
                                                 Add a review
                                             </h5>
-
                                             <p class="stext-102 cl6">
                                                 Your email address will not be published. Required fields are marked *
                                             </p>
 
-                                            <div class="flex-w flex-m p-t-50 p-b-23">
+                                            <div class="flex-w flex-m p-t-50">
                                                 <span class="stext-102 cl3 m-r-16">
                                                     Your Rating
                                                 </span>
 
                                                 <span class="wrap-rating fs-18 cl11 pointer">
-                                                    <i class="item-rating pointer zmdi zmdi-star-outline"></i>
-                                                    <i class="item-rating pointer zmdi zmdi-star-outline"></i>
-                                                    <i class="item-rating pointer zmdi zmdi-star-outline"></i>
-                                                    <i class="item-rating pointer zmdi zmdi-star-outline"></i>
-                                                    <i class="item-rating pointer zmdi zmdi-star-outline"></i>
-                                                    <input class="dis-none" type="number" name="rating">
+                                                    <input class="dis-none" type="radio" name="rating" id="star1"
+                                                        value="1">
+                                                    <label for="star1"
+                                                        class="item-rating pointer zmdi zmdi-star-outline"></label>
+
+                                                    <input class="dis-none" type="radio" name="rating" id="star2"
+                                                        value="2">
+                                                    <label for="star2"
+                                                        class="item-rating pointer zmdi zmdi-star-outline"></label>
+
+                                                    <input class="dis-none" type="radio" name="rating" id="star3"
+                                                        value="3">
+                                                    <label for="star3"
+                                                        class="item-rating pointer zmdi zmdi-star-outline"></label>
+
+                                                    <input class="dis-none" type="radio" name="rating" id="star4"
+                                                        value="4">
+                                                    <label for="star4"
+                                                        class="item-rating pointer zmdi zmdi-star-outline"></label>
+
+                                                    <input class="dis-none" type="radio" name="rating" id="star5"
+                                                        value="5">
+                                                    <label for="star5"
+                                                        class="item-rating pointer zmdi zmdi-star-outline"></label>
                                                 </span>
                                             </div>
+                                            @error('rating')
+                                                <div class="text-danger p-t-4 p-b-26"
+                                                    style="font-size: 12px; font-weight: 400;">
+                                                    <strong>{{ $message }}</strong>
+                                                </div>
+                                            @enderror
 
                                             <div class="row p-b-25">
                                                 <div class="col-12 p-b-5">
                                                     <label class="stext-102 cl3" for="review">Your review</label>
-                                                    <textarea class="size-110 bor8 stext-102 cl2 p-lr-20 p-tb-10" id="review" name="review"></textarea>
+                                                    <textarea class="size-110 bor8 stext-102 cl2 p-lr-20 p-tb-10" id="review" name="body">{{ old('body') }}</textarea>
                                                 </div>
-
-                                                <div class="col-sm-6 p-b-5">
-                                                    <label class="stext-102 cl3" for="name">Name</label>
-                                                    <input class="size-111 bor8 stext-102 cl2 p-lr-20" id="name"
-                                                        type="text" name="name">
-                                                </div>
-
-                                                <div class="col-sm-6 p-b-5">
-                                                    <label class="stext-102 cl3" for="email">Email</label>
-                                                    <input class="size-111 bor8 stext-102 cl2 p-lr-20" id="email"
-                                                        type="text" name="email">
-                                                </div>
+                                                @error('body')
+                                                    <div class="text-danger"
+                                                        style="margin-top: 9px; font-size: 12px; font-weight: 400;">
+                                                        <strong>{{ $message }}</strong>
+                                                    </div>
+                                                @enderror
                                             </div>
 
                                             <button
@@ -673,7 +683,7 @@
 
         <div class="bg6 flex-c-m flex-w size-302 m-t-73 p-tb-15">
             <span class="stext-107 cl6 p-lr-25">
-                SKU: JAK-01
+                SKU: {{ $product->slug }}
             </span>
 
 
@@ -690,221 +700,138 @@
 
 
     <!-- Related Products -->
-    <section class="sec-relate-product bg0 p-t-45 p-b-105">
-        <div class="container">
-            <div class="p-b-45">
-                <h3 class="ltext-106 cl5 txt-center">
-                    Related Products
-                </h3>
-            </div>
+    @if ($relatedProducts->count() > 0)
+        <section class="sec-relate-product bg0 p-t-45 p-b-105">
+            <div class="container">
+                <div class="p-b-45">
+                    <h3 class="ltext-106 cl5 txt-center">
+                        Similar Products
+                    </h3>
+                </div>
 
-            <!-- Slide2 -->
-            <div class="wrap-slick2">
-                <div class="slick2">
-                    <div class="item-slick2 p-l-15 p-r-15 p-t-15 p-b-15">
-                        <!-- Block2 -->
-                        <div class="block2">
-                            <div class="block2-pic hov-img0">
-                                <img src="{{ asset('customer-assets/images/product-07.jpg') }}" alt="IMG-PRODUCT">
+                <!-- Tab01 -->
+                <div class="tab01">
+                    <!-- Tab panes -->
+                    <div class="tab-content p-t-10">
+                        <!-- - -->
+                        <div class="tab-pane fade show active" id="best-seller" role="tabpanel">
+                            <!-- Slide2 -->
+                            <div class="wrap-slick2">
+                                <div class="slick2">
+                                    @foreach ($relatedProducts as $product)
+                                        <div class="item-slick2 p-l-15 p-r-15 p-t-15 p-b-15">
+                                            <!-- Block2 -->
+                                            <div class="block2">
+                                                <div class="block2-pic hov-img0">
+                                                    @php
+                                                        // $variant
+                                                        $variant = $product->variants
+                                                            ->filter(function ($variant) {
+                                                                return $variant->warehouseVariants->sum('stock') >
+                                                                    $variant->warehouseVariants->sum('reserved');
+                                                            })
+                                                            ->sortByDesc(function ($variant) {
+                                                                return $variant->orderItems->sum('quantity');
+                                                            })
+                                                            ->first();
 
-                                <a href="#"
-                                    class="block2-btn flex-c-m stext-103 cl2 size-102 bg0 bor2 hov-btn1 p-lr-15 trans-04 js-show-modal1">
-                                    Quick View
-                                </a>
-                            </div>
+                                                        $price = $variant?->price;
+                                                        $finalPrice = $price;
+                                                        $discount = null;
 
-                            <div class="block2-txt flex-w flex-t p-t-14">
-                                <div class="block2-txt-child1 flex-col-l ">
-                                    <a href="product-detail.html" class="stext-104 cl4 hov-cl1 trans-04 js-name-b2 p-b-6">
-                                        Esprit Ruffle Shirt
-                                    </a>
+                                                        $activeAmazingSale =
+                                                            $variant->amazingSale &&
+                                                            $variant->amazingSale->is_active &&
+                                                            $variant->amazingSale->start_date <= now() &&
+                                                            $variant->amazingSale->end_date >= now()
+                                                                ? $variant->amazingSale
+                                                                : null;
 
-                                    <span class="stext-105 cl3">
-                                        $16.64
-                                    </span>
+                                                        if ($activeAmazingSale) {
+                                                            $discount = $variant->amazingSale->percentage;
+                                                            $finalPrice = $price - ($price * $discount) / 100;
+                                                        }
+                                                    @endphp
+
+                                                    @if ($activeAmazingSale)
+                                                        <span class="badge-amazing-slider">
+                                                            Up to {{ $activeAmazingSale->percentage }}% off
+                                                        </span>
+
+                                                        <span class="amazing-timer"
+                                                            data-end="{{ $activeAmazingSale->end_date }}">
+                                                        </span>
+                                                    @endif
+
+                                                    <img src="{{ asset($product->image['indexArray']['main']) }}"
+                                                        alt="{{ $product->name }}">
+
+                                                    <a href="{{ route('customer.market.product', $product) }}"
+                                                        class="block2-btn flex-c-m stext-103 cl2 size-102 bg0 bor2 hov-btn1 p-lr-15 trans-04">
+                                                        Shop Now
+                                                    </a>
+                                                </div>
+
+                                                <div class="block2-txt flex-w flex-t p-t-14">
+                                                    <div class="block2-txt-child1 flex-col-l ">
+                                                        <a href="product-detail.html"
+                                                            class="stext-104 cl4 hov-cl1 trans-04 js-name-b2 p-b-6">
+                                                            {{ $product->name }}
+                                                        </a>
+
+                                                        <span class="stext-105 cl3">
+                                                            @if ($discount)
+                                                                <del
+                                                                    class="old-price-slider">${{ rtrim(rtrim(number_format($price, 2), '0'), '.') }}</del>
+                                                                <span
+                                                                    class="new-price-slider">${{ rtrim(rtrim(number_format($finalPrice, 2), '0'), '.') }}</span>
+                                                            @else
+                                                                ${{ rtrim(rtrim(number_format($price, 2), '0'), '.') }}
+                                                            @endif
+                                                        </span>
+                                                    </div>
+
+                                                    <div class="block2-txt-child2 flex-r p-t-3">
+                                                        <a href="#"
+                                                            class="btn-addwish-b2 dis-block pos-relative js-addwish-b2">
+                                                            <img class="icon-heart1 dis-block trans-04"
+                                                                src="{{ asset('customer-assets/images/icons/icon-heart-01.png') }}"
+                                                                alt="ICON">
+                                                            <img class="icon-heart2 dis-block trans-04 ab-t-l"
+                                                                src="{{ asset('customer-assets/images/icons/icon-heart-02.png') }}"
+                                                                alt="ICON">
+                                                        </a>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    @endforeach
+
                                 </div>
 
-                                <div class="block2-txt-child2 flex-r p-t-3">
-                                    <a href="#" class="btn-addwish-b2 dis-block pos-relative js-addwish-b2">
-                                        <img class="icon-heart1 dis-block trans-04"
-                                            src="{{ asset('customer-assets/images/icons/icon-heart-01.png') }}"
-                                            alt="ICON">
-                                        <img class="icon-heart2 dis-block trans-04 ab-t-l"
-                                            src="images/icons/icon-heart-02.png" alt="ICON">
-                                    </a>
-                                </div>
                             </div>
+
                         </div>
                     </div>
                 </div>
             </div>
-        </div>
-    </section>
-
-    <!-- Modal1 -->
-    <div class="wrap-modal1 js-modal1 p-t-60 p-b-20">
-        <div class="overlay-modal1 js-hide-modal1"></div>
-
-        <div class="container">
-            <div class="bg0 p-t-60 p-b-30 p-lr-15-lg how-pos3-parent">
-                <button class="how-pos3 hov3 trans-04 js-hide-modal1">
-                    <img src="images/icons/icon-close.png" alt="CLOSE">
-                </button>
-
-                <div class="row">
-                    <div class="col-md-6 col-lg-7 p-b-30">
-                        <div class="p-l-25 p-r-30 p-lr-0-lg">
-                            <div class="wrap-slick3 flex-sb flex-w">
-                                <div class="wrap-slick3-dots"></div>
-                                <div class="wrap-slick3-arrows flex-sb-m flex-w"></div>
-
-                                <div class="slick3 gallery-lb">
-                                    <div class="item-slick3" data-thumb="images/product-detail-01.jpg">
-                                        <div class="wrap-pic-w pos-relative">
-                                            <img src="images/product-detail-01.jpg" alt="IMG-PRODUCT">
-
-                                            <a class="flex-c-m size-108 how-pos1 bor0 fs-16 cl10 bg0 hov-btn3 trans-04"
-                                                href="images/product-detail-01.jpg">
-                                                <i class="fa fa-expand"></i>
-                                            </a>
-                                        </div>
-                                    </div>
-
-                                    <div class="item-slick3" data-thumb="images/product-detail-02.jpg">
-                                        <div class="wrap-pic-w pos-relative">
-                                            <img src="images/product-detail-02.jpg" alt="IMG-PRODUCT">
-
-                                            <a class="flex-c-m size-108 how-pos1 bor0 fs-16 cl10 bg0 hov-btn3 trans-04"
-                                                href="images/product-detail-02.jpg">
-                                                <i class="fa fa-expand"></i>
-                                            </a>
-                                        </div>
-                                    </div>
-
-                                    <div class="item-slick3" data-thumb="images/product-detail-03.jpg">
-                                        <div class="wrap-pic-w pos-relative">
-                                            <img src="images/product-detail-03.jpg" alt="IMG-PRODUCT">
-
-                                            <a class="flex-c-m size-108 how-pos1 bor0 fs-16 cl10 bg0 hov-btn3 trans-04"
-                                                href="images/product-detail-03.jpg">
-                                                <i class="fa fa-expand"></i>
-                                            </a>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="col-md-6 col-lg-5 p-b-30">
-                        <div class="p-r-50 p-t-5 p-lr-0-lg">
-                            <h4 class="mtext-105 cl2 js-name-detail p-b-14">
-                                Lightweight Jacket
-                            </h4>
-
-                            <span class="mtext-106 cl2">
-                                $58.79
-                            </span>
-
-                            <p class="stext-102 cl3 p-t-23">
-                                Nulla eget sem vitae eros pharetra viverra. Nam vitae luctus ligula. Mauris consequat ornare
-                                feugiat.
-                            </p>
-
-                            <!--  -->
-                            <div class="p-t-33">
-                                <div class="flex-w flex-r-m p-b-10">
-                                    <div class="size-203 flex-c-m respon6">
-                                        Size
-                                    </div>
-
-                                    <div class="size-204 respon6-next">
-                                        <div class="rs1-select2 bor8 bg0">
-                                            <select class="js-select2" name="time">
-                                                <option>Choose an option</option>
-                                                <option>Size S</option>
-                                                <option>Size M</option>
-                                                <option>Size L</option>
-                                                <option>Size XL</option>
-                                            </select>
-                                            <div class="dropDownSelect2"></div>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <div class="flex-w flex-r-m p-b-10">
-                                    <div class="size-203 flex-c-m respon6">
-                                        Color
-                                    </div>
-
-                                    <div class="size-204 respon6-next">
-                                        <div class="rs1-select2 bor8 bg0">
-                                            <select class="js-select2" name="time">
-                                                <option>Choose an option</option>
-                                                <option>Red</option>
-                                                <option>Blue</option>
-                                                <option>White</option>
-                                                <option>Grey</option>
-                                            </select>
-                                            <div class="dropDownSelect2"></div>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <div class="flex-w flex-r-m p-b-10">
-                                    <div class="size-204 flex-w flex-m respon6-next">
-                                        <div class="wrap-num-product flex-w m-r-20 m-tb-10">
-                                            <div class="btn-num-product-down cl8 hov-btn3 trans-04 flex-c-m">
-                                                <i class="fs-16 zmdi zmdi-minus"></i>
-                                            </div>
-
-                                            <input class="mtext-104 cl3 txt-center num-product" type="number"
-                                                name="num-product" value="1">
-
-                                            <div class="btn-num-product-up cl8 hov-btn3 trans-04 flex-c-m">
-                                                <i class="fs-16 zmdi zmdi-plus"></i>
-                                            </div>
-                                        </div>
-
-                                        <button
-                                            class="flex-c-m stext-101 cl0 size-101 bg1 bor1 hov-btn1 p-lr-15 trans-04 js-addcart-detail">
-                                            Add to cart
-                                        </button>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <!--  -->
-                            <div class="flex-w flex-m p-l-100 p-t-40 respon7">
-                                <div class="flex-m bor9 p-r-10 m-r-11">
-                                    <a href="#"
-                                        class="fs-14 cl3 hov-cl1 trans-04 lh-10 p-lr-5 p-tb-2 js-addwish-detail tooltip100"
-                                        data-tooltip="Add to Wishlist">
-                                        <i class="zmdi zmdi-favorite"></i>
-                                    </a>
-                                </div>
-
-                                <a href="#" class="fs-14 cl3 hov-cl1 trans-04 lh-10 p-lr-5 p-tb-2 m-r-8 tooltip100"
-                                    data-tooltip="Facebook">
-                                    <i class="fa fa-facebook"></i>
-                                </a>
-
-                                <a href="#" class="fs-14 cl3 hov-cl1 trans-04 lh-10 p-lr-5 p-tb-2 m-r-8 tooltip100"
-                                    data-tooltip="Twitter">
-                                    <i class="fa fa-twitter"></i>
-                                </a>
-
-                                <a href="#" class="fs-14 cl3 hov-cl1 trans-04 lh-10 p-lr-5 p-tb-2 m-r-8 tooltip100"
-                                    data-tooltip="Google Plus">
-                                    <i class="fa fa-google-plus"></i>
-                                </a>
-                            </div>
-                        </div>
-                    </div>
+            @if ($relatedProducts->count() >= 8)
+                {{-- <!-- دکمه مشاهده همه -->
+                <div class="text-center p-t-20">
+                    <a href="#" class="btn stext-103 cl2 size-102 bg0 bor2 hov-btn1 p-lr-15 trans-04 border">View All Products</a>
+                </div> --}}
+                <div style="padding-right: 10rem" class="text-right pt-20">
+                    <a href="#" style="color: white"
+                        class="btn bg-dark stext-103 cl2 size-102 bg0 bor2 hov-btn1 p-lr-15 ">View
+                        All Products</a>
                 </div>
-            </div>
-        </div>
-    </div>
+                {{-- <div class="p-t-30">
+                    <a href="#" class="btn btn-primary btn-block">View All Products</a>
+                </div> --}}
+            @endif
+
+        </section>
+    @endif
 @endsection
 
 @section('script')
@@ -973,12 +900,12 @@
 
         /*---------------------------------------------*/
 
-        $('.js-addcart-detail').each(function() {
-            var nameProduct = $(this).parent().parent().parent().parent().find('.js-name-detail').html();
-            $(this).on('click', function() {
-                swal(nameProduct, "is added to cart !", "success");
-            });
-        });
+        // $('.js-addcart-detail').each(function() {
+        //     var nameProduct = $(this).parent().parent().parent().parent().find('.js-name-detail').html();
+        //     $(this).on('click', function() {
+        //         swal(nameProduct, "is added to cart !", "success");
+        //     });
+        // });
     </script>
     <!--===============================================================================================-->
     <script>
@@ -997,310 +924,534 @@
         });
     </script>
     <!--===============================================================================================-->
+    {{-- مدیریت انتخاب واریانت مشتری به صورت زنده --}}
     <script>
-        document.querySelectorAll('.qty-wrapper').forEach(wrapper => {
-            const input = wrapper.querySelector('.qty-input');
-            const plus = wrapper.querySelector('.plus');
-            const minus = wrapper.querySelector('.minus');
-
-            const MAX = 5;
-            const MIN = 1;
-
-            plus.addEventListener('click', () => {
-                let value = parseInt(input.value) || MIN;
-                if (value < MAX) {
-                    input.value = value + 1;
-                }
-            });
-
-            minus.addEventListener('click', () => {
-                let value = parseInt(input.value) || MIN;
-                if (value > MIN) {
-                    input.value = value - 1;
-                }
-            });
-
-            // جلوگیری از تایپ عدد بیشتر از ۵
-            input.addEventListener('input', () => {
-                if (input.value > MAX) input.value = MAX;
-                if (input.value < MIN) input.value = MIN;
-            });
-        });
-    </script>
-
-    <!--===============================================================================================-->
-    {{-- مدیریت واریانت های محصول --}}
-    <script>
-        /* =========================
-                          داده‌ها 
-                        ========================= */
+        // =========================
+        // DATA
+        // =========================
         const variants = {{ Js::from($variantsForJs) }};
         const hasSellableVariant = {{ Js::from($hasSellableVariant) }};
-        /* =========================
-           عناصر HTML
-        ========================= */
+
+        // =========================
+        // ELEMENTS
+        // =========================
         const colorBox = document.getElementById('color-options');
         const sizeBox = document.getElementById('size-options');
         const colorDiv = document.getElementById('color-div');
         const sizeWrapper = document.getElementById('size-wrapper');
-        const sizeText = document.getElementById('selected-size-text');
         const colorText = document.getElementById('selected-color-text');
+        const sizeText = document.getElementById('selected-size-text');
         const addToCartBtn = document.getElementById('add-to-cart');
+        const oldPriceDisplay = document.querySelector('.old-price');
+        const newPriceDisplay = document.querySelector('.new-price');
+        const amazingBadge = document.querySelector('.badge-amazing');
+        const amazingTimer = document.querySelector('.amazing-timer');
+        const stockText = document.getElementById('stock');
+        const qtyInput = document.querySelector('.qty-input');
+        const btnPlus = document.querySelector('.btn-qty.plus');
+        const btnMinus = document.querySelector('.btn-qty.minus');
+        const totalPriceEl = document.getElementById('totalPrice');
+        const totalDiv = document.getElementById('totalDiv');
 
-
-        /* =========================
-           وضعیت انتخاب
-        ========================= */
+        // =========================
+        // STATE
+        // =========================
         let selectedColor = null;
         let selectedSize = null;
+        let currentVariant = null;
 
-        /* =========================
-           آیا رنگ / سایز داریم؟
-        ========================= */
-        let hasColor = false;
-        let hasSize = false;
+        let hasColor = variants.some(v => v.color_id);
+        let hasSize = variants.some(v => v.size_id);
 
-        variants.forEach(v => {
-            if (v.color_id) hasColor = true;
-            if (v.size_id) hasSize = true;
-        });
-        /* =========================
-           رنگ‌های یکتا
-        ========================= */
-        let colors = [];
+        // =========================
+        // DEDUP COLORS
+        // =========================
+        const colors = hasColor ? [...new Map(
+            variants.filter(v => v.color_id).map(v => [v.color_id, {
+                id: v.color_id,
+                name: v.color_name,
+                hex: v.color_hex
+            }])
+        ).values()] : [];
 
-        if (hasColor) {
-            variants.forEach(v => {
-                if (!v.color_id) return;
-
-                const exists = colors.find(c => c.id === v.color_id);
-                if (!exists) {
-                    colors.push({
-                        id: v.color_id,
-                        name: v.color_name,
-                        hex: v.color_hex
-                    });
-                }
-            });
+        // =========================
+        // HELPERS
+        // =========================
+        function isColorAvailable(id) {
+            return variants.some(v => v.color_id === id && v.stock > 0);
         }
-        /* =========================
-           رندر رنگ‌ها
-        ========================= */
+
+        function isSizeAvailable(sizeId, colorId) {
+            return variants.some(v =>
+                v.size_id === sizeId &&
+                (!colorId || v.color_id === colorId) &&
+                v.stock > 0
+            );
+        }
+
+        function findActiveVariant() {
+            if (!hasSellableVariant) return null;
+
+            return variants.find(v =>
+                (!hasColor || v.color_id === selectedColor) &&
+                (!hasSize || v.size_id === selectedSize) &&
+                v.stock > 0
+            ) || null;
+        }
+
+        // =========================
+        // RENDER COLORS
+        // =========================
         function renderColors() {
             if (!hasColor) {
-                colorDiv.style.display = 'none';
+                if (colorDiv) colorDiv.style.display = 'none';
                 return;
             }
 
-            //  جدا کردن رنگ‌های موجود و ناموجود
-            const availableColors = colors.filter(c => isColorAvailable(c.id));
-            const disabledColors = colors.filter(c => !isColorAvailable(c.id));
+            const sorted = [
+                ...colors.filter(c => isColorAvailable(c.id)),
+                ...colors.filter(c => !isColorAvailable(c.id))
+            ];
 
-            //  ترکیب نهایی: موجودها اول، ناموجودها بعد
-            const sortedColors = [...availableColors, ...disabledColors];
-
-            // ساخت HTML
-            let html = '';
-            sortedColors.forEach(c => {
-                const disabled = !isColorAvailable(c.id);
-
-                html += `<label class="color-option ${disabled ? 'disabled' : ''}">
-                <input type="radio"
-                       name="color"
-                       value="${c.id}"
-                       ${disabled ? 'disabled' : ''}>
-                <span class="swatch"
-                      style="background:${c.hex}"
-                      title="${c.name}"></span>
-            </label> `;
-            });
-
-            colorBox.innerHTML = html;
-
-            // 4️⃣ انتخاب خودکار اولین رنگ موجود
-            const firstAvailable = colorBox.querySelector(
-                'input[name="color"]:not(:disabled)'
-            );
-
-            if (firstAvailable) {
-                firstAvailable.checked = true;
-                selectedColor = Number(firstAvailable.value);
-                updateColorTextById(selectedColor);
-                showSizes(selectedColor);
-            }
+            colorBox.innerHTML = sorted.map(c => `
+        <label class="color-option ${!isColorAvailable(c.id) ? 'disabled' : ''}">
+            <input type="radio" name="color" value="${c.id}" ${!isColorAvailable(c.id) ? 'disabled' : ''}>
+            <span class="swatch" style="background:${c.hex}" title="${c.name}"></span>
+        </label>`).join('');
         }
 
-        /* =========================
-           نمایش سایزها
-        ========================= */
+        // =========================
+        // SHOW SIZES
+        // =========================
         function showSizes(colorId = null) {
 
-            sizeBox.innerHTML = '';
-
-            let list = variants.filter(v => {
-                if (!v.size_id) return false;
-                if (hasColor) return v.color_id === colorId;
-                return true;
-            });
-
-            if (!list.length) {
+            if (!hasSize) {
                 sizeWrapper.style.display = 'none';
                 return;
             }
 
-            sizeWrapper.style.display = 'block';
+            const sizes = [...new Map(
+                variants
+                .filter(v => !hasColor || v.color_id === colorId)
+                .map(v => [v.size_id, {
+                    id: v.size_id,
+                    name: v.size_name
+                }])
+            ).values()];
 
-            // 1️⃣ جدا کردن سایزهای موجود و ناموجود
-            const availableSizes = list.filter(v => v.stock > 0);
-            const disabledSizes = list.filter(v => v.stock === 0);
+            //  جدا کردن موجود و ناموجود
+            const availableSizes = sizes.filter(s => isSizeAvailable(s.id, colorId));
+            const unavailableSizes = sizes.filter(s => !isSizeAvailable(s.id, colorId));
 
-            const sortedSizes = [...availableSizes, ...disabledSizes];
+            //  موجودها اول
+            const sortedSizes = [...availableSizes, ...unavailableSizes];
 
-            // 2️⃣ ساخت HTML
-            sortedSizes.forEach(v => {
+            sizeBox.innerHTML = sortedSizes.map(s => {
 
-                const disabled = v.stock === 0;
+                const available = isSizeAvailable(s.id, colorId);
 
-                sizeBox.innerHTML += `
-            <label class="size-option ${disabled ? 'disabled' : ''}">
-                <input type="radio"
-                       name="size"
-                       value="${v.size_id}"
-                       ${disabled ? 'disabled' : ''}>
-                <span class="size-box">${v.size_name}</span>
-            </label>
-        `;
-            });
+                return `
+            <label class="size-option ${!available ? 'disabled' : ''}">
+                <input type="radio" name="size" value="${s.id}" ${!available ? 'disabled' : ''}>
+                <span class="size-box">${s.name}</span>
+            </label> `;
+            }).join('');
 
-            // 3️⃣ انتخاب خودکار اولین سایز موجود
-            const firstAvailable = sizeBox.querySelector(
-                'input[name="size"]:not(:disabled)'
-            );
+            const first = sizeBox.querySelector('input:not(:disabled)');
 
-            if (firstAvailable) {
-                firstAvailable.checked = true;
-                selectedSize = Number(firstAvailable.value);
-                updateSizeText(
-                    list.find(v => v.size_id === selectedSize)
-                );
-            }
-        }
+            if (first) {
+                first.checked = true;
+                selectedSize = Number(first.value);
+                // بروز کردن متن selected size
+                const variant = variants.find(v => v.size_id === selectedSize && (!colorId || v.color_id === colorId));
+                if (variant) sizeText.innerText = variant.size_name;
 
-
-        /* =========================
-           آپدیت متن سایز
-        ========================= */
-        function updateSizeText(variant) {
-            if (!variant || !sizeText) return;
-            sizeText.textContent = variant.size_name;
-        }
-
-        /* =========================
-               آپدیت متن رنگ
-        ========================= */
-        function updateColorTextById(colorId) {
-            const color = colors.find(c => c.id === colorId);
-            if (!color || !colorText) return;
-            colorText.textContent = color.name;
-        }
-
-        /* =========================
-           رویداد تغییر رنگ
-        ========================= */
-        document.addEventListener('change', e => {
-            if (e.target.name === 'color') {
-
-                selectedColor = Number(e.target.value);
+            } else {
                 selectedSize = null;
-
-                updateColorTextById(selectedColor);
-
-                showSizes(selectedColor);
             }
-        });
+        }
 
-        /* =========================
-           رویداد تغییر سایز
-        ========================= */
-        document.addEventListener('change', e => {
-            if (e.target.name === 'size') {
-                selectedSize = Number(e.target.value);
+        // =========================
+        // UPDATE TIMER (PRODUCT PAGE)
+        // =========================
+        function startAmazingTimer(timer, endDate) {
+            if (!timer) return;
 
-                const variant = variants.find(v => {
-                    if (hasColor) {
-                        return v.color_id === selectedColor && v.size_id === selectedSize;
-                    }
-                    return v.size_id === selectedSize;
-                });
-
-                updateSizeText(variant);
-                console.log('variant:', variant);
+            if (timer._interval) {
+                clearInterval(timer._interval);
             }
-        });
 
+            if (!endDate) {
+                timer.innerText = '';
+                return;
+            }
 
-        /* =========================
-           اجرای اولیه
-        ========================= */
-        document.addEventListener('DOMContentLoaded', () => {
+            const end = new Date(endDate).getTime();
+            if (isNaN(end)) {
+                timer.innerText = '';
+                return;
+            }
 
-            renderColors();
+            function update() {
+                const now = Date.now();
+                const diff = end - now;
 
-            if (hasColor && colors.length) {
-                const firstAvailableColor = colors.find(c => isColorAvailable(c.id));
-
-                if (firstAvailableColor) {
-                    selectedColor = firstAvailableColor.id;
-
-                    const firstColorRadio = colorBox.querySelector(
-                        `input[value="${selectedColor}"]`
-                    );
-
-                    if (firstColorRadio) firstColorRadio.checked = true;
-
-                    updateColorTextById(selectedColor);
-                    showSizes(selectedColor);
+                if (diff <= 0) {
+                    timer.innerText = 'Expired';
+                    clearInterval(timer._interval);
+                    return;
                 }
 
-            } else if (hasSize) {
-                showSizes();
-            } else {
-                sizeWrapper.style.display = 'none';
+                const s = Math.floor(diff / 1000);
+                const m = Math.floor(s / 60);
+                const h = Math.floor(m / 60);
+                const d = Math.floor(h / 24);
+
+                const hh = h % 24;
+                const mm = m % 60;
+                const ss = s % 60;
+
+                if (d > 0) {
+                    timer.innerText = `${d}d ${hh}h`;
+                } else {
+                    timer.innerText = `${hh}h ${mm}m ${ss}s`;
+                }
             }
 
-            /* =========================
-                 اگر موجودی نداشتیم
-             ========================= */
-            if (!hasSellableVariant) {
+            update();
+            timer._interval = setInterval(update, 1000);
+        }
 
-                // دکمه افزودن به سبد
+        // =========================
+        // UPDATE PRICE
+        // =========================
+
+        function calculatePrice(variant) {
+            if (!variant) {
+                if (newPriceDisplay) {
+                    newPriceDisplay.innerText = 'Out of stock';
+                    newPriceDisplay.style.color = 'gray';
+                    amazingBadge.style.display = 'none';
+                    amazingTimer.style.display = 'none';
+                    totalDiv.style.display = 'none';
+                    stockText.style.display = 'none';
+                }
+                if (oldPriceDisplay) oldPriceDisplay.style.display = 'none';
+
+                if (amazingTimer) {
+                    amazingTimer.removeAttribute('data-end');
+                    amazingTimer.innerText = '';
+                    if (amazingTimer._interval) clearInterval(amazingTimer._interval);
+                }
+
+                return;
+            }
+
+            const base = Number(variant.price);
+            const percent = Number(variant.percentage || 0);
+
+            let final = base;
+
+            if (percent > 0) {
+                final = base * (1 - percent / 100);
+
+                if (amazingBadge) {
+                    amazingBadge.style.display = 'inline';
+                    amazingBadge.innerText = percent + '% off';
+                    amazingTimer.style.display = 'inline';
+
+                    amazingTimer.setAttribute('data-end', variant.expire_at);
+
+                    startAmazingTimer(amazingTimer, variant.expire_at); // ← این خط مهم
+                }
+
+                if (oldPriceDisplay) {
+                    oldPriceDisplay.style.display = 'inline';
+                    oldPriceDisplay.innerText = '$' + base.toFixed(2);
+                }
+
+            } else {
+                if (amazingBadge && amazingTimer) {
+                    amazingBadge.style.display = 'none';
+                    amazingTimer.style.display = 'none';
+                    amazingTimer.removeAttribute('data-end');
+
+                    amazingTimer.innerText = '';
+                    if (amazingTimer._interval) clearInterval(amazingTimer._interval);
+                }
+
+                if (oldPriceDisplay) oldPriceDisplay.style.display = 'none';
+            }
+
+            if (newPriceDisplay) {
+                newPriceDisplay.innerText = '$' + final.toFixed(2);
+            }
+        }
+
+        // =========================
+        // UPDATE STOCK
+        // =========================
+        function updateStock(variant) {
+            if (!stockText || !qtyInput) return;
+
+            if (!variant) {
+                stockText.innerText = 'Out of stock';
+                qtyInput.max = 1;
+                return;
+            }
+
+            const stock = Number(variant.stock);
+
+            if (stock === 0) stockText.innerText = 'Out of stock';
+            else if (stock <= 5) stockText.innerText = `Only ${stock} items left`;
+            else stockText.innerText = 'In stock';
+
+            const maxQty = Math.min(stock, 10);
+
+            qtyInput.max = maxQty;
+
+            if (qtyInput.value > maxQty) qtyInput.value = maxQty;
+        }
+
+        // =========================
+        // TOTAL PRICE
+        // =========================
+        function updateTotalPrice(variant) {
+            if (!variant) {
+                totalPriceEl.innerText = '0';
+                return;
+            }
+
+            const qty = Number(qtyInput.value) || 1;
+
+            const base = Number(variant.price);
+            const percent = Number(variant.percentage || 0);
+
+            const final = percent ? base * (1 - percent / 100) : base;
+
+            totalPriceEl.innerText = (final * qty).toFixed(2);
+        }
+
+        // =========================
+        // CART BUTTON
+        // =========================
+        function updateCartButton() {
+            if (!addToCartBtn) return;
+
+            if (!currentVariant) {
                 addToCartBtn.disabled = true;
                 addToCartBtn.innerText = 'Out of stock';
                 addToCartBtn.style.backgroundColor = '#ccc';
                 addToCartBtn.style.cursor = 'not-allowed';
+                sizeWrapper.style.display = 'none';
+            } else {
+                addToCartBtn.disabled = false;
+                addToCartBtn.innerText = 'ADD TO CART';
+                addToCartBtn.style.cursor = 'pointer';
+            }
+        }
 
-                // همه رنگ‌ها: unchecked + disabled
-                colorBox.querySelectorAll('input[name="color"]').forEach(radio => {
-                    radio.checked = false;
-                    radio.disabled = true;
-                    radio.closest('label')?.classList.add('disabled');
-                });
 
-                // سایزها هم مخفی شوند
-                if (!hasSize) sizeWrapper.style.display = 'none';
 
+        // =========================
+        // MAIN UI REFRESH
+        // =========================
+        function refreshUI() {
+            currentVariant = findActiveVariant();
+            calculatePrice(currentVariant);
+            updateStock(currentVariant);
+            updateTotalPrice(currentVariant);
+            updateCartButton();
+        }
+
+        // =========================
+        // INIT
+        // =========================
+        document.addEventListener('DOMContentLoaded', () => {
+
+            renderColors();
+
+            // Default select color
+            if (hasColor) {
+                const first = colors.find(c => isColorAvailable(c.id));
+                if (first) {
+                    selectedColor = first.id;
+                    const input = colorBox.querySelector(`input[value="${selectedColor}"]`);
+                    if (input) input.checked = true;
+                    colorText.innerText = first.name;
+                    showSizes(selectedColor);
+                }
             }
 
+            // If only size exists
+            if (!hasColor && hasSize) {
+                showSizes();
+            }
+            if (!hasColor && !hasSize) {
+                sizeWrapper.style.display = 'none';
+            }
+
+            currentVariant = findActiveVariant();
+            refreshUI();
+
+            // + / -
+            if (btnPlus && btnMinus && qtyInput) {
+
+                btnPlus.addEventListener('click', () => {
+                    let qty = Number(qtyInput.value) || 1;
+                    let max = Number(qtyInput.max) || 10;
+
+                    if (qty < max) qtyInput.value = qty + 1;
+
+                    refreshUI();
+                });
+
+                btnMinus.addEventListener('click', () => {
+                    let qty = Number(qtyInput.value) || 1;
+                    if (qty > 1) qtyInput.value = qty - 1;
+                    refreshUI();
+                });
+
+                qtyInput.addEventListener('input', () => {
+                    let qty = Number(qtyInput.value);
+                    let max = Number(qtyInput.max) || 10;
+
+
+                    if (qty > max) qtyInput.value = max;
+                    if (qty < 1) qtyInput.value = 1;
+
+                    refreshUI();
+                });
+            }
         });
 
-        /* =========================
-          رنگ موجود است؟
-        ========================= */
-        function isColorAvailable(colorId) {
-            return variants.some(v =>
-                v.color_id === colorId &&
-                v.stock > 0
-            );
+        // =========================
+        // EVENTS
+        // =========================
+        document.addEventListener('change', e => {
+
+            if (e.target.name === 'color') {
+                qtyInput.value = 1;
+
+                selectedColor = Number(e.target.value);
+                const clr = colors.find(c => c.id === selectedColor);
+                if (clr) colorText.innerText = clr.name;
+
+                showSizes(selectedColor);
+                refreshUI();
+            }
+
+            if (e.target.name === 'size') {
+                qtyInput.value = 1;
+
+                selectedSize = Number(e.target.value);
+                const variant = findActiveVariant();
+                if (variant) sizeText.innerText = variant.size_name;
+                refreshUI();
+            }
+        });
+
+        // =========================
+        // ADD TO CART
+        // =========================
+        addToCartBtn.addEventListener('click', function(e) {
+            // مقدار variant انتخاب‌شده
+            const variantId = currentVariant?.id;
+
+            // مقدار تعداد انتخاب شده
+            const qty = parseInt(document.getElementById('num-product').value);
+
+            document.getElementById('variant_id').value = variantId;
+            document.getElementById('quantity').value = qty;
+        });
+    </script>
+
+
+    <!--===============================================================================================-->
+    {{-- دکمه مشاهده بیشتر کامنت ها --}}
+    <script>
+        var btn = document.getElementById('load-more-comments');
+
+        if (btn) {
+
+            btn.addEventListener('click', function() {
+
+                var page = btn.getAttribute('data-next-page');
+
+                var url = window.location.pathname + '?page=' + page;
+                fetch(url)
+                    .then(function(response) {
+                        console.log(response.text());
+
+                        return response.text();
+
+                    })
+                    .then(function(html) {
+
+                        var parser = new DOMParser();
+                        var doc = parser.parseFromString(html, 'text/html');
+
+                        var newComments = doc.querySelector('#comments-container').innerHTML;
+
+                        document
+                            .getElementById('comments-container')
+                            .insertAdjacentHTML('beforeend', newComments);
+
+                        btn.setAttribute('data-next-page', Number(page) + 1);
+
+                        if (!doc.querySelector('#load-more-comments')) {
+                            btn.remove();
+                        }
+
+                    });
+
+            });
+
         }
+    </script>
+
+
+    <!--===============================================================================================-->
+    {{-- amazingSale js timer --}}
+    <script>
+        document.querySelectorAll('.amazing-timer').forEach(timer => {
+
+            if (!timer.dataset.end) return;
+
+            const endTime = new Date(timer.dataset.end).getTime();
+
+            setInterval(() => {
+
+                const now = Date.now();
+                const diff = endTime - now;
+
+                if (diff <= 0) {
+                    timer.innerText = 'Expired';
+                    return;
+                }
+
+                if (diff < 60 * 60 * 1000) {
+                    timer.style.background = '#e53935';
+                }
+
+                // تبدیل میلی‌ ثانیه به واحدهای انسانی
+                const seconds = Math.floor(diff / 1000);
+                const minutes = Math.floor(seconds / 60);
+                const hours = Math.floor(minutes / 60);
+                const days = Math.floor(hours / 24);
+
+                // باقی‌مانده‌ها
+                const showHours = hours % 24;
+                const showMinutes = minutes % 60;
+                const showSeconds = seconds % 60;
+
+                if (days > 0) {
+                    timer.innerText = days + 'd ' + showHours + 'h';
+                } else {
+                    timer.innerText = showHours + 'h ' + showMinutes + 'm ' + showSeconds + 's';
+                }
+
+            }, 1000);
+        });
     </script>
 @endsection

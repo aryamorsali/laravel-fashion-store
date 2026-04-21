@@ -25,6 +25,10 @@ class ProductVariantController extends Controller
      */
     public function create(Product $product)
     {
+        if (!$product->has_color && !$product->has_size) {
+            return redirect()->route('admin.market.variant.index', $product)
+                ->with('alert-section-warning', 'This product is simple. To have a different variant, first change the product nature to variable.');
+        }
         $colors = ProductColor::all();
         $sizes = ProductSize::all();
         return view('admin.market.product.variant.create', compact('product', 'colors', 'sizes'));
@@ -35,6 +39,10 @@ class ProductVariantController extends Controller
      */
     public function store(ProductVariantRequest $request, Product $product)
     {
+        if (!$product->has_color && !$product->has_size) {
+            abort(403, 'This product is simple and does not allow for adding new variants.');
+        }
+
         $colors = $request->colors;
         $sizes = $request->sizes ?? [null];
         $allColors = ProductColor::pluck('name', 'id')->toArray();
@@ -124,8 +132,6 @@ class ProductVariantController extends Controller
      */
     public function update(ProductVariantRequest $request, Product $product, ProductVariant $variant)
     {
-        dd('upadte');
-        // ادمین میتواند فقط موجودی و قیمت را تغییر دهد چون شاید کاربر آنرا در سفارشات خود داشته باشد
         $variant->update([
             'price' => $request->price,
         ]);
@@ -147,10 +153,15 @@ class ProductVariantController extends Controller
             $product->updateQuietly([
                 'status' => 'draft',
             ]);
+            return redirect()->route('admin.market.variant.index', $product)->with(
+                'alert-section-warning',
+                'Due to the removal of all variants, the product was reverted to draft status.'
+            );
         }
-        return redirect()->route('admin.market.variant.index', $product)->with(
+
+        return redirect()->back()->with(
             'alert-section-success',
-            'Due to the removal of all variants, the product was reverted to draft status.'
+            'Variant successfully removed.'
         );
     }
 

@@ -15,7 +15,7 @@ class CategoryController extends Controller
      */
     public function index()
     {
-        $productCategories = ProductCategory::all();
+        $productCategories = ProductCategory::orderBy('created_at', 'desc')->get();;
         return view('admin.market.category.index', compact('productCategories'));
     }
 

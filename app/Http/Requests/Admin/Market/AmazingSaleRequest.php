@@ -25,12 +25,17 @@ class AmazingSaleRequest extends FormRequest
         if ($this->isMethod('post')) {
             return [
                 'percentage' => ['required', 'numeric', 'min:1', 'max:100'],
+                'product_id' => ['required', 'exists:products,id'],
 
                 'product_variant_ids' => ['required', 'array', 'min:1'],
 
                 'product_variant_ids.*' => [
                     'required',
-                    'exists:product_variants,id'
+                    Rule::exists('product_variants', 'id')
+                        ->where(
+                            fn($q) =>
+                            $q->where('product_id', $this->product_id)
+                        ),
                 ],
 
                 'is_active' => ['required', 'boolean'],
@@ -43,8 +48,7 @@ class AmazingSaleRequest extends FormRequest
 
                 'percentage' => ['required', 'numeric', 'min:1', 'max:100'],
                 'is_active' => ['required', 'boolean'],
-
-                'start_date' => ['required', 'date', 'after_or_equal:today'],
+                'start_date' => ['required', 'date'],
                 'end_date'   => ['required', 'date', 'after_or_equal:start_date'],
             ];
         }

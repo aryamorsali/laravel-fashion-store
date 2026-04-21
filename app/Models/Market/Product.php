@@ -2,6 +2,7 @@
 
 namespace App\Models\Market;
 
+use App\Models\Content\Comment;
 use App\Models\Market\Gallery;
 use Cviebrock\EloquentSluggable\Sluggable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -36,10 +37,6 @@ class Product extends Model
     {
         return $this->hasMany(Gallery::class);
     }
-    public function variants()
-    {
-        return $this->hasMany(ProductVariant::class);
-    }
 
     public function attributeValues()
     {
@@ -54,10 +51,24 @@ class Product extends Model
 
     public function orderItems()
     {
-        return $this->hasMany(OrderItem::class);
+        // order_items → product_variant → product
+        return $this->hasManyThrough(OrderItem::class, ProductVariant::class, 'product_id', 'product_variant_id');
     }
 
+    public function variants()
+    {
+        return $this->hasMany(ProductVariant::class);
+    }
 
+    public function comments()
+    {
+        return $this->morphMany(Comment::class, 'commentable');
+    }
+
+    public function activeComments()
+    {
+        return $this->comments()->where('approved', 1)->whereNull('parent_id');
+    }
 
     /////////////////////////////////////////////////////
 
