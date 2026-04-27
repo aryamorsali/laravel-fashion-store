@@ -422,7 +422,7 @@
 
 
                                 <!-- add to cart -->
-                                <form action="#" method="POST">
+                                <form action="{{ route('customer.sales-process.add-to-cart') }}" method="POST">
                                     @csrf
 
                                     <input type="hidden" name="variant_id" id="variant_id">

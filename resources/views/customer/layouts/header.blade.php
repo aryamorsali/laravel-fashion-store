@@ -66,7 +66,12 @@
                          <i class="zmdi zmdi-search"></i>
                      </div>
 
-               
+                     @auth
+                         <div class="icon-header-item cl2 hov-cl1 trans-04 p-l-22 p-r-11 icon-header-noti js-show-cart"
+                             data-notify="{{ $cartItems->count() }}">
+                             <i class="zmdi zmdi-shopping-cart"></i>
+                         </div>
+                     @endauth
 
                      <div class="d-inline px-md-3">
                          @auth
@@ -243,7 +248,117 @@
                  </div>
              </div>
 
-           
+             <div class="header-cart-content flex-w js-pscroll">
+
+
+                 @php
+                     $totalPrice = 0;
+                 @endphp
+
+                 @foreach ($cartItems as $item)
+                     <ul class="header-cart-wrapitem w-full">
+                         <li class="header-cart-item flex-w flex-t m-b-12">
+
+                             <div class="header-cart-item-img">
+                                 <img src="{{ asset($item->productVariant->product->image['indexArray']['small']) }}"
+                                     alt="IMG">
+                             </div>
+                             @php
+                                 $price = $item->productVariant?->price;
+                                 $finalPrice = $price;
+                                 $discount = null;
+
+                                 $activeAmazingSale =
+                                     $item->productVariant &&
+                                     $item->productVariant->amazingSale &&
+                                     $item->productVariant->amazingSale->is_active &&
+                                     $item->productVariant->amazingSale->start_date <= now() &&
+                                     $item->productVariant->amazingSale->end_date >= now();
+
+                                 if ($activeAmazingSale) {
+                                     $discount = $item->productVariant->amazingSale->percentage;
+                                     $finalPrice = $price - ($price * $discount) / 100;
+                                 }
+
+                                 $totalPrice += $item->quantity * $finalPrice;
+                             @endphp
+                             <div class="header-cart-item-txt p-t-8" style="flex:1; padding-right:5px;">
+
+                                 <div style="display:flex; align-items:center; justify-content:space-between; gap:6px;">
+
+                                     <a href="{{ route('customer.market.product', $item->productVariant->product) }}"
+                                         class="header-cart-item-name hov-cl1 trans-04"
+                                         style="margin-bottom:0; font-size:14px; line-height:1.3;">
+                                         {{ $item->productVariant->product->name }}
+                                     </a>
+
+                                     @if ($activeAmazingSale)
+                                         <span
+                                             style="
+                                                background:#e60023;
+                                                color:#fff;
+                                                padding:1px 6px;
+                                                font-size:11px;
+                                                border-radius:12px;
+                                                font-weight:600;
+                                                white-space:nowrap;">
+                                             -{{ $item->productVariant->amazingSale->percentage }}%
+                                         </span>
+                                     @endif
+
+                                 </div>
+
+
+                                 <div
+                                     style="display:flex; align-items:center; justify-content:space-between; margin-top:6px;">
+
+                                     <span class="header-cart-item-info" style="font-size:13px; color:#666;">
+                                         {{ $item->quantity }} ×
+                                         @if ($activeAmazingSale)
+                                             <span style="color:#e60023; font-weight:500;">
+                                                 ${{ number_format($finalPrice, 2) }}
+                                             </span>
+                                         @else
+                                             ${{ number_format($finalPrice, 2) }}
+                                         @endif
+                                     </span>
+
+                                     <a href="{{ route('customer.sales-process.remove-from-cart', $item) }}"
+                                         style="
+                                            color:#999;
+                                            font-size:16px;
+                                            padding:4px;">
+                                         <i class="fa fa-trash"></i>
+                                     </a>
+
+                                 </div>
+
+                             </div>
+
+                         </li>
+                     </ul>
+                 @endforeach
+
+
+                 <div class="w-full">
+                     <div class="header-cart-total w-full p-tb-40">
+                         Total: ${{ rtrim(rtrim(number_format($totalPrice, 2), '0'), '.') }}
+                     </div>
+
+                     <div class="header-cart-buttons flex-w w-full">
+                         <a href="{{ route('customer.sales-process.shoping-cart') }}"
+                             class="flex-c-m stext-101 cl0 size-107 bg3 bor2 hov-btn3 p-lr-15 trans-04 m-r-8 m-b-10">
+                             View Cart
+                         </a>
+
+                         <a href="{{ route('customer.sales-process.shoping-cart') }}"
+                             class="flex-c-m stext-101 cl0 size-107 bg3 bor2 hov-btn3 p-lr-15 trans-04 m-b-10">
+                             Check Out
+                         </a>
+                     </div>
+                 </div>
+
+             </div>
 
          </div>
      </div>

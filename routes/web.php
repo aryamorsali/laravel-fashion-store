@@ -36,8 +36,8 @@ use App\Http\Controllers\Admin\Ticket\TicketPriorityController;
 use App\Http\Controllers\Admin\User\CustomerController;
 use App\Http\Controllers\Customer\HomeController;
 use App\Http\Controllers\Customer\Market\ProductController as MarketProductController;
+use App\Http\Controllers\Customer\SalesProcess\CartController;
 use App\Http\Controllers\ProfileController;
-use App\Http\Controllers\SalesProcess\CartController;
 use Illuminate\Support\Facades\Route;
 
 // admin
@@ -400,6 +400,16 @@ Route::get('/', [HomeController::class, 'home'])->name('customer.home');
 Route::prefix('/product')->group(function () {
     Route::get('/{product:slug}', [MarketProductController::class, 'product'])->name('customer.market.product');
     Route::post('/{product:slug}/add-comment', [MarketProductController::class, 'addComment'])->name('customer.market.add-comment');
+});
+
+Route::namespace('SalesProcess')->group(function () {
+    //cart
+    Route::get('/shoping-cart', [CartController::class, 'shopingCart'])->name('customer.sales-process.shoping-cart');
+    Route::post('/add-to-cart', [CartController::class, 'addToCart'])->name('customer.sales-process.add-to-cart');
+    Route::get('/remove-from-cart/{cartItem}', [CartController::class, 'removeFromCart'])->name('customer.sales-process.remove-from-cart');
+
+    Route::post('/shoping-cart/update', [CartController::class, 'updateCart'])->name('customer.sales-process.update-shoping-cart');
+    Route::post('/shoping-cart/coupon', [CartController::class, 'coupon'])->name('customer.sales-process.coupon');
 });
 
 Route::view('/about', 'customer.pages.about')->name('customer.about');

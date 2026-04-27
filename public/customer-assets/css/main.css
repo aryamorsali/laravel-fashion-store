@@ -1923,11 +1923,12 @@ input.num-product::-webkit-inner-spin-button {
 
 .table-shopping-cart .column-1 {
   width: 133px;
-  padding-left: 50px;
+  padding-left: 32px;
 }
 
 .table-shopping-cart .column-2 {
-  width: 220px;
+  padding-left: 20px;
+  width: 200px;
   font-size: 15px;
 }
 
@@ -1952,13 +1953,13 @@ input.num-product::-webkit-inner-spin-button {
   height: 185px;
 }
 
-.table-shopping-cart .table_row td {
+/* .table-shopping-cart .table_row td {
   padding-bottom: 20px;
-}
+} */
 
-.table-shopping-cart .table_row td.column-1 {
+/* .table-shopping-cart .table_row td.column-1 {
   padding-bottom: 30px;
-}
+} */
 
 .table-shopping-cart .table_head th {
   font-family: Poppins-Bold;
