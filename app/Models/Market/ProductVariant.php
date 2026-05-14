@@ -54,4 +54,37 @@ class ProductVariant extends Model
         return $this->warehouseVariants
             ->sum(fn($w) => $w->stock - $w->reserved);
     }
+
+
+
+    ////////////////////////////////////////////////////////////////////////////////
+
+    public function getHasAmazingSaleAttribute()
+    {
+        return $this->activeAmazingSale !== null;
+    }
+
+    public function getDiscountPercentageAttribute()
+    {
+        if (!$this->has_amazing_sale) {
+            return 0;
+        }
+
+        return $this->amazingSale->percentage;
+    }
+
+    public function getFinalPriceAttribute()
+    {
+        if (!$this->has_amazing_sale) {
+            return $this->price;
+        }
+
+        return $this->price -
+            (($this->price * $this->discount_percentage) / 100);
+    }
+
+    public function getIsAvailableAttribute()
+    {
+        return $this->availableStock() > 0;
+    }
 }

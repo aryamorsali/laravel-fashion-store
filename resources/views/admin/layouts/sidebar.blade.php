@@ -109,6 +109,10 @@
                            <div class="sb-nav-link-icon"><i class="fas fa-bars"></i></div>
                            Post Catgeories
                        </a>
+                       <a class="nav-link" href="{{ route('admin.content.tag.index') }}">
+                           <div class="sb-nav-link-icon"><i class="fas fa-bars"></i></div>
+                           Tags
+                       </a>
                        <a class="nav-link" href="{{ route('admin.content.menu.index') }}">
                            <div class="sb-nav-link-icon"><i class="fas fa-bars"></i></div>
                            Menus

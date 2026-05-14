@@ -141,19 +141,4 @@ class CategoryController extends Controller
             return response()->json(['status' => false]);
         }
     }
-
-    public function showInMenu(ProductCategory $productCategory)
-    {
-        $productCategory->show_in_menu = $productCategory->show_in_menu == 0 ? 1 : 0;
-        $result = $productCategory->save();
-        if ($result) {
-            if ($productCategory->show_in_menu == 0) {
-                return response()->json(['show_in_menu' => true, 'checked' => false]);
-            } else {
-                return response()->json(['show_in_menu' => true, 'checked' => true]);
-            }
-        } else {
-            return response()->json(['show_in_menu' => false]);
-        }
-    }
 }

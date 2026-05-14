@@ -1,7 +1,8 @@
 @extends('admin.layouts.master2')
 
 @section('head-tag')
-    <title>Posts</title>
+    <title>
+        Posts</title>
 @endsection
 
 @section('content')
@@ -56,7 +57,14 @@
                                         src="{{ asset($post->image['blogArray'][$post->image['currentImage']]) }}"
                                         alt="" width="80" height="60">
                                 </td>
-                                <td>{{ Str::limit($post->tags, 40) }}</td>
+                                <td>
+                                    @if ($post->tags->isEmpty())
+                                        <span class="text-danger">No tag</span>
+                                    @else
+                                        {{ $post->tags->pluck('name')->join(', ') }}
+                                    @endif
+                                </td>
+
 
 
                                 <td>

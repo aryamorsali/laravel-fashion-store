@@ -113,7 +113,7 @@
                             @enderror
                         </section>
 
-                        <section class="col-12 col-md-6 my-3">
+                        <section class="col-12 my-3">
                             <div class="form-group">
                                 <label for="image">Image</label>
                                 <input type="file" class="form-control form-control-sm" name="image" id="image">
@@ -152,23 +152,6 @@
                                 </select>
                             </div>
                             @error('status')
-                                <div class="text-danger" style="margin-top: 9px; font-size: 12px; font-weight: 400;">
-                                    <strong>{{ $message }}</strong>
-                                </div>
-                            @enderror
-                        </section>
-
-                        <section class="col-12 col-md-6 my-3">
-                            <div class="form-group">
-                                <label for="show_in_menu">Show in menu</label>
-                                <select name="show_in_menu" class="form-control form-control-sm" id="show_in_menu">
-                                    <option value="0" @if (old('show_in_menu') == 0) selected @endif>No
-                                    </option>
-                                    <option value="1" @if (old('show_in_menu') == 1) selected @endif>Yes
-                                    </option>
-                                </select>
-                            </div>
-                            @error('show_in_menu')
                                 <div class="text-danger" style="margin-top: 9px; font-size: 12px; font-weight: 400;">
                                     <strong>{{ $message }}</strong>
                                 </div>

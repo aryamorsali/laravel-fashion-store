@@ -4,6 +4,7 @@ namespace App\Models\Market;
 
 use App\Models\Content\Comment;
 use App\Models\Market\Gallery;
+use App\Models\Content\Tag;
 use Cviebrock\EloquentSluggable\Sluggable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -52,7 +53,14 @@ class Product extends Model
     public function orderItems()
     {
         // order_items → product_variant → product
-        return $this->hasManyThrough(OrderItem::class, ProductVariant::class, 'product_id', 'product_variant_id');
+        return $this->hasManyThrough(
+            OrderItem::class,
+            ProductVariant::class,
+            'product_id',
+            'product_variant_id',
+            'id',
+            'id'
+        );
     }
 
     public function variants()
@@ -70,6 +78,11 @@ class Product extends Model
         return $this->comments()->where('approved', 1)->whereNull('parent_id');
     }
 
+    public function tags()
+    {
+        return $this->morphToMany(Tag::class, 'taggable');
+    }
+
     /////////////////////////////////////////////////////
 
     public function scopeBestSellers($query, $days = 30)
@@ -83,10 +96,7 @@ class Product extends Model
 
         return $query
             ->where('status', 'published')
-            ->where(function ($q) {
-                $q->whereNull('published_at')
-                    ->orWhere('published_at', '<=', now());
-            })
+            ->where('published_at', '<=', now())
             // فقط محصولاتی که حداقل یک فروش معتبر دارن
             ->whereHas('orderItems.order', $validOrders)
             // محاسبه مجموع تعداد فروش
@@ -95,6 +105,7 @@ class Product extends Model
             }], 'quantity')
             ->orderByDesc('total_sold');
     }
+
 
     //////////////////////////////////////////////////////////////////////////////////////
 

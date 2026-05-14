@@ -6,8 +6,6 @@ use App\Http\Controllers\Controller;
 use App\Models\Content\Banner;
 use App\Models\Content\Post;
 use App\Models\Market\HomeBox;
-use App\Models\Market\Order;
-use App\Models\Market\OrderItem;
 use App\Models\Market\Product;
 use App\Models\Market\ProductCategory;
 use Illuminate\Http\Request;
@@ -58,24 +56,30 @@ class HomeController extends Controller
                     ->filter()
                     ->max() ?? 0;
             })
-            ->take(8);
+            ->take(2);
+
 
         $topProducts = Product::bestSellers(30)
-            ->where('status', 'published')
             ->whereNotIn('id', $amazingProducts->pluck('id'))
             ->whereHas('variants.warehouseVariants', function ($q) {
                 $q->whereColumn('stock', '>', 'reserved');
             })
-            ->with(['variants' => function ($q) {
-                $q->whereHas('warehouseVariants', function ($q) {
-                    $q->whereColumn('stock', '>', 'reserved');
-                })
-                    ->with(['amazingSale' => function ($q) {
-                        $q->where('is_active', true)
-                            ->where('start_date', '<=', now())
-                            ->where('end_date', '>=', now());
-                    }]);
-            }])
+            ->with([
+                'variants' => function ($q) {
+                    $q->whereHas('warehouseVariants', function ($q) {
+                        $q->whereColumn('stock', '>', 'reserved');
+                    })
+                        ->with([
+                            'warehouseVariants',
+                            'orderItems',
+                            'amazingSale' => function ($q) {
+                                $q->where('is_active', true)
+                                    ->where('start_date', '<=', now())
+                                    ->where('end_date', '>=', now());
+                            },
+                        ]);
+                }
+            ])
             ->take(8)
             ->get();
 

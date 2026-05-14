@@ -7,6 +7,7 @@ use App\Http\Requests\Admin\Content\PostRequest;
 use App\Http\Services\Image\ImageService;
 use App\Models\Content\Post;
 use App\Models\Content\PostCategory;
+use App\Models\Content\Tag;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 
@@ -26,8 +27,9 @@ class PostController extends Controller
      */
     public function create()
     {
+        $tags = Tag::all();
         $postCategories = PostCategory::all();
-        return view('admin.content.post.create', compact('postCategories'));
+        return view('admin.content.post.create', compact('postCategories', 'tags'));
     }
 
     /**
@@ -35,7 +37,9 @@ class PostController extends Controller
      */
     public function store(PostRequest $request, ImageService $imageService)
     {
-        $inputs = $request->all();
+        $inputs = $request->validated();
+
+        $tags = $inputs['tags'] ?? null;
 
         if (empty($inputs['published_at'])) {
             $inputs['published_at'] = Carbon::now()->format('Y-m-d H:i:s');
@@ -57,6 +61,12 @@ class PostController extends Controller
         }
 
         $post = Post::create($inputs);
+
+        // attach tags
+        if ($tags) {
+            $post->tags()->sync($tags);
+        }
+
         return redirect()->route('admin.content.post.index')->with(
             'alert-section-success',
             'Your new post was successfully registered.'
@@ -76,8 +86,9 @@ class PostController extends Controller
      */
     public function edit(Post $post)
     {
+        $tags = Tag::all();
         $postCategories = PostCategory::all();
-        return view('admin.content.post.edit', compact('postCategories', 'post'));
+        return view('admin.content.post.edit', compact('postCategories', 'post', 'tags'));
     }
 
     /**
@@ -85,7 +96,8 @@ class PostController extends Controller
      */
     public function update(PostRequest $request, ImageService $imageService, Post $post)
     {
-        $inputs = $request->all();
+        $inputs = $request->validated();
+        $tags = $inputs['tags'] ?? null;
 
         if (empty($inputs['published_at'])) {
             $inputs['published_at'] = Carbon::now()->format('Y-m-d H:i:s');
@@ -113,7 +125,17 @@ class PostController extends Controller
                 $inputs['image'] = $image;
             }
         }
+
         $post->update($inputs);
+
+        // sync tags
+        if ($tags) {
+            $post->tags()->sync($tags);
+        } else {
+            // اگر تگ حذف شده باشد
+            $post->tags()->detach();
+        }
+
         return redirect(route('admin.content.post.index'))->with(
             'alert-section-success',
             'Post editing completed successfully.'

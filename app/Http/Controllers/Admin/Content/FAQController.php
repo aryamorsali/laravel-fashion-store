@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin\Content;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\Content\FAQRequest;
 use App\Models\Content\FAQ;
+use App\Models\Content\Tag;
 use Illuminate\Http\Request;
 
 class FAQController extends Controller
@@ -23,7 +24,8 @@ class FAQController extends Controller
      */
     public function create()
     {
-        return view('admin.content.faq.create');
+        $tags = Tag::all();
+        return view('admin.content.faq.create', compact('tags'));
     }
 
     /**
@@ -31,8 +33,16 @@ class FAQController extends Controller
      */
     public function store(FAQRequest $request)
     {
-        $data = $request->all();
+        $data = $request->validated();
+        $tags = $inputs['tags'] ?? null;
+
+
         $faq = FAQ::create($data);
+
+        // attach tags
+        if ($tags) {
+            $faq->tags()->sync($tags);
+        }
         return redirect()->route('admin.content.faq.index')->with(
             'alert-section-success',
             'New faq successfully registered.'
@@ -52,7 +62,8 @@ class FAQController extends Controller
      */
     public function edit(FAQ $faq)
     {
-        return view('admin.content.faq.edit', compact('faq'));
+        $tags = Tag::all();
+        return view('admin.content.faq.edit', compact('faq', 'tags'));
     }
 
     /**
@@ -60,8 +71,17 @@ class FAQController extends Controller
      */
     public function update(FAQRequest $request, FAQ $faq)
     {
-      $data = $request->all();
+        $data = $request->validated();
+        $tags = $inputs['tags'] ?? null;
+
         $faq->update($data);
+        // sync tags
+        if ($tags) {
+            $faq->tags()->sync($tags);
+        } else {
+            // اگر تگ حذف شده باشد
+            $faq->tags()->detach();
+        }
         return redirect()->route('admin.content.faq.index')->with(
             'alert-section-success',
             'FAQ successfully updated.'

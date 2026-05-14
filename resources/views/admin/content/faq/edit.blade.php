@@ -6,7 +6,7 @@
         .select2-selection__rendered {
             font-family: "Roboto", "Helvetica Neue", Arial, sans-serif;
             color: #000000;
-            padding: 4px 8px;
+            padding: 8px 12px;
             border-radius: 6px;
             font-size: 13px;
         }
@@ -18,7 +18,6 @@
 
         .select2-results__option {
             color: #000000;
-            background-color: #389af7;
             padding: 8px 12px;
             font-size: 13px;
         }
@@ -50,9 +49,9 @@
         <nav style="background-color: #eee; height: 2.25rem" class="my-4 rounded ps-2" aria-label="breadcrumb">
             <ol class="breadcrumb p-1 ">
                 <li class="breadcrumb-item"><a href="#" style="text-decoration: none">Dashboard</a></li>
-                <li class="breadcrumb-item"><a href="#" style="text-decoration: none">content</a></li>
-                <li class="breadcrumb-item"><a href="#" style="text-decoration: none">faq</a></li>
-                <li class="breadcrumb-item active">edit faq</li>
+                <li class="breadcrumb-item"><a href="#" style="text-decoration: none">Content</a></li>
+                <li class="breadcrumb-item"><a href="#" style="text-decoration: none">Faq</a></li>
+                <li class="breadcrumb-item active">Edit Faq</li>
             </ol>
         </nav>
         <section class="main-body-container">
@@ -81,13 +80,17 @@
                             @enderror
                         </section>
 
-                    <section class="col-12 col-md-6 my-3">
+                        <section class="col-12 col-md-6 my-3">
                             <div class="form-group">
-                                <label for="tags">Tags</label>
-                                <input type="hidden" class="form-control form-control-sm" name="tags" id="tags"
-                                    value="{{ old('tags', $faq->tags) }}">
-                                <select class="select2 form-control form-control-sm myselect" id="select_tags" multiple>
-
+                                <label>Tags</label>
+                                <select class="select2 form-control form-control-sm" id="select_tags" multiple
+                                    name="tags[]">
+                                    @foreach ($tags as $tag)
+                                        <option value="{{ $tag->id }}"
+                                            @if (in_array($tag->id, old('tags', $faq->tags->pluck('id')->toArray()))) selected @endif>
+                                            {{ $tag->name }}
+                                        </option>
+                                    @endforeach
                                 </select>
                             </div>
                             @error('tags')
@@ -114,10 +117,10 @@
                             @enderror
                         </section>
 
-                            <section class="col-12 my-3">
+                        <section class="col-12 my-3">
                             <div class="form-group">
                                 <label for="">Answer</label>
-                                <textarea name="answer" class="form-control form-control-sm" id="answer">{{ old('answer', $faq->answer) }}</textarea>    
+                                <textarea name="answer" class="form-control form-control-sm" id="answer">{{ old('answer', $faq->answer) }}</textarea>
                             </div>
                             @error('answer')
                                 <div class="text-danger" style="margin-top: 9px; font-size: 12px; font-weight: 400;">
@@ -138,7 +141,7 @@
             </section>
         </section>
     @endsection
-@section('script')
+    @section('script')
         <script src="https://cdn.ckeditor.com/ckeditor5/36.0.1/classic/ckeditor.js"></script>
         <script>
             ClassicEditor

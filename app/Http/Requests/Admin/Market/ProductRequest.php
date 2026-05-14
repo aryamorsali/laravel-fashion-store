@@ -28,8 +28,10 @@ class ProductRequest extends FormRequest
                 'brand_id' => 'required|min:1|max:100000000|regex:/^[0-9]+$/u|exists:brands,id',
                 'image' => 'required|image|mimes:png,jpg,jpeg,gif|max:2048',
                 'status' => 'required|in:draft,published',
+                'slug' => 'nullable|unique:products,slug',
+                'tags' => ['nullable', 'array'],
+                'tags.*' => ['integer', 'exists:tags,id'],
 
-                'tags' => 'required|regex:/^[ا-یa-zA-Z0-9\-۰-۹ء-ي., ]+$/u',
                 'description' => 'required|max:600|min:5|regex:/^[ا-یa-zA-Z0-9\-۰-۹ء-ي.,><\/;\n\r& ]+$/u',
                 'published_at' => 'nullable|date_format:Y-m-d H:i',
                 'base_price' => 'required|numeric',
@@ -43,8 +45,10 @@ class ProductRequest extends FormRequest
                 'brand_id' => 'required|min:1|max:100000000|regex:/^[0-9]+$/u|exists:brands,id',
                 'image' => 'image|mimes:png,jpg,jpeg,gif|max:2048',
                 'status' => 'required|in:draft,published',
+                'slug' => 'nullable|unique:products,slug',
+                'tags' => ['nullable', 'array'],
+                'tags.*' => ['integer', 'exists:tags,id'],
 
-                'tags' => 'required|regex:/^[ا-یa-zA-Z0-9\-۰-۹ء-ي., ]+$/u',
                 'description' => 'required|max:600|min:5|regex:/^[ا-یa-zA-Z0-9\-۰-۹ء-ي.,><\/;\n\r& ]+$/u',
                 'published_at' => 'nullable|date_format:Y-m-d H:i',
                 'base_price' => 'required|numeric',
@@ -54,33 +58,32 @@ class ProductRequest extends FormRequest
         }
     }
 
-  public function passedValidation()
-{
-    $this->merge([
-        'has_color' => $this->boolean('has_color'),
-        'has_size'  => $this->boolean('has_size'),
-    ]);
+    public function passedValidation()
+    {
+        $this->merge([
+            'has_color' => $this->boolean('has_color'),
+            'has_size'  => $this->boolean('has_size'),
+        ]);
 
-    // فقط برای ویرایش
-    if ($this->isMethod('post')) {
-        return;
+        // فقط برای ویرایش
+        if ($this->isMethod('post')) {
+            return;
+        }
+
+        $product = $this->route('product');
+
+        $hasColorVariants = $product->variants()->whereNotNull('color_id')->exists();
+        $hasSizeVariants  = $product->variants()->whereNotNull('size_id')->exists();
+
+        // آیا ادمین قصد تغییر ماهیت را دارد؟
+        $isChangingHasColor = $this->has('has_color') && $this->has_color != $product->has_color;
+        $isChangingHasSize  = $this->has('has_size')  && $this->has_size  != $product->has_size;
+
+        if (
+            ($hasColorVariants || $hasSizeVariants)
+            && ($isChangingHasColor || $isChangingHasSize)
+        ) {
+            abort(422, 'برای تغییر ماهیت محصول، ابتدا باید واریانت‌های رنگی/سایزی محصول را حذف نمایید.');
+        }
     }
-
-    $product = $this->route('product');
-
-    $hasColorVariants = $product->variants()->whereNotNull('color_id')->exists();
-    $hasSizeVariants  = $product->variants()->whereNotNull('size_id')->exists();
-
-    // آیا ادمین قصد تغییر ماهیت را دارد؟
-    $isChangingHasColor = $this->has('has_color') && $this->has_color != $product->has_color;
-    $isChangingHasSize  = $this->has('has_size')  && $this->has_size  != $product->has_size;
-
-    if (
-        ($hasColorVariants || $hasSizeVariants)
-        && ($isChangingHasColor || $isChangingHasSize)
-    ) {
-        abort(422, 'برای تغییر ماهیت محصول، ابتدا باید واریانت‌های رنگی/سایزی محصول را حذف نمایید.');
-    }
-}
-
 }

@@ -1742,10 +1742,21 @@ button.mfp-close {
 }
 
 /*---------------------------------------------*/
-.filter-col1 {width: 27%;}
+/* .filter-col1 {width: 27%;}
 .filter-col2 {width: 27%;}
 .filter-col3 {width: 26%;}
+.filter-col4 {width: 20%;} */
+
+.filter-col1 {width: 20%;}
+.filter-col2 {width: 20%;}
+.filter-col3 {width: 20%;}
 .filter-col4 {width: 20%;}
+.filter-col5 {width: 20%;}
+.filter-col6 {width: 17%;}
+.filter-col7 {width: 26%;}
+.filter-col8 {width: 26%;}
+.filter-col9 {width: 26%;}
+.filter-col10 {width: 30%;}
 
 /*---------------------------------------------*/
 .filter-link {

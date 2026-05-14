@@ -36,16 +36,12 @@
             position: absolute;
             top: 10px;
             right: 10px;
-
             background: rgba(0, 0, 0, 0.7);
             color: #fff;
-
             font-size: 12px;
             font-weight: 500;
-
             padding: 4px 8px;
             border-radius: 4px;
-
             z-index: 2;
         }
     </style>
@@ -323,7 +319,7 @@
 
                                                 <div class="block2-txt flex-w flex-t p-t-14">
                                                     <div class="block2-txt-child1 flex-col-l ">
-                                                        <a href="product-detail.html"
+                                                        <a href="{{ route('customer.market.product', $product) }}"
                                                             class="stext-104 cl4 hov-cl1 trans-04 js-name-b2 p-b-6">
                                                             {{ $product->name }}
                                                         </a>
@@ -414,10 +410,6 @@
                     <h3 class="ltext-103 cl5">
                         🔥 Best Sellers
                     </h3>
-                    {{-- <a href="#" style="color: white"
-                            class="btn bg-dark stext-103 cl2 size-102 bg0 bor2 hov-btn1 p-lr-15 ">View
-                            All Products</a> --}}
-                    {{-- </div> --}}
 
                 </div>
 
@@ -435,24 +427,39 @@
                                             <!-- Block2 -->
                                             <div class="block2">
                                                 <div class="block2-pic hov-img0">
-                                                    @php
-                                                        $activeAmazingSale = $product->variants
-                                                            ->filter(
-                                                                fn($v) => $v->warehouseVariants->sum('stock') >
-                                                                    $v->warehouseVariants->sum('reserved'),
-                                                            )
-                                                            ->pluck('amazingSale')
-                                                            ->flatten()
-                                                            ->filter(
-                                                                fn($sale) => $sale &&
-                                                                    $sale->is_active &&
-                                                                    $sale->start_date <= now() &&
-                                                                    $sale->end_date >= now(),
-                                                            )
-                                                            ->sortByDesc('percentage')
-                                                            ->first();
-                                                    @endphp
 
+                                                    @php
+                                                        $availableVariants = $product->variants->filter(
+                                                            fn($variant) => $variant->warehouseVariants->sum('stock') >
+                                                                $variant->warehouseVariants->sum('reserved'),
+                                                        );
+
+                                                        $variant =
+                                                            $availableVariants
+                                                                ->sortByDesc(fn($v) => $v->orderItems->sum('quantity'))
+                                                                ->first() ??
+                                                            $product->variants
+                                                                ->sortByDesc(fn($v) => $v->orderItems->sum('quantity'))
+                                                                ->first();
+
+                                                        $price = $variant?->price;
+                                                        $finalPrice = $price;
+                                                        $discount = null;
+                                                        $activeAmazingSale = null;
+
+                                                        $hasAmazingSale =
+                                                            $variant &&
+                                                            $variant->amazingSale &&
+                                                            $variant->amazingSale->is_active &&
+                                                            $variant->amazingSale->start_date <= now() &&
+                                                            $variant->amazingSale->end_date >= now();
+
+                                                        if ($hasAmazingSale) {
+                                                            $activeAmazingSale = $variant->amazingSale;
+                                                            $discount = $variant->amazingSale->percentage;
+                                                            $finalPrice = $price - ($price * $discount) / 100;
+                                                        }
+                                                    @endphp
 
                                                     @if ($activeAmazingSale)
                                                         <span class="badge-amazing">
@@ -475,46 +482,11 @@
 
                                                 <div class="block2-txt flex-w flex-t p-t-14">
                                                     <div class="block2-txt-child1 flex-col-l ">
-                                                        <a href="product-detail.html"
+                                                        <a href="{{ route('customer.market.product', $product) }}"
                                                             class="stext-104 cl4 hov-cl1 trans-04 js-name-b2 p-b-6">
                                                             {{ $product->name }}
                                                         </a>
                                                         <p>Number of sales : {{ $product->total_sold ?? 0 }}</p>
-
-                                                        @php
-                                                            $variant =
-                                                                $product->variants
-                                                                    ->filter(
-                                                                        fn(
-                                                                            $variant,
-                                                                        ) => $variant->warehouseVariants->sum('stock') >
-                                                                            $variant->warehouseVariants->sum(
-                                                                                'reserved',
-                                                                            ),
-                                                                    )
-                                                                    ->sortByDesc(
-                                                                        fn($variant) => $variant->orderItems->sum(
-                                                                            'quantity',
-                                                                        ),
-                                                                    )
-                                                                    ->first() ?? $product->variants->first();
-
-                                                            $price = $variant?->price;
-                                                            $finalPrice = $price;
-                                                            $discount = null;
-
-                                                            if (
-                                                                $variant &&
-                                                                $variant->amazingSale &&
-                                                                $variant->amazingSale->is_active &&
-                                                                $variant->amazingSale->start_date <= now() &&
-                                                                $variant->amazingSale->end_date >= now()
-                                                            ) {
-                                                                $discount = $variant->amazingSale->percentage;
-                                                                $finalPrice = $price - ($price * $discount) / 100;
-                                                            }
-                                                        @endphp
-
 
                                                         <span class="stext-105 cl3">
                                                             @if ($discount)
@@ -633,7 +605,7 @@
 
                                                 <div class="block2-txt flex-w flex-t p-t-14">
                                                     <div class="block2-txt-child1 flex-col-l ">
-                                                        <a href="product-detail.html"
+                                                        <a href="{{ route('customer.market.product', $product) }}"
                                                             class="stext-104 cl4 hov-cl1 trans-04 js-name-b2 p-b-6">
                                                             {{ $product->name }}
                                                         </a>

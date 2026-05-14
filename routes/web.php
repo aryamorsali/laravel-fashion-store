@@ -9,6 +9,7 @@ use App\Http\Controllers\Admin\Content\FaqsController;
 use App\Http\Controllers\Admin\Market\HomeBoxController;
 use App\Http\Controllers\Admin\Content\MenuController;
 use App\Http\Controllers\Admin\Content\PostController;
+use App\Http\Controllers\Admin\Content\TagController;
 use App\Http\Controllers\Admin\Market\AmazingSaleController;
 use App\Http\Controllers\Admin\Market\BrandController;
 use App\Http\Controllers\Admin\Market\CategoryController;
@@ -36,6 +37,7 @@ use App\Http\Controllers\Admin\Ticket\TicketPriorityController;
 use App\Http\Controllers\Admin\User\CustomerController;
 use App\Http\Controllers\Customer\HomeController;
 use App\Http\Controllers\Customer\Market\ProductController as MarketProductController;
+use App\Http\Controllers\Customer\Market\ShopController;
 use App\Http\Controllers\Customer\SalesProcess\CartController;
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
@@ -327,6 +329,16 @@ Route::prefix('admin')->group(function () {
             Route::get('/commentable/{post}', [PostController::class, 'commentable'])->name('admin.content.post.commentable');
         });
 
+        //tags
+        Route::prefix('tag')->group(function () {
+            Route::get('/', [TagController::class, 'index'])->name('admin.content.tag.index');
+            Route::get('/create', [TagController::class, 'create'])->name('admin.content.tag.create');
+            Route::post('/store', [TagController::class, 'store'])->name('admin.content.tag.store');
+            Route::get('/edit/{tag}', [TagController::class, 'edit'])->name('admin.content.tag.edit');
+            Route::put('/update/{tag}', [TagController::class, 'update'])->name('admin.content.tag.update');
+            Route::delete('/destroy/{tag}', [TagController::class, 'destroy'])->name('admin.content.tag.destroy');
+        });
+
 
         //menu
         Route::prefix('menu')->group(function () {
@@ -394,25 +406,30 @@ require __DIR__ . '/auth.php';
 
 
 
-// view shop
 // -------------------------------------------------------------------------
+// view shop
 Route::get('/', [HomeController::class, 'home'])->name('customer.home');
+Route::get('/shop/{category:slug?}', [ShopController::class, 'shop'])->name('customer.market.shop');
+
+
+// product detail
 Route::prefix('/product')->group(function () {
     Route::get('/{product:slug}', [MarketProductController::class, 'product'])->name('customer.market.product');
     Route::post('/{product:slug}/add-comment', [MarketProductController::class, 'addComment'])->name('customer.market.add-comment');
 });
 
+// sales process
 Route::namespace('SalesProcess')->group(function () {
     //cart
     Route::get('/shoping-cart', [CartController::class, 'shopingCart'])->name('customer.sales-process.shoping-cart');
     Route::post('/add-to-cart', [CartController::class, 'addToCart'])->name('customer.sales-process.add-to-cart');
     Route::get('/remove-from-cart/{cartItem}', [CartController::class, 'removeFromCart'])->name('customer.sales-process.remove-from-cart');
-
     Route::post('/shoping-cart/update', [CartController::class, 'updateCart'])->name('customer.sales-process.update-shoping-cart');
     Route::post('/shoping-cart/coupon', [CartController::class, 'coupon'])->name('customer.sales-process.coupon');
 });
 
+
+// content
 Route::view('/about', 'customer.pages.about')->name('customer.about');
 Route::view('/contact', 'customer.pages.contact')->name('customer.contact');
 Route::view('/blog', 'customer.pages.blog')->name('customer.blog');
-Route::view('/products', 'customer.pages.product')->name('customer.products');

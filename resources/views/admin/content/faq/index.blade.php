@@ -51,7 +51,14 @@
 
                                 <td>{{ Str::limit(strip_tags($faq->answer), 40) }}</td>
 
-                                <td>{{ $faq->tags }}</td>
+                                <td>
+                                    @if ($post->tags->isEmpty())
+                                        <span class="text-danger">No tag</span>
+                                    @else
+                                        {{ $post->tags->pluck('name')->join(', ') }}
+                                    @endif
+                                </td>
+
                                 <td>
                                     <label>
                                         <input id="{{ $faq->id }}" onchange="changeStatus({{ $faq->id }})"
@@ -59,7 +66,7 @@
                                             @if ($faq->status === 1) checked @endif>
                                     </label>
                                 </td>
-    
+
                                 <td class="width-16-rem text-center">
                                     <a href="{{ route('admin.content.faq.edit', $faq->id) }}"
                                         class="btn btn-primary btn-sm width-6-rem mi"><i class="fa fa-edit"></i>

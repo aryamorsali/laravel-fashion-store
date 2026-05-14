@@ -40,7 +40,6 @@
                             <th scope="col">Image</th>
                             <th scope="col">Tag</th>
                             <th scope="col">Status</th>
-                            <th scope="col">In Menu</th>
                             <th class="max-width-16-rem text-center"><i class="fa fa-cogs"></i> Setting</th>
                         </tr>
                     </thead>
@@ -70,14 +69,7 @@
                                             type="checkbox" @if ($productCategory->status === 1) checked @endif>
                                     </label>
                                 </td>
-                                <td>
-                                    <label>
-                                        <input id="{{ $productCategory->id }}-show_in_menu"
-                                            onchange="show_in_menu({{ $productCategory->id }})"
-                                            data-url="{{ route('admin.market.category.show-in-menu', $productCategory->id) }}"
-                                            type="checkbox" @if ($productCategory->show_in_menu === 1) checked @endif>
-                                    </label>
-                                </td>
+                                
                                 <td class="width-16-rem text-center">
                                     <a href="{{ route('admin.market.category.edit', $productCategory->id) }}"
                                         class="btn btn-primary btn-sm width-6-rem mi"><i class="fa fa-edit"></i>
@@ -163,64 +155,6 @@
             }
         }
 
-        // showInMenu
-        function show_in_menu(id) {
-            var element = $("#" + id + '-show_in_menu')
-            var url = element.attr('data-url')
-            var elementValue = !element.prop('checked');
-            $.ajax({
-                url: url,
-                type: "GET",
-                success: function(response) {
-                    if (response.show_in_menu) {
-                        if (response.checked) {
-                            element.prop('checked', true);
-                            successToast('Category successfully enabled in menu.');
-                        } else {
-                            element.prop('checked', false);
-                            successToast('Category successfully disabled in menu.');
-                        }
-                    } else {
-                        element.prop('checked', elementValue);
-                        errorToast('There was a problem while editing');
-                    }
-                },
-                error: function() {
-                    element.prop('checked', elementValue);
-                    errorToast('Connection not established');
-                }
-            });
-
-            function successToast(message) {
-                var successToastTag =
-                    '<section class="toast" data-delay="5000">\n' +
-                    '<section class="toast-body py-2 d-flex toast-success">\n' +
-                    '<p class="ml-auto my-1">' + message + '</p>\n' +
-                    '<button type="button" class="mr-2 text-white mb-0 close" data-dismiss="toast" aria-label="Close">\n' +
-                    '<button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close">\n' +
-                    '</section>\n' +
-                    '</section>';
-                $('.toast-wrapper').append(successToastTag);
-                $('.toast').toast('show').delay(5500).queue(function() {
-                    $(this).remove();
-                });
-            }
-
-            function errorToast(message) {
-                var errorToastTag = ' <section class="toast" data-delay="5000">\n' +
-                    '<section class="toast-body py-3 d-flex bg-danger text-white">\n' +
-                    '<p class="ml-auto my-1">' + message + '</p>\n' +
-                    '<button type="button" class="mr-2 text-white mb-0 close" data-dismiss="toast" aria-label="Close">\n' +
-                    '<span aria-hidden="true">&times;</span>\n' +
-                    '</button>\n' +
-                    '</section>\n' +
-                    '</section>';
-                $('.toast-wrapper').append(errorToastTag);
-                $('.toast').toast('show').delay(5500).queue(function() {
-                    $(this).remove();
-                });
-            }
-        }
     </script>
 
     @include('admin.alerts.sweetalert.delete-confirm', ['className' => 'delete'])

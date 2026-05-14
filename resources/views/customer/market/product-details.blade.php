@@ -223,7 +223,7 @@
             left: 10px;
             background: #e53935;
             color: #fff;
-            padding: 6px 10px;
+            padding: 6px 9px;
             font-size: 12px;
             font-weight: 600;
             border-radius: 4px;
@@ -254,7 +254,7 @@
             font-size: 12px;
             font-weight: 500;
 
-            padding: 4px 8px;
+            padding: 3px 7px;
             border-radius: 4px;
 
             z-index: 2;
@@ -402,7 +402,8 @@
                                     </div>
 
                                     <div id="totalDiv" class="mt-3">
-                                        <p class="text-dark" style="font-size: 18px">Total: $<span id="totalPrice">351.09</span></p>
+                                        <p class="text-dark" style="font-size: 18px">Total: $<span
+                                                id="totalPrice">351.09</span></p>
 
                                     </div>
 
@@ -1243,7 +1244,7 @@
                 addToCartBtn.innerText = 'Out of stock';
                 addToCartBtn.style.backgroundColor = '#ccc';
                 addToCartBtn.style.cursor = 'not-allowed';
-                sizeWrapper.style.display = 'none';
+                // sizeWrapper.style.display = 'none';
             } else {
                 addToCartBtn.disabled = false;
                 addToCartBtn.innerText = 'ADD TO CART';
@@ -1272,16 +1273,50 @@
             renderColors();
 
             // Default select color
+            // if (hasColor) {
+            //     const first = colors.find(c => isColorAvailable(c.id));
+            //     if (first) {
+            //         selectedColor = first.id;
+            //         const input = colorBox.querySelector(`input[value="${selectedColor}"]`);
+            //         if (input) input.checked = true;
+            //         colorText.innerText = first.name;
+            //         showSizes(selectedColor);
+            //     }
+            // }
+
+
             if (hasColor) {
-                const first = colors.find(c => isColorAvailable(c.id));
-                if (first) {
-                    selectedColor = first.id;
-                    const input = colorBox.querySelector(`input[value="${selectedColor}"]`);
+
+                const firstAvailable = colors.find(c => isColorAvailable(c.id));
+
+                // محصول موجود دارد
+                if (firstAvailable) {
+
+                    selectedColor = firstAvailable.id;
+
+                    const input = colorBox.querySelector(
+                        `input[value="${selectedColor}"]`
+                    );
+
                     if (input) input.checked = true;
-                    colorText.innerText = first.name;
+
+                    colorText.innerText = firstAvailable.name;
+
                     showSizes(selectedColor);
+
+                } else {
+
+                    // کل محصول ناموجود است
+                    // سایزهای اولین رنگ را فقط برای نمایش نشان بده
+
+                    const firstColor = colors[0];
+
+                    if (firstColor) {
+                        showSizes(firstColor.id);
+                    }
                 }
             }
+
 
             // If only size exists
             if (!hasColor && hasSize) {
