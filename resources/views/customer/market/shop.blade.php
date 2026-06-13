@@ -36,7 +36,7 @@
         .apply-filter-btn {
             background-color: #e63946;
             color: #fff;
-            border-radius: 17px !important;
+            border-radius: 7px !important;
             border: none;
             font-size: 17px !important;
             font-weight: 500;
@@ -55,7 +55,8 @@
         }
 
         .delete-filter-btn {
-            border-radius: 10px !important;
+            width: 250px;
+            border-radius: 5px !important;
             font-family: Poppins-Medium;
             font-size: 14px;
             line-height: 1.466667;
@@ -105,7 +106,7 @@
 
         .old-price {
             color: #777;
-            font-size: 0.9em;
+            font-size: 1em;
             text-decoration: line-through;
             margin-right: 6px;
         }
@@ -113,23 +114,19 @@
         .new-price {
             color: #e53935;
             font-weight: 700;
-            font-size: 1.05em;
+            font-size: 1.07em;
         }
 
         .amazing-timer {
             position: absolute;
             top: 10px;
             right: 10px;
-
             background: rgba(0, 0, 0, 0.7);
             color: #fff;
-
             font-size: 12px;
             font-weight: 500;
-
             padding: 4px 8px;
             border-radius: 4px;
-
             z-index: 2;
         }
     </style>
@@ -155,7 +152,7 @@
 
 
                     <div class="flex-w flex-l-m filter-tope-group m-tb-10">
-                        <a href="{{ route('customer.market.shop') }}"
+                        <a href="{{ route('customer.market.shop', request()->except('page', 'category')) }}"
                             class="stext-106 cl6 hov1 bor3 trans-04 m-r-32 m-tb-5 {{ request()->route('category') ? '' : 'how-active1' }}">
                             All Products
                         </a>
@@ -176,6 +173,12 @@
                             <i class="icon-filter cl2 m-r-6 fs-15 trans-04 zmdi zmdi-filter-list"></i>
                             <i class="icon-close-filter cl2 m-r-6 fs-15 trans-04 zmdi zmdi-close dis-none"></i>
                             Filter
+                            @if ($activeFiltersCount > 0)
+                                <span
+                                    style="background:red; color:white; border-radius:50%; padding: 0px 4px; font-size:13px; margin-left:5px;">
+                                    {{ $activeFiltersCount }}
+                                </span>
+                            @endif
                         </div>
 
                         <div class="flex-c-m stext-106 cl6 size-105 bor4 pointer hov-btn3 trans-04 m-tb-4 js-show-search">
@@ -200,9 +203,9 @@
 
                     <!-- Filter -->
                     <div class="dis-none panel-filter w-full p-t-10">
-                        <div class="wrap-filter flex-w bg6 w-full p-lr-40 p-t-27 p-lr-15-sm">
+                        <div class="wrap-filter flex-w bg6 w-full p-lr-40 p-t-27 p-lr-15-sm row g-3">
 
-                            <div class="filter-col1 p-b-27">
+                            <div class="filter-col1 p-b-27  col-6 col-md-4 col-lg-auto">
                                 <div class="mtext-102 cl2 p-b-15">
                                     Category
                                 </div>
@@ -237,7 +240,7 @@
                             </div>
 
 
-                            <div class="filter-col2 p-b-27">
+                            <div class="filter-col2 p-b-27 col-6 col-md-4 col-lg-auto">
                                 <div class="mtext-102 cl2">
                                     Brand
                                 </div>
@@ -262,7 +265,7 @@
                             </div>
 
 
-                            <div class="filter-col3 p-l-30 p-b-27">
+                            <div class="filter-col3 p-l-30 p-b-27 col-6 col-md-4 col-lg-auto">
                                 <div class="mtext-102 cl2 p-b-15">
                                     Color
                                 </div>
@@ -288,7 +291,7 @@
                                 </ul>
                             </div>
 
-                            <div class="filter-col4 filter-multi-col p-l-30 p-b-27 p-r-20">
+                            <div class="filter-col4 filter-multi-col p-l-30 p-b-27 p-r-20 col-6 col-md-4 col-lg-auto">
                                 <div class="mtext-102 cl2 p-b-15">
                                     Size
                                 </div>
@@ -310,7 +313,7 @@
                             </div>
 
 
-                            <div class="filter-col5 p-b-27">
+                            <div class="filter-col5 p-b-27 col-6 col-md-4 col-lg-auto">
                                 <div class="mtext-102 cl2 p-b-15">
                                     Price Range
                                 </div>
@@ -326,11 +329,21 @@
                                         <input type="text" class="form-control" placeholder="Price up to ..."
                                             name="max_price" value="{{ request()->max_price }}">
                                     </div>
+                                    @error('max_price')
+                                        <div class="text-danger" style="margin-top: 9px; font-size: 12px; font-weight: 400;">
+                                            <strong>{{ $message }}</strong>
+                                        </div>
+                                    @enderror
+                                    @error('min_price')
+                                        <div class="text-danger" style="margin-top: 9px; font-size: 12px; font-weight: 400;">
+                                            <strong>{{ $message }}</strong>
+                                        </div>
+                                    @enderror
 
                                 </div>
                             </div>
 
-                            <div class="filter-col6 p-l-30 p-b-27">
+                            <div class="filter-col6 p-l-30 p-b-27 col-6 col-md-4 col-lg-auto">
                                 <div class="mtext-102 cl2 p-b-15">
                                     Stock
                                 </div>
@@ -372,12 +385,12 @@
                                     <li class="p-b-6">
                                         <input class="form-check-input" type="checkbox" id="bigDeals" name="big_deals"
                                             value="1" @checked(request('big_deals') == 1)>
-                                        <label class="form-check-label" for="bigDeals">Big Deals (50%+)</label>
+                                        <label class="form-check-label" for="bigDeals">Big Deals (30%+)</label>
                                     </li>
                                 </ul>
                             </div>
 
-                            <div class="filter-col8 p-l-40 p-b-27">
+                            <div class="filter-col8 p-l-40 p-b-27  col-6 col-lg-auto">
                                 <div class="mtext-102 cl2 p-b-15">
                                     Tags
                                 </div>
@@ -392,7 +405,7 @@
                                 </div>
                             </div>
 
-                            <div class="filter-col9 p-l-80 p-b-27">
+                            <div class="filter-col9 p-l-80 p-b-27 col-6 col-lg-auto">
                                 <div class="mtext-102 cl2 p-b-15">
                                     Sort By
                                 </div>
@@ -451,7 +464,7 @@
 
 
                             <div
-                                class="filter-col10 p-r-20 d-flex flex-column justify-content-start align-items-end p-b-27">
+                                class="filter-col10 p-r-20 d-flex flex-column justify-content-start align-items-end p-b-27 col-12 col-lg-auto">
                                 <!-- Buttons -->
                                 <div class="filter-btn-wrapper pt-4">
 
@@ -475,6 +488,7 @@
             </div>
 
             <div class="row isotope-grid">
+
                 @foreach ($products as $product)
                     <div class="col-sm-6 col-md-4 col-lg-3 p-b-35 isotope-item women">
                         <!-- Block2 -->
@@ -482,35 +496,110 @@
                             <div class="block2-pic hov-img0">
 
                                 @php
+                                    // -----------------------------
+                                    // 1) دریافت فیلترهای کاربر
+                                    // -----------------------------
+                                    $fColors = request()->colors ?? [];
+                                    $fSizes = request()->sizes ?? [];
+                                    $fMinPrice = request()->min_price;
+                                    $fMaxPrice = request()->max_price;
+                                    $fOnSale = request()->on_sale == 1;
+                                    $fBigDeals = request()->big_deals == 1;
+                                    $fInStock = request()->in_stock == 1;
+                                    $fOutOfStock = request()->out_of_stock == 1;
+                                    $sortBy = request()->sort;
 
-                                    $variant = $product->variants
+                                    // آیا کاربر هیچ فیلتری زده؟
+                                    $isAnyFilterActive =
+                                        !empty($fColors) ||
+                                        !empty($fSizes) ||
+                                        $fMinPrice ||
+                                        $fMaxPrice ||
+                                        $fOnSale ||
+                                        $fBigDeals ||
+                                        $fInStock ||
+                                        $fOutOfStock;
 
-                                        ->filter(function ($v) {
-                                            // color check
-                                            if (request()->filled('colors')) {
-                                                if (!collect(request()->colors)->contains($v->color->slug)) {
-                                                    return false;
-                                                }
+                                    // ------------------------------------------------------
+                                    // 2) فیلتر کردن واریانت‌ها بر اساس فیلترهای کاربر
+                                    // ------------------------------------------------------
+                                    $filteredVariants = $product->variants->filter(function ($v) use (
+                                        $fColors,
+                                        $fSizes,
+                                        $fMinPrice,
+                                        $fMaxPrice,
+                                        $fOnSale,
+                                        $fBigDeals,
+                                        $fInStock,
+                                        $fOutOfStock,
+                                    ) {
+                                        // فیلتر رنگ
+                                        if ($fColors && !in_array(optional($v->color)->slug, $fColors)) {
+                                            return false;
+                                        }
+
+                                        // فیلتر سایز
+                                        if ($fSizes && !in_array(optional($v->size)->slug, $fSizes)) {
+                                            return false;
+                                        }
+
+                                        // فیلتر قیمت
+                                        if ($fMinPrice && $v->final_price < $fMinPrice) {
+                                            return false;
+                                        }
+                                        if ($fMaxPrice && $v->final_price > $fMaxPrice) {
+                                            return false;
+                                        }
+
+                                        // اگر کاربر یکی از این دوتا رو زده بود
+                                        if ($fInStock || $fOutOfStock) {
+                                            // فیلتر موجودی
+                                            if ($fInStock && !$fOutOfStock && $v->availableStock() <= 0) {
+                                                return false;
                                             }
 
-                                            // size check
-                                            if (request()->filled('sizes')) {
-                                                if (!collect(request()->sizes)->contains($v->size->slug)) {
-                                                    return false;
-                                                }
+                                            // فیلتر ناموجودی
+                                            if ($fOutOfStock && !$fInStock && $v->availableStock() > 0) {
+                                                return false;
+                                            }
+                                        }
+
+                                        // فیلتر تخفیف
+                                        if ($fOnSale || $fBigDeals) {
+                                            // اگر تخفیف فعال ندارد، رد کن
+                                            if (!$v->activeAmazingSale) {
+                                                return false;
                                             }
 
-                                            // stock check
-                                            return $v->availableStock() > 0;
-                                        })
+                                            // اگر فقط Big Deals زده شده بود (نه هر دو!) → 30٪+
+                                            if ($fBigDeals && !$fOnSale && $v->activeAmazingSale->percentage < 30) {
+                                                return false;
+                                            }
+                                        }
 
-                                        // ارزان‌ترین واریانت موجود
-                                        ->sortBy('final_price')
-                                        ->first();
+                                        return true;
+                                    });
 
-                                    $isVariantAvailable = $variant?->is_available;
+                                    // --------------------------------------------
+                                    //  انتخاب variant مناسب بر اساس شرایط
+                                    // --------------------------------------------
+                                    $variant = null;
+
+                                    $basePool = $isAnyFilterActive ? $filteredVariants : $product->variants;
+
+                                    if ($basePool->isNotEmpty()) {
+                                        // اولویت با موجودهاست، مگر اینکه کاربر فقط out_of_stock زده باشد
+                                        $inStockPool = $basePool->filter(fn($v) => $v->availableStock() > 0);
+
+                                        $pool = $inStockPool->isNotEmpty() ? $inStockPool : $basePool;
+
+                                        $variant = $pool->sortBy('final_price')->first();
+                                    }
+
+                                    $isVariantAvailable = $variant?->availableStock() > 0;
 
                                     $isProductAvailable = $product->variants->sum(fn($v) => $v->availableStock()) > 0;
+
                                 @endphp
 
 
@@ -543,13 +632,37 @@
                                     <span class="stext-105 cl3">
 
                                         @if (!$isProductAvailable)
+                                            @if ($variant?->has_amazing_sale)
+                                                <del class="old-price">
+                                                    ${{ rtrim(rtrim(number_format($variant->price, 2), '0'), '.') }}
+                                                </del>
+
+                                                <span class="new-price">
+                                                    ${{ rtrim(rtrim(number_format($variant->final_price, 2), '0'), '.') }}
+                                                </span></br>
+                                            @else
+                                                ${{ rtrim(rtrim(number_format($variant->price, 2), '0'), '.') }}</br>
+                                            @endif
+
                                             <p class="text-danger">Out of stock</p>
                                         @elseif (!$isVariantAvailable)
-                                            <p class="text-danger">
-                                                Not available for current selection, Other colors or sizes available
-                                            </p>
+                                            @if ($variant?->has_amazing_sale)
+                                                <del class="old-price">
+                                                    ${{ rtrim(rtrim(number_format($variant->price, 2), '0'), '.') }}
+                                                </del>
+
+                                                <span class="new-price">
+                                                    ${{ rtrim(rtrim(number_format($variant->final_price, 2), '0'), '.') }}
+                                                </span></br>
+                                            @else
+                                                ${{ rtrim(rtrim(number_format($variant->price, 2), '0'), '.') }}</br>
+                                            @endif
+
+                                            <span class="text-danger">
+                                                This item is not available. Check the available options.
+                                            </span>
                                         @else
-                                            @if ($variant->has_amazing_sale)
+                                            @if ($variant?->has_amazing_sale)
                                                 <del class="old-price">
                                                     ${{ rtrim(rtrim(number_format($variant->price, 2), '0'), '.') }}
                                                 </del>
@@ -585,9 +698,12 @@
 
             <!-- Load more -->
             <div class="flex-c-m flex-w w-full p-t-45">
-                <a href="#" class="flex-c-m stext-101 cl5 size-103 bg2 bor1 hov-btn1 p-lr-15 trans-04">
-                    Load More
-                </a>
+                @if ($products->hasMorePages())
+                    <button id="load-more-btn" data-next-page="{{ $products->currentPage() + 1 }}"
+                        class="flex-c-m stext-101 cl5 size-103 bg2 bor1 hov-btn1 p-lr-15 trans-04">
+                        Load More
+                    </button>
+                @endif
             </div>
         </div>
     </div>
@@ -725,6 +841,84 @@
                 }
 
             }, 1000);
+        });
+    </script>
+
+    <script>
+        //     <!-- Load more 
+        //     -->
+        // <div class="flex-c-m flex-w w-full p-t-45">
+        //     @if ($products->hasMorePages())
+        //     <button id="load-more-btn" data-next-page="{{ $products->currentPage() + 1 }}"
+        //         class="flex-c-m stext-101 cl5 size-103 bg2 bor1 hov-btn1 p-lr-15 trans-04">
+        //         Load More
+        //     </button>
+        //     @endif
+        // </div>
+
+        // Load More Products
+
+        document.addEventListener('DOMContentLoaded', function() {
+            const btn = document.getElementById('load-more-btn');
+
+            btn?.addEventListener('click', function() {
+                const nextPage = btn.dataset.nextPage;
+                const params = new URLSearchParams(window.location.search);
+                params.set('page', nextPage);
+
+                btn.textContent = 'Loading...';
+
+                fetch(`/shop?${params.toString()}`, {
+                        headers: {
+                            'X-Requested-With': 'XMLHttpRequest'
+                        }
+                    })
+                    .then(r => r.text())
+                    .then(html => {
+                        const doc = new DOMParser().parseFromString(html, 'text/html');
+                        const newItems = doc.querySelectorAll('.isotope-item');
+                        const container = document.querySelector('.isotope-grid');
+
+                        newItems.forEach(item => container.appendChild(item));
+
+                        // صبر کن تصاویر لود بشن بعد layout بزن
+                        const images = container.querySelectorAll('img');
+                        let loadedCount = 0;
+                        const totalImages = images.length;
+
+                        function onImageLoad() {
+                            loadedCount++;
+                            if (loadedCount >= totalImages) {
+                                if (typeof $.fn.isotope !== 'undefined') {
+                                    $(container).isotope('appended', $(newItems));
+                                    $(container).isotope('layout');
+                                }
+                            }
+                        }
+
+                        if (totalImages === 0) {
+                            $(container).isotope('appended', $(newItems));
+                            $(container).isotope('layout');
+                        } else {
+                            images.forEach(img => {
+                                if (img.complete) {
+                                    onImageLoad();
+                                } else {
+                                    img.addEventListener('load', onImageLoad);
+                                    img.addEventListener('error', onImageLoad);
+                                }
+                            });
+                        }
+
+                        btn.dataset.nextPage = parseInt(nextPage) + 1;
+
+                        if (!doc.getElementById('load-more-btn')) {
+                            btn.remove();
+                        } else {
+                            btn.textContent = 'Load More';
+                        }
+                    });
+            });
         });
     </script>
 @endsection

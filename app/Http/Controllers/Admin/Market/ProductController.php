@@ -150,64 +150,6 @@ class ProductController extends Controller
             }
         }
 
-        //     DB::transaction(function () use ($inputs, $tags, $product) {
-
-        //         $product->update($inputs);
-
-        //         // تگ‌ها (sync یا detach)
-        //         if (!empty($tags)) {
-        //             $product->tags()->sync($tags);
-        //         } else {
-        //             $product->tags()->detach();
-        //         }
-
-        //         if ($product->has_color == 0 && $product->has_size == 0 && $product->variants()->count() == 0) {
-        //             ProductVariant::create([
-        //                 'product_id' => $product->id,
-        //                 'color_id' => null,
-        //                 'size_id' => null,
-        //                 'price' => $product->base_price,
-        //             ]);
-        //             return redirect(route('admin.market.product.index'))->with(
-        //                 'alert-section-success',
-        //                 'Product editing completed successfully.'
-        //             );
-        //         }
-        //         if (($product->has_color || $product->has_size) && $product->variants()->count() == 0) {
-        //             $product->update(['status' => 'draft']);
-        //         }
-
-        //         // حذف واریانت سیستمی در صورت تغییر ماهیت
-        //         if ($product->wasChanged(['has_color', 'has_size'])) {
-        //             $product->variants()
-        //                 ->whereNull('color_id')
-        //                 ->whereNull('size_id')
-        //                 ->delete();
-
-        //             if ($product->has_color == 0 && $product->has_size == 0) {
-        //                 ProductVariant::create([
-        //                     'product_id' => $product->id,
-        //                     'color_id' => null,
-        //                     'size_id' => null,
-        //                     'price' => $product->base_price,
-        //                 ]);
-        //                 return redirect(route('admin.market.product.index'))->with(
-        //                     'alert-section-success',
-        //                     'Product editing completed successfully.'
-        //                 );
-        //             }
-
-        //             return redirect()->route('admin.market.variant.create', $product)->with(
-        //                 'alert-section-warning',
-        //                 'The nature of the product has changed. Please create new product variants.'
-        //             );
-        //         }
-        //     });
-        //     return redirect(route('admin.market.product.index'))->with(
-        //         'alert-section-success',
-        //         'Product editing completed successfully.'
-        //     );
-        // }
 
         return DB::transaction(function () use ($request, $product, $inputs) {
 
@@ -221,11 +163,6 @@ class ProductController extends Controller
             } else {
                 $inputs['published_at'] = Carbon::createFromFormat('Y-m-d H:i', $inputs['published_at'])->format('Y-m-d H:i:s');
             }
-
-            // // image
-            // if (isset($request['image'])) {
-            //     $inputs['image'] = $request['image'];
-            // }
 
             // update
             $product->update($inputs);

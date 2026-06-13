@@ -65,7 +65,7 @@
 
         /* /////////////////////////////////////////// */
 
-        <style>.variant-section {
+        .variant-section {
             background-color: #f8f9fa;
             border: 1px solid #dee2e6;
             border-radius: 8px;
@@ -113,7 +113,6 @@
             cursor: not-allowed;
             opacity: 0.6;
         }
-    </style>
     </style>
 @endsection
 

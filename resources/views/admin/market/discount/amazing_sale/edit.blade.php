@@ -37,7 +37,7 @@
 
 
 
-                        <section class="col-12 col-md-6 my-3">
+                        <section class="col-12 my-3">
                             <div class="form-group">
                                 <label for="percentage">Discount percentage</label>
                                 <input type="text" class="form-control form-control-sm" name="percentage" id="percentage"
@@ -76,7 +76,7 @@
                             </div>
                         </section>
 
-                        <section class="col-12 col-md-6 my-3">
+                        <section class="col-12 my-3">
                             <div class="form-group">
                                 <label for="is_active">Status</label>
                                 <select name="is_active" class="form-control form-control-sm" id="is_active">

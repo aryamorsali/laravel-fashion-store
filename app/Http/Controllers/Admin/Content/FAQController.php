@@ -7,6 +7,7 @@ use App\Http\Requests\Admin\Content\FAQRequest;
 use App\Models\Content\FAQ;
 use App\Models\Content\Tag;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class FAQController extends Controller
 {
@@ -34,15 +35,19 @@ class FAQController extends Controller
     public function store(FAQRequest $request)
     {
         $data = $request->validated();
-        $tags = $inputs['tags'] ?? null;
+        $tags = $data['tags'] ?? null;
 
 
-        $faq = FAQ::create($data);
+        DB::transaction(function () use ($data, $tags) {
 
-        // attach tags
-        if ($tags) {
-            $faq->tags()->sync($tags);
-        }
+            $faq = FAQ::create($data);
+
+            // attach tags
+            if ($tags) {
+                $faq->tags()->sync($tags);
+            }
+        });
+
         return redirect()->route('admin.content.faq.index')->with(
             'alert-section-success',
             'New faq successfully registered.'
@@ -72,16 +77,21 @@ class FAQController extends Controller
     public function update(FAQRequest $request, FAQ $faq)
     {
         $data = $request->validated();
-        $tags = $inputs['tags'] ?? null;
 
-        $faq->update($data);
-        // sync tags
-        if ($tags) {
-            $faq->tags()->sync($tags);
-        } else {
-            // اگر تگ حذف شده باشد
-            $faq->tags()->detach();
-        }
+        DB::transaction(function () use ($data, $faq) {
+
+            $faq->update($data);
+
+            // ---------------------------
+            // تگ‌ها
+            // ---------------------------
+            if (!empty($data['tags'])) {
+                $faq->tags()->sync($data['tags']);
+            } else {
+                $faq->tags()->detach();
+            }
+        });
+
         return redirect()->route('admin.content.faq.index')->with(
             'alert-section-success',
             'FAQ successfully updated.'

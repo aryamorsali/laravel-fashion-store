@@ -18,7 +18,8 @@ class WarehouseVariantController extends Controller
      */
     public function index(Warehouse $warehouse)
     {
-        $warehouseVariants = $warehouse->variants()->with('productVariant')->paginate(15);
+        // $warehouseVariants = $warehouse->variants()->with('productVariant')->paginate(15);
+        $warehouseVariants = $warehouse->variants()->with('productVariant')->get();
         return view('admin.market.warehouse.warehouse-variant.index', compact('warehouseVariants', 'warehouse'));
     }
 

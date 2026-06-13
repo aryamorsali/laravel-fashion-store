@@ -79,7 +79,7 @@
                             @enderror
                         </section>
 
-                        <section class="col-12 col-md-6 my-3">
+                        <section class="col-12 my-3">
                             <div class="form-group">
                                 <label>tags</label>
                                 <select class="select2 form-control form-control-sm" id="select_tags" multiple
@@ -152,7 +152,7 @@
                 });
         </script>
 
-     {{-- select 2 --}}
+        {{-- select 2 --}}
         <script>
             var select_tags = $('#select_tags');
             select_tags.select2({

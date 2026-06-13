@@ -10,6 +10,7 @@ use App\Models\Content\PostCategory;
 use App\Models\Content\Tag;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class PostController extends Controller
 {
@@ -60,13 +61,14 @@ class PostController extends Controller
             $inputs['image'] = $result;
         }
 
-        $post = Post::create($inputs);
+        DB::transaction(function () use ($inputs, $tags) {
+            $post = Post::create($inputs);
 
-        // attach tags
-        if ($tags) {
-            $post->tags()->sync($tags);
-        }
-
+            // attach tags
+            if ($tags) {
+                $post->tags()->sync($tags);
+            }
+        });
         return redirect()->route('admin.content.post.index')->with(
             'alert-section-success',
             'Your new post was successfully registered.'
@@ -126,16 +128,17 @@ class PostController extends Controller
             }
         }
 
-        $post->update($inputs);
+        DB::transaction(function () use ($inputs, $post, $tags) {
+            $post->update($inputs);
 
-        // sync tags
-        if ($tags) {
-            $post->tags()->sync($tags);
-        } else {
-            // اگر تگ حذف شده باشد
-            $post->tags()->detach();
-        }
-
+            // sync tags
+            if ($tags) {
+                $post->tags()->sync($tags);
+            } else {
+                // اگر تگ حذف شده باشد
+                $post->tags()->detach();
+            }
+        });
         return redirect(route('admin.content.post.index'))->with(
             'alert-section-success',
             'Post editing completed successfully.'

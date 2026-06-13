@@ -82,9 +82,4 @@ class ProductVariant extends Model
         return $this->price -
             (($this->price * $this->discount_percentage) / 100);
     }
-
-    public function getIsAvailableAttribute()
-    {
-        return $this->availableStock() > 0;
-    }
 }

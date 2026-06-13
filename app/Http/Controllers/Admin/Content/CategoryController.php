@@ -6,7 +6,9 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\Content\PostCategoryRequest;
 use App\Http\Services\Image\ImageService;
 use App\Models\Content\PostCategory;
+use App\Models\Content\Tag;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class CategoryController extends Controller
 {
@@ -24,7 +26,9 @@ class CategoryController extends Controller
      */
     public function create()
     {
-        return view('admin.content.category.create');
+        $tags = Tag::all();
+
+        return view('admin.content.category.create', compact('tags'));
     }
 
     /**
@@ -32,7 +36,10 @@ class CategoryController extends Controller
      */
     public function store(PostCategoryRequest $request, ImageService $imageService)
     {
-        $inputs = $request->all();
+        $inputs = $request->validated();
+
+        $tags = $inputs['tags'] ?? null;
+
         if ($request->hasFile('image')) {
             $imageService->setExclusiveDirectory('images' . DIRECTORY_SEPARATOR . 'post-category');
             $result = $imageService->createIndexAndSave($request->file('image'));
@@ -46,7 +53,17 @@ class CategoryController extends Controller
             $inputs['image'] = $result;
         }
 
-        $postCategory = PostCategory::create($inputs);
+        DB::transaction(function () use ($inputs, $tags) {
+
+            $postCategory = PostCategory::create($inputs);
+
+            // attach tags
+            if ($tags) {
+                $postCategory->tags()->sync($tags);
+            }
+        });
+
+
         return redirect()->route('admin.content.category.index')->with(
             'alert-section-success',
             'Your new category was successfully registered.'
@@ -66,7 +83,9 @@ class CategoryController extends Controller
      */
     public function edit(PostCategory $postCategory)
     {
-        return view('admin.content.category.edit', compact('postCategory'));
+        $tags = Tag::all();
+
+        return view('admin.content.category.edit', compact('postCategory', 'tags'));
     }
 
     /**
@@ -74,7 +93,7 @@ class CategoryController extends Controller
      */
     public function update(PostCategoryRequest $request, PostCategory $postCategory, ImageService $imageService)
     {
-        $inputs = $request->all();
+        $inputs = $request->validated();
 
         // اگر کاربر فایل جدید آپلود کرد
         if ($request->hasFile('image')) {
@@ -98,7 +117,20 @@ class CategoryController extends Controller
                 $inputs['image'] = $image;
             }
         }
-        $postCategory->update($inputs);
+
+        DB::transaction(function () use ($inputs, $postCategory) {
+            $postCategory->update($inputs);
+
+            // ---------------------------
+            // تگ‌ها
+            // ---------------------------
+            if (!empty($inputs['tags'])) {
+                $postCategory->tags()->sync($inputs['tags']);
+            } else {
+                $postCategory->tags()->detach();
+            }
+        });
+
         return redirect(route('admin.content.category.index'))->with(
             'alert-section-success',
             'Category editing completed successfully.'

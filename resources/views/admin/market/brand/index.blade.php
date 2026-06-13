@@ -59,12 +59,13 @@
                                     @endif
                                 </td>
                                 <td>
-                                    @if (!empty($brand->tags))
-                                        {{ $brand->tags }}
+                                    @if ($brand->tags->isEmpty())
+                                        <span class="text-danger">No tag</span>
                                     @else
-                                        <p class="text-danger mt-3">without tags</p>
+                                        {{ $brand->tags->pluck('name')->join(', ') }}
                                     @endif
                                 </td>
+
 
                                 <td>
                                     <label>

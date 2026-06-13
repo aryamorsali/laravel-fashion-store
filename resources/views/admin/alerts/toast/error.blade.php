@@ -4,7 +4,7 @@
             position: fixed;
             top: 130px;
             right: 20px;
-            background: linear-gradient(135deg, #22c55e, #16a34a);
+            background: linear-gradient(135deg, #ef4444, #cf2020);
             color: #fff;
             padding: 14px 18px;
             border-radius: 12px;

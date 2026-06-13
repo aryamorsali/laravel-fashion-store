@@ -52,10 +52,10 @@
                                 <td>{{ Str::limit(strip_tags($faq->answer), 40) }}</td>
 
                                 <td>
-                                    @if ($post->tags->isEmpty())
+                                    @if ($faq->tags->isEmpty())
                                         <span class="text-danger">No tag</span>
                                     @else
-                                        {{ $post->tags->pluck('name')->join(', ') }}
+                                        {{ $faq->tags->pluck('name')->join(', ') }}
                                     @endif
                                 </td>
 

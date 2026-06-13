@@ -51,16 +51,25 @@
                                 <td>{{ $productCategory->name }}</td>
                                 <td>{{ $productCategory->parent->name ?? 'Main category' }}</td>
                                 <td>
-                                    @if (!empty($productCategory->image) && isset($productCategory->image['indexArray'][$productCategory->image['currentImage']]))
+                                    @if (
+                                        !empty($productCategory->image) &&
+                                            isset($productCategory->image['indexArray'][$productCategory->image['currentImage']]))
                                         <img class="rounded"
                                             src="{{ asset($productCategory->image['indexArray'][$productCategory->image['currentImage']]) }}"
                                             alt="" width="75" height="65">
                                     @else
-                                    <p class="text-danger mt-3">without image</p>
+                                        <p class="text-danger mt-3">without image</p>
                                     @endif
 
                                 </td>
-                                <td>{{ Str::limit($productCategory->tags, 40) }}</td>
+                                <td>
+                                    @if ($productCategory->tags->isEmpty())
+                                        <span class="text-danger">No tag</span>
+                                    @else
+                                        {{ $productCategory->tags->pluck('name')->join(', ') }}
+                                    @endif
+                                </td>
+
                                 <td>
                                     <label>
                                         <input id="{{ $productCategory->id }}"
@@ -69,7 +78,7 @@
                                             type="checkbox" @if ($productCategory->status === 1) checked @endif>
                                     </label>
                                 </td>
-                                
+
                                 <td class="width-16-rem text-center">
                                     <a href="{{ route('admin.market.category.edit', $productCategory->id) }}"
                                         class="btn btn-primary btn-sm width-6-rem mi"><i class="fa fa-edit"></i>
@@ -154,7 +163,6 @@
                 });
             }
         }
-
     </script>
 
     @include('admin.alerts.sweetalert.delete-confirm', ['className' => 'delete'])

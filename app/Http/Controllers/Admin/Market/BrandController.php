@@ -5,8 +5,10 @@ namespace App\Http\Controllers\Admin\Market;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\Market\BrandRequest;
 use App\Http\Services\Image\ImageService;
+use App\Models\Content\Tag;
 use App\Models\Market\Brand;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class BrandController extends Controller
 {
@@ -24,7 +26,9 @@ class BrandController extends Controller
      */
     public function create()
     {
-        return view('admin.market.brand.create');
+        $tags = Tag::all();
+
+        return view('admin.market.brand.create', compact('tags'));
     }
 
     /**
@@ -32,7 +36,11 @@ class BrandController extends Controller
      */
     public function store(BrandRequest $request, ImageService $imageService)
     {
-        $inputs = $request->all();
+        $inputs = $request->validated();
+
+        $tags = $inputs['tags'] ?? null;
+
+
         if ($request->hasFile('image')) {
             $imageService->setExclusiveDirectory('images' . DIRECTORY_SEPARATOR . 'brand');
             $result = $imageService->createIndexAndSave($request->file('image'));
@@ -46,7 +54,17 @@ class BrandController extends Controller
             $inputs['image'] = $result;
         }
 
-        Brand::create($inputs);
+        DB::transaction(function () use ($inputs, $tags) {
+
+            $brand = Brand::create($inputs);
+
+            // attach tags
+
+            if ($tags) {
+                $brand->tags()->sync($tags);
+            }
+        });
+
         return redirect()->route('admin.market.brand.index')->with(
             'alert-section-success',
             'Your new brand was successfully registered.'
@@ -66,7 +84,9 @@ class BrandController extends Controller
      */
     public function edit(Brand $brand)
     {
-        return view('admin.market.brand.edit', compact('brand'));
+        $tags = Tag::all();
+
+        return view('admin.market.brand.edit', compact('brand', 'tags'));
     }
 
     /**
@@ -75,7 +95,7 @@ class BrandController extends Controller
     public function update(BrandRequest $request, Brand $brand, ImageService $imageService)
     {
 
-        $inputs = $request->all();
+        $inputs = $request->validated();
 
         // اگر کاربر فایل جدید آپلود کرد
         if ($request->hasFile('image')) {
@@ -101,7 +121,20 @@ class BrandController extends Controller
             }
         }
 
-        $brand->update($inputs);
+        DB::transaction(function () use ($inputs, $brand) {
+
+            $brand->update($inputs);
+
+            // ---------------------------
+            // تگ‌ها
+            // ---------------------------
+            if (!empty($inputs['tags'])) {
+                $brand->tags()->sync($inputs['tags']);
+            } else {
+                $brand->tags()->detach();
+            }
+        });
+
         return redirect(route('admin.market.brand.index'))->with(
             'alert-section-success',
             'brand editing completed successfully.'
