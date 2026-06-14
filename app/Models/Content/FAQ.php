@@ -9,8 +9,8 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 
 class FAQ extends Model
 {
- use HasFactory, SoftDeletes, Sluggable;
-   protected $table = 'faqs';
+    use HasFactory, SoftDeletes, Sluggable;
+    protected $table = 'faqs';
     public function sluggable(): array
     {
         return [
@@ -21,4 +21,9 @@ class FAQ extends Model
     }
 
     protected $guarded = ['id'];
+
+    public function tags()
+    {
+        return $this->morphToMany(Tag::class, 'taggable');
+    }
 }

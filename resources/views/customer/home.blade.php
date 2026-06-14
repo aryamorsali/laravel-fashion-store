@@ -13,7 +13,7 @@
             background: #e53935;
             color: #fff;
             padding: 6px 10px;
-            font-size: 13px;
+            font-size: 12px;
             font-weight: 600;
             border-radius: 4px;
             z-index: 2;
@@ -36,16 +36,12 @@
             position: absolute;
             top: 10px;
             right: 10px;
-
             background: rgba(0, 0, 0, 0.7);
             color: #fff;
-
             font-size: 12px;
             font-weight: 500;
-
             padding: 4px 8px;
             border-radius: 4px;
-
             z-index: 2;
         }
     </style>
@@ -240,7 +236,6 @@
 
 
     <!-- Product discounted -->
-
     @if ($amazingProducts->count() > 0)
         <section class="sec-product bg0 p-t-23 p-b-30">
             <div class="container">
@@ -265,21 +260,58 @@
                                             <div class="block2">
                                                 <div class="block2-pic hov-img0">
 
+                                                    {{-- @php
+                                                        $activeAmazingSale = $product->variants
+                                                            ->pluck('amazingSale')
+                                                            ->filter(
+                                                                fn($sale) => $sale &&
+                                                                    $sale->is_active &&
+                                                                    $sale->start_date <= now() &&
+                                                                    $sale->end_date >= now(),
+                                                            )
+                                                            ->sortByDesc('percentage')
+                                                            ->first();
+                                                    @endphp --}}
 
-                                                    @if ($product->amazingSale)
+
+                                                    @php
+                                                        $activeAmazingSale = $product->variants
+                                                            // Only available variants
+                                                            ->filter(
+                                                                fn($v) => $v->warehouseVariants->sum('stock') >
+                                                                    $v->warehouseVariants->sum('reserved'),
+                                                            )
+                                                            // Extract sales
+                                                            ->pluck('amazingSale')
+                                                            ->flatten()
+                                                            // Only valid sales
+                                                            ->filter(function ($sale) {
+                                                                return $sale &&
+                                                                    $sale->is_active &&
+                                                                    $sale->start_date <= now() &&
+                                                                    $sale->end_date >= now();
+                                                            })
+                                                            ->sortByDesc('percentage')
+                                                            ->first();
+                                                    @endphp
+
+
+
+                                                    @if ($activeAmazingSale)
                                                         <span class="badge-amazing">
-                                                            -{{ $product->amazingSale->percentage }}%
+                                                            Up to {{ $activeAmazingSale->percentage }}% off
                                                         </span>
 
                                                         <span class="amazing-timer"
-                                                            data-end="{{ $product->amazingSale->end_date }}">
+                                                            data-end="{{ $activeAmazingSale->end_date }}">
                                                         </span>
                                                     @endif
+
 
                                                     <img src="{{ asset($product->image['indexArray']['main']) }}"
                                                         alt="{{ $product->name }}">
 
-                                                    <a href="#"
+                                                    <a href="{{ route('customer.market.product', $product) }}"
                                                         class="block2-btn flex-c-m stext-103 cl2 size-102 bg0 bor2 hov-btn1 p-lr-15 trans-04">
                                                         Shop Now
                                                     </a>
@@ -287,18 +319,43 @@
 
                                                 <div class="block2-txt flex-w flex-t p-t-14">
                                                     <div class="block2-txt-child1 flex-col-l ">
-                                                        <a href="product-detail.html"
+                                                        <a href="{{ route('customer.market.product', $product) }}"
                                                             class="stext-104 cl4 hov-cl1 trans-04 js-name-b2 p-b-6">
                                                             {{ $product->name }}
                                                         </a>
 
+                                                        {{-- @php
+                                                            $variant = $product->variants->firstWhere(
+                                                                'id',
+                                                                $activeAmazingSale?->product_variant_id,
+                                                            );
+
+                                                            $price = $variant?->price ?? $product->base_price;
+
+                                                            $discount = $activeAmazingSale?->percentage ?? 0;
+
+                                                            $finalPrice = $discount
+                                                                ? $price - ($price * $discount) / 100
+                                                                : $price;
+                                                        @endphp --}}
+
+
                                                         @php
-                                                            $price = $product->base_price;
-                                                            $discount = $product->amazingSale?->percentage ?? 0;
+                                                            $variant = $product->variants->firstWhere(
+                                                                'id',
+                                                                optional($activeAmazingSale)->product_variant_id,
+                                                            );
+
+                                                            $price = $variant?->price ?? $product->base_price;
+
+                                                            $discount = $activeAmazingSale->percentage ?? 0;
+
                                                             $finalPrice = $discount
                                                                 ? $price - ($price * $discount) / 100
                                                                 : $price;
                                                         @endphp
+
+
 
 
                                                         <span class="stext-105 cl3">
@@ -353,10 +410,6 @@
                     <h3 class="ltext-103 cl5">
                         🔥 Best Sellers
                     </h3>
-                    {{-- <a href="#" style="color: white"
-                            class="btn bg-dark stext-103 cl2 size-102 bg0 bor2 hov-btn1 p-lr-15 ">View
-                            All Products</a> --}}
-                    {{-- </div> --}}
 
                 </div>
 
@@ -374,20 +427,54 @@
                                             <!-- Block2 -->
                                             <div class="block2">
                                                 <div class="block2-pic hov-img0">
-                                                    @if ($product->amazingSale && $product->amazingSale->end_date > now())
+
+                                                    @php
+                                                        $availableVariants = $product->variants->filter(
+                                                            fn($variant) => $variant->warehouseVariants->sum('stock') >
+                                                                $variant->warehouseVariants->sum('reserved'),
+                                                        );
+
+                                                        $variant =
+                                                            $availableVariants
+                                                                ->sortByDesc(fn($v) => $v->orderItems->sum('quantity'))
+                                                                ->first() ??
+                                                            $product->variants
+                                                                ->sortByDesc(fn($v) => $v->orderItems->sum('quantity'))
+                                                                ->first();
+
+                                                        $price = $variant?->price;
+                                                        $finalPrice = $price;
+                                                        $discount = null;
+                                                        $activeAmazingSale = null;
+
+                                                        $hasAmazingSale =
+                                                            $variant &&
+                                                            $variant->amazingSale &&
+                                                            $variant->amazingSale->is_active &&
+                                                            $variant->amazingSale->start_date <= now() &&
+                                                            $variant->amazingSale->end_date >= now();
+
+                                                        if ($hasAmazingSale) {
+                                                            $activeAmazingSale = $variant->amazingSale;
+                                                            $discount = $variant->amazingSale->percentage;
+                                                            $finalPrice = $price - ($price * $discount) / 100;
+                                                        }
+                                                    @endphp
+
+                                                    @if ($activeAmazingSale)
                                                         <span class="badge-amazing">
-                                                            -{{ $product->amazingSale->percentage }}%
+                                                            Up to {{ $activeAmazingSale->percentage }}% off
                                                         </span>
 
                                                         <span class="amazing-timer"
-                                                            data-end="{{ $product->amazingSale->end_date }}">
+                                                            data-end="{{ $activeAmazingSale->end_date }}">
                                                         </span>
                                                     @endif
 
                                                     <img src="{{ asset($product->image['indexArray']['main']) }}"
                                                         alt="{{ $product->name }}">
 
-                                                    <a href="#"
+                                                    <a href="{{ route('customer.market.product', $product) }}"
                                                         class="block2-btn flex-c-m stext-103 cl2 size-102 bg0 bor2 hov-btn1 p-lr-15 trans-04">
                                                         Shop Now
                                                     </a>
@@ -395,25 +482,11 @@
 
                                                 <div class="block2-txt flex-w flex-t p-t-14">
                                                     <div class="block2-txt-child1 flex-col-l ">
-                                                        <a href="product-detail.html"
+                                                        <a href="{{ route('customer.market.product', $product) }}"
                                                             class="stext-104 cl4 hov-cl1 trans-04 js-name-b2 p-b-6">
                                                             {{ $product->name }}
                                                         </a>
                                                         <p>Number of sales : {{ $product->total_sold ?? 0 }}</p>
-
-                                                        @php
-                                                            $price = $product->base_price;
-
-                                                            $discount =
-                                                                $product->amazingSale &&
-                                                                $product->amazingSale->end_date > now()
-                                                                    ? $product->amazingSale->percentage
-                                                                    : 0;
-
-                                                            $finalPrice = $price - ($price * $discount) / 100;
-                                                        @endphp
-
-
 
                                                         <span class="stext-105 cl3">
                                                             @if ($discount)
@@ -493,20 +566,38 @@
                                             <div class="block2">
                                                 <div class="block2-pic hov-img0">
 
-                                                    @if ($product->amazingSale && $product->amazingSale->end_date > now())
+                                                    @php
+                                                        $activeAmazingSale = $product->variants
+                                                            ->filter(
+                                                                fn($v) => $v->warehouseVariants->sum('stock') >
+                                                                    $v->warehouseVariants->sum('reserved'),
+                                                            )
+                                                            ->pluck('amazingSale')
+                                                            ->flatten()
+                                                            ->filter(
+                                                                fn($sale) => $sale &&
+                                                                    $sale->is_active &&
+                                                                    $sale->start_date <= now() &&
+                                                                    $sale->end_date >= now(),
+                                                            )
+                                                            ->sortByDesc('percentage')
+                                                            ->first();
+                                                    @endphp
+
+                                                    @if ($activeAmazingSale)
                                                         <span class="badge-amazing">
-                                                            -{{ $product->amazingSale->percentage }}%
+                                                            Up to {{ $activeAmazingSale->percentage }}% off
                                                         </span>
 
                                                         <span class="amazing-timer"
-                                                            data-end="{{ $product->amazingSale->end_date }}">
+                                                            data-end="{{ $activeAmazingSale->end_date }}">
                                                         </span>
                                                     @endif
 
                                                     <img src="{{ asset($product->image['indexArray']['main']) }}"
                                                         alt="{{ $product->name }}">
 
-                                                    <a href="#"
+                                                    <a href="{{ route('customer.market.product', $product) }}"
                                                         class="block2-btn flex-c-m stext-103 cl2 size-102 bg0 bor2 hov-btn1 p-lr-15 trans-04">
                                                         Shop Now
                                                     </a>
@@ -514,21 +605,30 @@
 
                                                 <div class="block2-txt flex-w flex-t p-t-14">
                                                     <div class="block2-txt-child1 flex-col-l ">
-                                                        <a href="product-detail.html"
+                                                        <a href="{{ route('customer.market.product', $product) }}"
                                                             class="stext-104 cl4 hov-cl1 trans-04 js-name-b2 p-b-6">
                                                             {{ $product->name }}
                                                         </a>
 
                                                         @php
-                                                            $price = $product->base_price;
+                                                            $variant =
+                                                                $product->variants
+                                                                    ->filter(
+                                                                        fn($v) => $v->warehouseVariants->sum('stock') >
+                                                                            $v->warehouseVariants->sum('reserved'),
+                                                                    )
+                                                                    ->firstWhere(
+                                                                        'id',
+                                                                        optional($activeAmazingSale)
+                                                                            ->product_variant_id,
+                                                                    ) ?? $product->variants->first();
 
-                                                            $discount =
-                                                                $product->amazingSale &&
-                                                                $product->amazingSale->end_date > now()
-                                                                    ? $product->amazingSale->percentage
-                                                                    : 0;
+                                                            $price = $variant->price;
+                                                            $discount = $activeAmazingSale->percentage ?? 0;
 
-                                                            $finalPrice = $price - ($price * $discount) / 100;
+                                                            $finalPrice = $discount
+                                                                ? $price - ($price * $discount) / 100
+                                                                : $price;
                                                         @endphp
 
 
@@ -728,6 +828,7 @@
 
 
     <script>
+        // amazingSale js timer
         document.querySelectorAll('.amazing-timer').forEach(timer => {
 
             const endTime = new Date(timer.dataset.end).getTime();

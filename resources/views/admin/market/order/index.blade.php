@@ -65,7 +65,7 @@
                                 <td>{{ $order->payments->where('status', 'paid')->last()->gateway ?? '-' }}</td>
                                 <td>{{ $order->delivery_status }}</td>
 
-                                <td>{{ $order->delivery->name }}</td>
+                                <td>{{ $order->delivery->name ?? '-'}}</td>
                                 <td>{{ $order->order_status_value }}</td>
 
                                 <td class="width-14-rem text-center">

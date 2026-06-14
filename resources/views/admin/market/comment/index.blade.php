@@ -34,13 +34,12 @@
                         <tr>
                             <th scope="col">#</th>
                             <th scope="col">Comment</th>
-                            <th scope="col">Reply to</th>
+                            <th scope="col">Rating</th>
                             <th scope="col">Comment author</th>
                             <th scope="col">User code</th>
                             <th scope="col">Product</th>
                             <th scope="col">Product code</th>
                             <th scope="col">Approval status</th>
-                            <th scope="col">Status</th>
                             <th class="max-width-16-rem text-center"><i class="fa fa-cogs"></i> Setting</th>
                         </tr>
                     </thead>
@@ -50,23 +49,34 @@
                             <tr>
                                 <th scope="row">{{ $loop->iteration }}</th>
                                 <td>{{ Str::limit($comment->body, 25) }}</td>
-                                <td>{{ $comment->parent_id ? Str::limit($comment->parent->body, 10) : '-' }}</td>
-                                <td>{{ $comment->user->full_name }}</td>
+                                <td>
+                                    @if ($comment->rating)
+                                        <div class="rating">
+                                            <i style="color: #f5a623; font-size: 14px;" class="fa fa-star"></i>
+                                            {{ $comment->rating }}
+                                        </div>
+                                    @else
+                                    -
+                                    @endif
+                                </td>
+                                <td>{{ $comment->user->full_name ?? '-' }}</td>
                                 <td>{{ $comment->author_id }}</td>
                                 @if ($comment->commentable)
                                     <td>{{ $comment->commentable->name }}</td>
                                 @else
-                                    <td class="text-danger">Product deleted</td>
+                                    <td class="text-danger">Product
+                                        deleted
+                                    </td>
                                 @endif
                                 <td>{{ $comment->commentable_id }}</td>
-                                <td>{{ $comment->approved == 1 ? 'confirmed' : 'not confirmed' }}</td>
                                 <td>
-                                    <label>
-                                        <input id="{{ $comment->id }}" onchange="changeStatus({{ $comment->id }})"
-                                            data-url="{{ route('admin.market.comment.status', $comment->id) }}"
-                                            type="checkbox" @if ($comment->status === 1) checked @endif>
-                                    </label>
+                                    @if ($comment->approved == 1)
+                                        <span class="text-success">confirmed</span>
+                                    @else
+                                        <span class="text-danger">not confirmed</span>
+                                    @endif
                                 </td>
+
 
                                 <td class="width-16-rem text-center">
                                     <a href="{{ route('admin.market.comment.show', $comment->id) }}"

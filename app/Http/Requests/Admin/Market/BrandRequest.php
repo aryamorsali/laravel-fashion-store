@@ -26,7 +26,8 @@ class BrandRequest extends FormRequest
             'slug' => 'nullable|unique:brands,slug',
             'logo' => 'nullable|image|mimes:png,jpg,jpeg,gif|max:2048',
             'status' => 'required|numeric|in:0,1',
-            'tags' => 'nullable|regex:/^[ا-یa-zA-Z0-9\-۰-۹ء-ي., ]+$/u',
+            'tags' => ['nullable', 'array'],
+            'tags.*' => ['integer', 'exists:tags,id'],
         ];
     }
 }

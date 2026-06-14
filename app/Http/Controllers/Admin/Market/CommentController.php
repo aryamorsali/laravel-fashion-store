@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Content\Comment;
 use App\Models\Market\Product;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class CommentController extends Controller
 {
@@ -19,7 +20,7 @@ class CommentController extends Controller
             $unSeenComment->seen = 1;
             $result = $unSeenComment->save();
         }
-        $comments = Comment::with('commentable')->orderBy('created_at', 'desc')->where('commentable_type', Product::class)->paginate(15);
+        $comments = Comment::with('commentable')->where('parent_id', null)->orderBy('created_at', 'desc')->where('commentable_type', Product::class)->paginate(15);
         return view('admin.market.comment.index', compact('comments'));
     }
 
@@ -79,33 +80,18 @@ class CommentController extends Controller
         if ($comment->parent_id == null) {
 
             $inputs = $request->all();
-            $inputs['author_id'] = 1;
+            $inputs['author_id'] = Auth::user()->id;
             $inputs['parent_id'] = $comment->id;
             $inputs['commentable_id'] = $comment->commentable_id;
             $inputs['commentable_type'] = $comment->commentable_type;
             $inputs['approved'] = 1;
-            $inputs['status'] = 1;
+            $inputs['rating'] = null;
 
             $comment = Comment::create($inputs);
             return redirect()->route('admin.market.comment.index')->with(
                 'alert-section-success',
                 'Your response was successfully recorded.'
             );
-        }
-    }
-
-    public function status(Comment $comment)
-    {
-        $comment->status = $comment->status == 0 ? 1 : 0;
-        $result = $comment->save();
-        if ($result) {
-            if ($comment->status == 0) {
-                return response()->json(['status' => true, 'checked' => false]);
-            } else {
-                return response()->json(['status' => true, 'checked' => true]);
-            }
-        } else {
-            return response()->json(['status' => false]);
         }
     }
 

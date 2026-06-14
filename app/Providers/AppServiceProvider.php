@@ -2,8 +2,11 @@
 
 namespace App\Providers;
 
+use App\Models\Market\CartItem;
 use Illuminate\Cache\RateLimiting\Limit;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\RateLimiter;
+use Illuminate\Support\Facades\View;
 use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
@@ -31,6 +34,13 @@ class AppServiceProvider extends ServiceProvider
 
         RateLimiter::for('login-resend-otp-limiter', function ($request) {
             return Limit::perMinute(3)->by($request->ip());
+        });
+
+        // برای هدر این مقادیر ارسال میشود
+        view()->composer('customer.layouts.header', function ($view) {
+            if (Auth::check()) {
+                $view->with('cartItems', CartItem::where('user_id', Auth::user()->id)->get());
+            }
         });
     }
 }

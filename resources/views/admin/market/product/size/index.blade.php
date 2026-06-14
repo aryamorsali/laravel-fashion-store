@@ -48,7 +48,7 @@
                             <tr>
                                 <th scope="row">{{ $loop->iteration }}</th>
                                 <td>{{ $size->name }}</td>
-                                <td>{{ $size->type }}</td>
+                                <td>{{ $size->type ?? '-' }}</td>
 
                                 <td class="width-16-rem text-center">
                                     <form class="d-inline"

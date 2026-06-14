@@ -17,7 +17,6 @@ return new class extends Migration
             $table->foreignId('color_id')->constrained('product_colors')->onUpdate('cascade')->onDelete('cascade');
             $table->foreignId('size_id')->nullable()->constrained('product_sizes')->onUpdate('cascade')->onDelete('cascade');
             $table->decimal('price', 15, 2);
-            $table->integer('stock')->default(0);
             $table->timestamps();
             $table->softDeletes();
         });

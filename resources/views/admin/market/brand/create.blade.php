@@ -7,7 +7,7 @@
         .select2-selection__rendered {
             font-family: "Roboto", "Helvetica Neue", Arial, sans-serif;
             color: #000000;
-            padding: 4px 8px;
+            padding: 8px 12px;
             border-radius: 6px;
             font-size: 13px;
         }
@@ -19,7 +19,6 @@
 
         .select2-results__option {
             color: #000000;
-            background-color: #389af7;
             padding: 8px 12px;
             font-size: 13px;
         }
@@ -82,7 +81,7 @@
                             @enderror
                         </section>
 
-                            <section class="col-12 col-md-6 my-3">
+                        <section class="col-12 col-md-6 my-3">
                             <div class="form-group">
                                 <label for="logo">Logo</label>
                                 <input type="file" class="form-control form-control-sm" name="logo" id="logo">
@@ -95,13 +94,17 @@
                         </section>
 
 
-                        <section class="col-12 col-md-6 my-3">
+                        <section class="col-12 my-3">
                             <div class="form-group">
-                                <label for="tags">Tags</label>
-                                <input type="hidden" class="form-control form-control-sm" name="tags" id="tags"
-                                    value="{{ old('tags') }}">
-                                <select class="select2 form-control form-control-sm myselect" id="select_tags" multiple>
-
+                                <label>tags</label>
+                                <select class="select2 form-control form-control-sm" id="select_tags" multiple
+                                    name="tags[]">
+                                    @foreach ($tags as $tag)
+                                        <option value="{{ $tag->id }}"
+                                            @if (is_array(old('tags')) && in_array($tag->id, old('tags'))) selected @endif>
+                                            {{ $tag->name }}
+                                        </option>
+                                    @endforeach
                                 </select>
                             </div>
                             @error('tags')
@@ -139,37 +142,12 @@
         </section>
     @endsection
     @section('script')
-
-
+        {{-- select 2 --}}
         <script>
-            $(document).ready(function() {
-                var tags_input = $('#tags');
-                var select_tags = $('#select_tags');
-                var default_tags = tags_input.val();
-                var default_data = null;
-
-                if (tags_input.val() !== null && tags_input.val().length > 0) {
-                    default_data = default_tags.split(',');
-                }
-
-                select_tags.select2({
-                    placeholder: "Please enter your tags (optional)",
-                    tags: true,
-                    data: default_data,
-                    language: {
-                        noResults: function() {
-                            return '';
-                        }
-                    }
-                });
-                select_tags.children('option').attr('selected', true).trigger('change');
-
-                $('#form').submit(function(event) {
-                    if (select_tags.val() !== null && select_tags.val().length > 0) {
-                        var selectedSource = select_tags.val().join(',');
-                        tags_input.val(selectedSource)
-                    }
-                })
+            var select_tags = $('#select_tags');
+            select_tags.select2({
+                placeholder: 'Please enter tags (optional)',
+                multiple: true,
             })
         </script>
     @endsection

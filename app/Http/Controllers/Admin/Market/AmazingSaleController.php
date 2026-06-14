@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\Market\AmazingSaleRequest;
 use App\Models\Market\AmazingSale;
 use App\Models\Market\Product;
+use App\Models\Market\ProductVariant;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 
@@ -14,9 +15,13 @@ class AmazingSaleController extends Controller
     /**
      * Display a listing of the resource.
      */
-     public function index()
+    public function index()
     {
-        $amazingSales = AmazingSale::all();
+        $amazingSales = AmazingSale::with([
+            'productVariant.product'
+        ])->orderBy('created_at', 'desc')->get();
+
+
         return view('admin.market.discount.amazing_sale.index', compact('amazingSales'));
     }
 
@@ -25,25 +30,50 @@ class AmazingSaleController extends Controller
      */
     public function create()
     {
-        $products = Product::all();
+        $products = Product::with([
+            'variants.color',
+            'variants.size',
+        ])->whereHas('variants')->get();
         return view('admin.market.discount.amazing_sale.create', compact('products'));
     }
 
     /**
      * Store a newly created resource in storage.
      */
+
     public function store(AmazingSaleRequest $request)
     {
-        $inputs = $request->validated();
-        if (Carbon::parse($inputs['end_date'])->isPast()) {
-            $inputs['status'] = 2; // expired
+        $product = Product::findOrFail($request->product_id);
+
+        $variants = $product->variants()
+            ->whereIn('id', $request->product_variant_ids)
+            ->get();
+
+        if ($variants->count() !== count($request->product_variant_ids)) {
+            abort(422, 'Invalid variant selection.');
         }
-        $amazingSale = AmazingSale::create($inputs);
-        return redirect()->route('admin.market.discount.amazingSale')->with(
-            'alert-section-success',
-            'Your new common discount was successfully registered.'
-        );
+
+        foreach ($variants as $variant) {
+            AmazingSale::updateOrCreate(
+                [
+                    'product_variant_id' => $variant->id,
+                    'deleted_at' => null,
+                ],
+                [
+                    'percentage' => $request->percentage,
+                    'is_active'  => $request->is_active,
+                    'start_date' => $request->start_date,
+                    'end_date'   => $request->end_date,
+                ]
+            );
+        }
+
+        return redirect()
+            ->route('admin.market.discount.amazingSale')
+            ->with('alert-section-success', 'Amazing sale created successfully.');
     }
+
+
 
     /**
      * Display the specified resource.
@@ -58,8 +88,12 @@ class AmazingSaleController extends Controller
      */
     public function edit(AmazingSale $amazingSale)
     {
-        $products = Product::all();
-        return view('admin.market.discount.amazing_sale.edit', compact('amazingSale' , 'products'));
+        $amazingSale->load([
+            'productVariant.product',
+            'productVariant.color',
+            'productVariant.size',
+        ]);
+        return view('admin.market.discount.amazing_sale.edit', compact('amazingSale'));
     }
 
     /**
@@ -67,16 +101,24 @@ class AmazingSaleController extends Controller
      */
     public function update(AmazingSaleRequest $request, AmazingSale $amazingSale)
     {
-        $inputs = $request->validated();
-        if (Carbon::parse($inputs['end_date'])->isPast()) {
-            $inputs['status'] = 2; // expired
-        }
-        $amazingSale->update($inputs);
-        return redirect(route('admin.market.discount.amazingSale'))->with(
-            'alert-section-success',
-            'Common discount successfully updated.'
-        );
+
+        $data = $request->validated();
+
+        $amazingSale->update([
+            'percentage'         => $data['percentage'],
+            'is_active'          => $data['is_active'],
+            'start_date'         => $data['start_date'],
+            'end_date'           => $data['end_date'],
+        ]);
+
+        return redirect()
+            ->route('admin.market.discount.amazingSale')
+            ->with(
+                'alert-section-success',
+                'Amazing sale successful updated.'
+            );
     }
+
 
     /**
      * Remove the specified resource from storage.

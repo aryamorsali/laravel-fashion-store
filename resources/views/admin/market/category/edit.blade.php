@@ -7,7 +7,7 @@
         .select2-selection__rendered {
             font-family: "Roboto", "Helvetica Neue", Arial, sans-serif;
             color: #000000;
-            padding: 4px 8px;
+            padding: 8px 12px;
             border-radius: 6px;
             font-size: 13px;
         }
@@ -19,7 +19,6 @@
 
         .select2-results__option {
             color: #000000;
-            background-color: #389af7;
             padding: 8px 12px;
             font-size: 13px;
         }
@@ -134,7 +133,7 @@
                             @enderror
                         </section>
 
-                        <section class="col-12 col-md-6 my-3">
+                        <section class="col-12 my-3">
                             <div class="form-group">
                                 <label for="image">Image</label>
                                 <input type="file" class="form-control form-control-sm" name="image" id="image">
@@ -163,13 +162,17 @@
 
 
 
-                        <section class="col-12 col-md-6 my-3">
+                       <section class="col-12 col-md-6 my-3">
                             <div class="form-group">
-                                <label for="tags">Tags</label>
-                                <input type="hidden" class="form-control form-control-sm" name="tags" id="tags"
-                                    value="{{ old('tags', $productCategory->tags) }}">
-                                <select class="select2 form-control form-control-sm myselect" id="select_tags" multiple>
-
+                                <label>Tags</label>
+                                <select class="select2 form-control form-control-sm" id="select_tags" multiple
+                                    name="tags[]">
+                                    @foreach ($tags as $tag)
+                                        <option value="{{ $tag->id }}"
+                                            @if (in_array($tag->id, old('tags', $productCategory->tags->pluck('id')->toArray()))) selected @endif>
+                                            {{ $tag->name }}
+                                        </option>
+                                    @endforeach
                                 </select>
                             </div>
                             @error('tags')
@@ -196,23 +199,6 @@
                             @enderror
                         </section>
 
-                        <section class="col-12 col-md-6 my-3">
-                            <div class="form-group">
-                                <label for="show_in_menu">Show in menu</label>
-                                <select name="show_in_menu" class="form-control form-control-sm" id="show_in_menu">
-                                    <option value="0" @if (old('show_in_menu', $productCategory->show_in_menu) == 0) selected @endif>No
-                                    </option>
-                                    <option value="1" @if (old('show_in_menu', $productCategory->show_in_menu) == 1) selected @endif>Yes
-                                    </option>
-                                </select>
-                            </div>
-                            @error('show_in_menu')
-                                <div class="text-danger" style="margin-top: 9px; font-size: 12px; font-weight: 400;">
-                                    <strong>{{ $message }}</strong>
-                                </div>
-                            @enderror
-                        </section>
-
                         <section class="col-12 my-3 d-flex justify-content-end">
                             <button type="submit" class="btn btn-primary">Submit</button>
                         </section>
@@ -232,35 +218,12 @@
                 });
         </script>
 
+       {{-- select 2 --}}
         <script>
-            $(document).ready(function() {
-                var tags_input = $('#tags');
-                var select_tags = $('#select_tags');
-                var default_tags = tags_input.val();
-                var default_data = null;
-
-                if (tags_input.val() !== null && tags_input.val().length > 0) {
-                    default_data = default_tags.split(',');
-                }
-
-                select_tags.select2({
-                    placeholder: "Please enter your tags",
-                    tags: true,
-                    data: default_data,
-                    language: {
-                        noResults: function() {
-                            return '';
-                        }
-                    }
-                });
-                select_tags.children('option').attr('selected', true).trigger('change');
-
-                $('#form').submit(function(event) {
-                    if (select_tags.val() !== null && select_tags.val().length > 0) {
-                        var selectedSource = select_tags.val().join(',');
-                        tags_input.val(selectedSource)
-                    }
-                })
+            var select_tags = $('#select_tags');
+            select_tags.select2({
+                placeholder: 'Please enter tags (optional)',
+                multiple: true,
             })
         </script>
     @endsection

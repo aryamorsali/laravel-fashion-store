@@ -5,11 +5,10 @@ namespace App\Models\Market;
 use App\Models\Market\Product;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\SoftDeletes;
 
 class ProductVariant extends Model
 {
-    use HasFactory, SoftDeletes;
+    use HasFactory;
 
     protected $guarded = ['id'];
 
@@ -25,5 +24,62 @@ class ProductVariant extends Model
     public function size()
     {
         return $this->belongsTo(ProductSize::class);
+    }
+
+    public function amazingSale()
+    {
+        return $this->hasOne(AmazingSale::class);
+    }
+    public function activeAmazingSale()
+    {
+        return $this->hasOne(AmazingSale::class)
+            ->where('is_active', true)
+            ->where('start_date', '<=', now())
+            ->where('end_date', '>=', now());
+    }
+
+    public function orderItems()
+    {
+        return $this->hasMany(OrderItem::class, 'product_variant_id');
+    }
+
+
+    public function warehouseVariants()
+    {
+        return $this->hasMany(WarehouseVariant::class);
+    }
+
+    public function availableStock()
+    {
+        return $this->warehouseVariants
+            ->sum(fn($w) => $w->stock - $w->reserved);
+    }
+
+
+
+    ////////////////////////////////////////////////////////////////////////////////
+
+    public function getHasAmazingSaleAttribute()
+    {
+        return $this->activeAmazingSale !== null;
+    }
+
+    public function getDiscountPercentageAttribute()
+    {
+        if (!$this->has_amazing_sale) {
+            return 0;
+        }
+
+        return $this->amazingSale->percentage;
+    }
+
+    public function getFinalPriceAttribute()
+    {
+        if (!$this->has_amazing_sale) {
+            return $this->price;
+        }
+
+        return $this->price -
+            (($this->price * $this->discount_percentage) / 100);
     }
 }

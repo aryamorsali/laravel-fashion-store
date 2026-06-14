@@ -25,6 +25,10 @@ class ProductVariantController extends Controller
      */
     public function create(Product $product)
     {
+        if (!$product->has_color && !$product->has_size) {
+            return redirect()->route('admin.market.variant.index', $product)
+                ->with('alert-section-warning', 'This product is simple. To have a different variant, first change the product nature to variable.');
+        }
         $colors = ProductColor::all();
         $sizes = ProductSize::all();
         return view('admin.market.product.variant.create', compact('product', 'colors', 'sizes'));
@@ -35,18 +39,48 @@ class ProductVariantController extends Controller
      */
     public function store(ProductVariantRequest $request, Product $product)
     {
+        if (!$product->has_color && !$product->has_size) {
+            abort(403, 'This product is simple and does not allow for adding new variants.');
+        }
+
         $colors = $request->colors;
         $sizes = $request->sizes ?? [null];
         $allColors = ProductColor::pluck('name', 'id')->toArray();
         $allSizes  = ProductSize::pluck('name', 'id')->toArray();
         $duplicates = []; // ذخیره ترکیب‌های تکراری
 
-        foreach ($colors as $colorId) {
+        if ($colors != null) {
+            foreach ($colors as $colorId) {
+                foreach ($sizes as $sizeId) {
+
+                    $exists = ProductVariant::where([
+                        'product_id' => $product->id,
+                        'color_id' => $colorId,
+                        'size_id' => $sizeId,
+                    ])->exists();
+
+                    // اگر واریانت از قبل وجود نداشت
+                    if (!$exists) {
+                        ProductVariant::create([
+                            'product_id' => $product->id,
+                            'color_id' => $colorId,
+                            'size_id' => $sizeId,
+                            'price' => $request->price,
+                            'stock' => $request->stock,
+                        ]);
+                    } else {
+                        $colorName = $allColors[$colorId] ?? 'Unknown color';
+                        $sizeName  = $allSizes[$sizeId] ?? 'No size';
+                        $duplicates[] = $colorName . ' / ' . $sizeName;
+                    }
+                }
+            }
+        } else {
             foreach ($sizes as $sizeId) {
 
                 $exists = ProductVariant::where([
                     'product_id' => $product->id,
-                    'color_id' => $colorId,
+                    'color_id' => null,
                     'size_id' => $sizeId,
                 ])->exists();
 
@@ -54,18 +88,19 @@ class ProductVariantController extends Controller
                 if (!$exists) {
                     ProductVariant::create([
                         'product_id' => $product->id,
-                        'color_id' => $colorId,
+                        'color_id' => null,
                         'size_id' => $sizeId,
                         'price' => $request->price,
                         'stock' => $request->stock,
                     ]);
                 } else {
-                    $colorName = $allColors[$colorId] ?? 'Unknown color';
                     $sizeName  = $allSizes[$sizeId] ?? 'No size';
-                    $duplicates[] = $colorName . ' / ' . $sizeName;
+                    $duplicates[] = $sizeName;
                 }
             }
         }
+
+
         if (!empty($duplicates)) {
             return redirect()->back()->with(
                 'alert-section-warning',
@@ -97,10 +132,8 @@ class ProductVariantController extends Controller
      */
     public function update(ProductVariantRequest $request, Product $product, ProductVariant $variant)
     {
-        // ادمین میتواند فقط موجودی و قیمت را تغییر دهد چون شاید کاربر آنرا در سفارشات خود داشته باشد
         $variant->update([
             'price' => $request->price,
-            'stock' => $request->stock,
         ]);
 
         return redirect()->route('admin.market.variant.index', $product)
@@ -116,7 +149,17 @@ class ProductVariantController extends Controller
             abort(404);
         }
         $variant->delete();
-        return redirect()->route('admin.market.variant.index', $product)->with(
+        if ($product->variants()->doesntExist()) {
+            $product->updateQuietly([
+                'status' => 'draft',
+            ]);
+            return redirect()->route('admin.market.variant.index', $product)->with(
+                'alert-section-warning',
+                'Due to the removal of all variants, the product was reverted to draft status.'
+            );
+        }
+
+        return redirect()->back()->with(
             'alert-section-success',
             'Variant successfully removed.'
         );
@@ -126,6 +169,15 @@ class ProductVariantController extends Controller
     {
         if ($product->variants->isNotEmpty()) {
             $product->variants()->delete();
+            if ($product->variants()->doesntExist()) {
+                $product->updateQuietly([
+                    'status' => 'draft',
+                ]);
+                return redirect()->back()->with(
+                    'alert-section-warning',
+                    'Due to the removal of all variants, the product was reverted to draft status.'
+                );
+            }
             return redirect()->back()->with(
                 'alert-section-success',
                 'Variants successfully removed.'

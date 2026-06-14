@@ -39,6 +39,7 @@
                             <th scope="col">Image</th>
                             <th scope="col">Price</th>
                             <th scope="col">Category</th>
+                            <th scope="col">Status</th>
                             <th class="max-width-16-rem text-center"><i class="fa fa-cogs"></i> Setting</th>
                         </tr>
                     </thead>
@@ -55,6 +56,21 @@
                                 </td>
                                 <td>${{ rtrim(rtrim(number_format($product->base_price, 2), '0'), '.') }}</td>
                                 <td>{{ $product->productCategory->name ?? '-' }}</td>
+                                <td>
+                                    @switch($product->status)
+                                        @case('published')
+                                            <span class="text-success">published</span>
+                                        @break
+
+                                        @case('draft')
+                                            <span class="text-warning">draft</span>
+                                        @break
+
+                                        @case('out_of_stock')
+                                            <span class="text-danger">out of stock</span>
+                                        @break
+                                    @endswitch
+                                </td>
 
                                 <td class="width-13-rem text-left">
                                     <div class="dropdown">
@@ -109,7 +125,5 @@
 @endsection
 
 @section('script')
-
-
     @include('admin.alerts.sweetalert.delete-confirm', ['className' => 'delete'])
 @endsection

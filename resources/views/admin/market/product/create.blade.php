@@ -8,7 +8,7 @@
         .select2-selection__rendered {
             font-family: "Roboto", "Helvetica Neue", Arial, sans-serif;
             color: #000000;
-            padding: 4px 8px;
+            padding: 8px 12px;
             border-radius: 6px;
             font-size: 13px;
         }
@@ -20,7 +20,6 @@
 
         .select2-results__option {
             color: #000000;
-            background-color: #389af7;
             padding: 8px 12px;
             font-size: 13px;
         }
@@ -43,6 +42,41 @@
 
         .select2-container--default .select2-selection--multiple .select2-selection__choice__remove {
             color: #000000;
+        }
+    </style>
+
+    <style>
+        .variant-section {
+            background-color: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 8px;
+            padding: 15px 20px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+            transition: all 0.2s ease-in-out;
+        }
+
+        .variant-section:hover {
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+        }
+
+        .variant-section label {
+            font-weight: 600;
+            color: #343a40;
+            margin-bottom: 8px;
+            display: block;
+        }
+
+        .variant-section input[type="checkbox"] {
+            transform: scale(1.2);
+            accent-color: #0d6efd;
+            margin-right: 6px;
+            cursor: pointer;
+        }
+
+        .variant-hint {
+            font-size: 0.85rem;
+            color: #6c757d;
+            margin-top: 4px;
         }
     </style>
 @endsection
@@ -125,11 +159,15 @@
 
                         <section class="col-12 my-3">
                             <div class="form-group">
-                                <label for="tags">Tags</label>
-                                <input type="hidden" class="form-control form-control-sm" name="tags" id="tags"
-                                    value="{{ old('tags') }}">
-                                <select class="select2 form-control form-control-sm myselect" id="select_tags" multiple>
-
+                                <label>tags</label>
+                                <select class="select2 form-control form-control-sm" id="select_tags" multiple
+                                    name="tags[]">
+                                    @foreach ($tags as $tag)
+                                        <option value="{{ $tag->id }}"
+                                            @if (is_array(old('tags')) && in_array($tag->id, old('tags'))) selected @endif>
+                                            {{ $tag->name }}
+                                        </option>
+                                    @endforeach
                                 </select>
                             </div>
                             @error('tags')
@@ -161,7 +199,7 @@
                                     </option>
                                     <option value="published" @if (old('status') == 'published') selected @endif>published
                                     </option>
-                     
+
                                 </select>
                             </div>
                             @error('status')
@@ -209,6 +247,38 @@
                             @enderror
                         </section>
 
+                        <section class="col-12 col-md-6 my-3">
+                            <div class="form-group variant-section">
+                                <label for="has_color">
+                                    Does it have color? <small class="text-muted">(use for variant)</small>
+                                </label>
+
+                                <input type="checkbox" name="has_color" id="has_color" value="1">
+
+                                <div class="variant-hint">
+                                    If enabled, this product can have color-based variants.
+                                </div>
+                            </div>
+                        </section>
+
+
+                        <section class="col-12 col-md-6 my-3">
+                            <div class="form-group variant-section">
+                                <label for="has_size">
+                                    Does it have size? <small class="text-muted">(use for variant)</small>
+                                </label>
+
+                                <input type="checkbox" name="has_size" id="has_size" value="1">
+
+                                <div class="variant-hint">
+                                    If enabled, this product can have size-based variants.
+                                </div>
+                            </div>
+                        </section>
+
+
+
+
                         <section class="col-12 my-3 d-flex justify-content-end">
                             <button class="btn btn-primary">Submit</button>
                         </section>
@@ -246,34 +316,10 @@
 
         {{-- select 2 --}}
         <script>
-            $(document).ready(function() {
-                var tags_input = $('#tags');
-                var select_tags = $('#select_tags');
-                var default_tags = tags_input.val();
-                var default_data = null;
-
-                if (tags_input.val() !== null && tags_input.val().length > 0) {
-                    default_data = default_tags.split(',');
-                }
-
-                select_tags.select2({
-                    placeholder: "Please enter your tags",
-                    tags: true,
-                    data: default_data,
-                    language: {
-                        noResults: function() {
-                            return '';
-                        }
-                    }
-                });
-                select_tags.children('option').attr('selected', true).trigger('change');
-
-                $('#form').submit(function(event) {
-                    if (select_tags.val() !== null && select_tags.val().length > 0) {
-                        var selectedSource = select_tags.val().join(',');
-                        tags_input.val(selectedSource)
-                    }
-                })
+            var select_tags = $('#select_tags');
+            select_tags.select2({
+                placeholder: 'Please enter tags (optional)',
+                multiple: true,
             })
         </script>
     @endsection

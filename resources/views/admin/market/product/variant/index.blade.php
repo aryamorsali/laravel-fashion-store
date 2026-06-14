@@ -20,6 +20,7 @@
 
             @include('admin.alerts.alert-section.success')
             @include('admin.alerts.alert-section.error')
+            @include('admin.alerts.alert-section.warning')
 
             <section class="d-flex align-items-center mt-1 mb-3 border-bottom pb-2">
                 <div class="me-auto" style="max-width: 16rem;">
@@ -61,10 +62,13 @@
                                 <th scope="row">{{ $loop->iteration }}</th>
                                 <td>{{ $product->name }}</td>
                                 <td>
-                                    {{ $variant->color->name }}
-                                    <div
-                                        style="width: 15px; height: 15px; border-radius: 3px; background-color: {{ $variant->color->hex_code }}; display: inline-block; vertical-align: middle;">
-                                    </div>
+                                    {{ $variant->color->name ?? '-' }}
+                                    @if ($variant->color)
+                                        <div
+                                            style="width: 15px; height: 15px; border-radius: 3px; background-color: {{ $variant->color->hex_code }}; display: inline-block; vertical-align: middle;">
+                                        </div>
+                                    @endif
+
                                 </td>
 
                                 <td>{{ $variant->size->name ?? '-' }}</td>

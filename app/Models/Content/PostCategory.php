@@ -22,4 +22,10 @@ class PostCategory extends Model
         ];
     }
     protected $casts = ['image' => 'array'];
+
+     public function tags()
+    {
+        return $this->morphToMany(Tag::class, 'taggable');
+    }
+
 }
