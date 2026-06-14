@@ -32,22 +32,16 @@ class ShopController extends Controller
 
         $sizes = ProductSize::all();
 
-        // ---------------------------------------------------
         // ولیدیشن ورودی‌ها
-        // ---------------------------------------------------
 
         $request->validated();
 
-        // ---------------------------------------------------
         // کوئری اصلی محصولات
-        // ---------------------------------------------------
 
         $query = Product::query()
             ->where('status', 'published');
 
-        // ---------------------------------------------------
         // فیلتر دسته‌بندی
-        // ---------------------------------------------------
 
         if ($category && $category->id) {
             // نشان دادن دسته با زیر دسته
@@ -55,17 +49,13 @@ class ShopController extends Controller
             $query->whereIn('category_id', $categoryIds);
         }
 
-        // ---------------------------------------------------
         // جستجو بر اساس نام محصول
-        // ---------------------------------------------------
 
         if ($request->filled('search')) {
             $query->where('name', 'LIKE', '%' . $request->search . '%');
         }
 
-        // ---------------------------------------------------
         // فیلتر برند
-        // ---------------------------------------------------
 
         if ($request->filled('brands')) {
             $brandIds = Brand::whereIn('slug', $request->brands)->pluck('id');
@@ -73,9 +63,7 @@ class ShopController extends Controller
             $query->whereIn('brand_id', $brandIds);
         }
 
-        // ---------------------------------------------------
         // فیلتر تگ
-        // ---------------------------------------------------
 
         if ($request->tag) {
             $query->whereHas('tags', function ($q) use ($request) {
@@ -83,15 +71,11 @@ class ShopController extends Controller
             });
         }
 
-        // ---------------------------------------------------
         // فرمول محاسبه قیمت نهایی واریانت در دیتابیس
-        // ---------------------------------------------------
 
         $finalPriceSql = $this->finalVariantPriceSql();
 
-        // ---------------------------------------------------
         // حالت خاص: فقط محصولات کاملاً ناموجود
-        // ---------------------------------------------------
 
         if ($this->isAbsoluteOutOfStockMode($request)) {
 
@@ -100,19 +84,14 @@ class ShopController extends Controller
             });
         } else {
 
-            // ---------------------------------------------------
             // فیلترهای مربوط به واریانت‌ها
-            // ---------------------------------------------------
 
             $query->whereHas('variants', function ($q) use ($request, $finalPriceSql) {
                 $this->applyVariantFiltersToEloquentQuery($q, $request, $finalPriceSql);
             });
         }
 
-        // ---------------------------------------------------
         // Eager Loading
-        // ---------------------------------------------------
-
         $query->with([
             'variants.color',
             'variants.size',
@@ -121,9 +100,7 @@ class ShopController extends Controller
             'variants.activeAmazingSale',
         ]);
 
-        // ---------------------------------------------------
         // مرتب‌سازی محصولات
-        // ---------------------------------------------------
 
         switch ($request->sort) {
 
@@ -229,10 +206,10 @@ class ShopController extends Controller
         ));
     }
 
+    // =====================================================================
+    // Helper Methods
+    // =====================================================================
 
-    // =====================================================================
-    // منطق مرتب‌سازی (جایی که قیمت‌گذاری Blade شبیه‌سازی می‌شود)
-    // =====================================================================
     private function applyDisplayPriceSort($query, FilteringRequest $request, string $finalPriceSql, string $direction): void
     {
         $query->select('products.*')
@@ -249,37 +226,28 @@ class ShopController extends Controller
             ->orderBy('published_at', 'DESC');
     }
 
-    /**
-     * متد مشترک برای ساخت Subquery قیمت
-     * این متد دقیقاً همان منطق Blade را به SQL تبدیل می‌کند.
-     */
+    
+    //   متد مشترک برای ساخت Subquery قیمت
+    //   این متد دقیقاً همان منطق Blade را به SQL تبدیل می‌کند.
+     
     private function buildSortSubQuery($sub, FilteringRequest $request, string $finalPriceSql, string $aggregate, bool $onlyInStock): void
     {
         $sub->from('product_variants')
             ->whereColumn('product_variants.product_id', 'products.id');
 
-        // 1. اعمال فیلترهای کاربر (معادل $filteredVariants)
         $this->applyVariantFiltersToSubQuery($sub, $request, $finalPriceSql);
 
-        // 2. اعمال شرط موجودی (اگر لازم باشد)
         if ($onlyInStock) {
             $this->whereVariantIsInStock($sub);
         }
 
-        // 3. محاسبه مقدار نهایی (MIN یا MAX)
         $sub->selectRaw("$aggregate($finalPriceSql)");
     }
-
-    // =====================================================================
-    // Helper Methods
-    // =====================================================================
 
 
     private function applyVariantFiltersToEloquentQuery($q, FilteringRequest $request, string $finalPriceSql): void
     {
-        // ---------------------------------------------------
         // فیلتر رنگ
-        // ---------------------------------------------------
 
         if ($request->filled('colors')) {
             $q->whereHas('color', function ($c) use ($request) {
@@ -287,9 +255,7 @@ class ShopController extends Controller
             });
         }
 
-        // ---------------------------------------------------
         // فیلتر سایز
-        // ---------------------------------------------------
 
         if ($request->filled('sizes')) {
             $q->whereHas('size', function ($s) use ($request) {
@@ -297,9 +263,7 @@ class ShopController extends Controller
             });
         }
 
-        // ---------------------------------------------------
         // فیلتر بازه قیمت
-        // ---------------------------------------------------
 
         if ($request->filled('min_price')) {
             $q->whereRaw("$finalPriceSql >= ?", [(float) $request->min_price]);
@@ -309,9 +273,7 @@ class ShopController extends Controller
             $q->whereRaw("$finalPriceSql <= ?", [(float) $request->max_price]);
         }
 
-        // ---------------------------------------------------
         // فیلتر موجودی
-        // ---------------------------------------------------
 
         if ($request->in_stock == 1 && $request->out_of_stock != 1) {
             $q->whereHas('warehouseVariants', function ($w) {
@@ -325,9 +287,7 @@ class ShopController extends Controller
             });
         }
 
-        // ---------------------------------------------------
         // فیلتر تخفیف
-        // ---------------------------------------------------
 
         if ($request->on_sale || $request->big_deals) {
             $q->whereHas('activeAmazingSale', function ($as) use ($request) {

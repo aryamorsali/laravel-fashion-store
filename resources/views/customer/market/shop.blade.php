@@ -130,6 +130,58 @@
             z-index: 2;
         }
     </style>
+
+    <style>
+        .custom-toast {
+            position: fixed;
+            top: 110px;
+            right: 20px;
+            background: linear-gradient(135deg, #22c55e, #16a34a);
+            color: #fff;
+            padding: 14px 18px;
+            border-radius: 12px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 14px;
+            z-index: 9999;
+            animation: toastIn .4s ease;
+        }
+
+        .custom-toast .close-btn {
+            margin-left: 10px;
+            cursor: pointer;
+            font-size: 18px;
+            opacity: .8;
+        }
+
+        .custom-toast .close-btn:hover {
+            opacity: 1;
+        }
+
+        @keyframes toastIn {
+            from {
+                transform: translateX(40px);
+                opacity: 0;
+            }
+
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        .toast-link {
+            color: #fff;
+            font-weight: 600;
+            text-decoration: underline;
+        }
+
+        .toast-link:hover {
+            color: #d1fae5;
+        }
+    </style>
 @endsection
 
 @section('content')
@@ -497,7 +549,7 @@
 
                                 @php
                                     // -----------------------------
-                                    // 1) دریافت فیلترهای کاربر
+                                    //  دریافت فیلترهای کاربر
                                     // -----------------------------
                                     $fColors = request()->colors ?? [];
                                     $fSizes = request()->sizes ?? [];
@@ -509,7 +561,6 @@
                                     $fOutOfStock = request()->out_of_stock == 1;
                                     $sortBy = request()->sort;
 
-                                    // آیا کاربر هیچ فیلتری زده؟
                                     $isAnyFilterActive =
                                         !empty($fColors) ||
                                         !empty($fSizes) ||
@@ -521,7 +572,7 @@
                                         $fOutOfStock;
 
                                     // ------------------------------------------------------
-                                    // 2) فیلتر کردن واریانت‌ها بر اساس فیلترهای کاربر
+                                    //  فیلتر کردن واریانت‌ها بر اساس فیلترهای کاربر
                                     // ------------------------------------------------------
                                     $filteredVariants = $product->variants->filter(function ($v) use (
                                         $fColors,
@@ -566,12 +617,12 @@
 
                                         // فیلتر تخفیف
                                         if ($fOnSale || $fBigDeals) {
-                                            // اگر تخفیف فعال ندارد، رد کن
+                                            // اگر تخفیف فعال ندارد رد کن
                                             if (!$v->activeAmazingSale) {
                                                 return false;
                                             }
 
-                                            // اگر فقط Big Deals زده شده بود (نه هر دو!) → 30٪+
+                                            // اگر فقط Big deals 30٪
                                             if ($fBigDeals && !$fOnSale && $v->activeAmazingSale->percentage < 30) {
                                                 return false;
                                             }
@@ -581,7 +632,7 @@
                                     });
 
                                     // --------------------------------------------
-                                    //  انتخاب variant مناسب بر اساس شرایط
+                                    //  انتخاب واریانت مناسب بر اساس شرایط
                                     // --------------------------------------------
                                     $variant = null;
 
@@ -682,12 +733,18 @@
                                 </div>
 
                                 <div class="block2-txt-child2 flex-r p-t-3">
-                                    <a href="#" class="btn-addwish-b2 dis-block pos-relative js-addwish-b2">
+
+                                    <button class="like-btn" data-id="{{ $product->id }}" data-type="product">
+
                                         <img class="icon-heart1 dis-block trans-04"
-                                            src="{{ asset('images/icons/icon-heart-01.png') }}" alt="ICON">
-                                        <img class="icon-heart2 dis-block trans-04 ab-t-l"
-                                            src="{{ asset('images/images/icons/icon-heart-02.png') }}" alt="ICON">
-                                    </a>
+                                            src="{{ asset('images/icons/icon-heart-01.png') }}"
+                                            style="{{ $product->isLikedByUser() ? 'display:none' : '' }}" alt="ICON">
+
+                                        <img class="icon-heart2 dis-block trans-04"
+                                            src="{{ asset('images/icons/icon-heart-02.png') }}"
+                                            style="{{ $product->isLikedByUser() ? '' : 'display:none' }}" alt="ICON">
+
+                                    </button>
                                 </div>
                             </div>
                         </div>
@@ -845,17 +902,6 @@
     </script>
 
     <script>
-        //     <!-- Load more 
-        //     -->
-        // <div class="flex-c-m flex-w w-full p-t-45">
-        //     @if ($products->hasMorePages())
-        //     <button id="load-more-btn" data-next-page="{{ $products->currentPage() + 1 }}"
-        //         class="flex-c-m stext-101 cl5 size-103 bg2 bor1 hov-btn1 p-lr-15 trans-04">
-        //         Load More
-        //     </button>
-        //     @endif
-        // </div>
-
         // Load More Products
 
         document.addEventListener('DOMContentLoaded', function() {
@@ -881,7 +927,6 @@
 
                         newItems.forEach(item => container.appendChild(item));
 
-                        // صبر کن تصاویر لود بشن بعد layout بزن
                         const images = container.querySelectorAll('img');
                         let loadedCount = 0;
                         const totalImages = images.length;
@@ -920,5 +965,66 @@
                     });
             });
         });
+    </script>
+
+
+    <script>
+        // like product
+        document.querySelectorAll('.like-btn').forEach(btn => {
+            btn.addEventListener('click', async () => {
+
+                const {
+                    id,
+                    type
+                } = btn.dataset;
+
+                const res = await fetch(`/like/${type}/${id}`, {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                        'Accept': 'application/json'
+                    }
+                });
+
+                const data = await res.json();
+
+                if (data.login_required) {
+                    showToast(data.message);
+                    return;
+                }
+
+                const heart1 = btn.querySelector('.icon-heart1'); // قلب خالی
+                const heart2 = btn.querySelector('.icon-heart2'); // قلب قرمز
+
+                if (data.liked) {
+                    heart1.style.display = "none";
+                    heart2.style.display = "block";
+                } else {
+                    heart1.style.display = "block";
+                    heart2.style.display = "none";
+                }
+
+            });
+        });
+
+        function showToast(message) {
+            // ایجاد المان اصلی توست
+            const toast = document.createElement('div');
+            toast.className = 'custom-toast';
+            toast.id = 'dynamic-toast';
+
+            toast.innerHTML = `
+            <span>${message}</span>
+            <span class="close-btn" onclick="this.parentElement.remove()">×</span>`;
+
+
+            // اضافه کردن به صفحه
+            document.body.appendChild(toast);
+
+            // حذف خودکار بعد از ۸ ثانیه 
+            setTimeout(() => {
+                if (toast) toast.remove();
+            }, 8000);
+        }
     </script>
 @endsection

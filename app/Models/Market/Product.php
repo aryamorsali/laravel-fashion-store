@@ -5,10 +5,12 @@ namespace App\Models\Market;
 use App\Models\Content\Comment;
 use App\Models\Market\Gallery;
 use App\Models\Content\Tag;
+use App\Models\Like;
 use Cviebrock\EloquentSluggable\Sluggable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Facades\Auth;
 
 class Product extends Model
 {
@@ -81,6 +83,15 @@ class Product extends Model
     public function tags()
     {
         return $this->morphToMany(Tag::class, 'taggable');
+    }
+
+    public function likes()
+    {
+        return $this->morphMany(Like::class, 'likeable');
+    }
+    public function isLikedByUser()
+    {
+        return $this->likes()->where('user_id', Auth::id())->exists();
     }
 
     /////////////////////////////////////////////////////

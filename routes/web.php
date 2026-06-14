@@ -5,7 +5,6 @@ use App\Http\Controllers\Admin\Content\BannerController;
 use App\Http\Controllers\Admin\Content\CategoryController as ContentCategoryController;
 use App\Http\Controllers\Admin\Content\CommentController as ContentCommentController;
 use App\Http\Controllers\Admin\Content\FAQController;
-use App\Http\Controllers\Admin\Content\FaqsController;
 use App\Http\Controllers\Admin\Market\HomeBoxController;
 use App\Http\Controllers\Admin\Content\MenuController;
 use App\Http\Controllers\Admin\Content\PostController;
@@ -39,6 +38,7 @@ use App\Http\Controllers\Customer\HomeController;
 use App\Http\Controllers\Customer\Market\ProductController as MarketProductController;
 use App\Http\Controllers\Customer\Market\ShopController;
 use App\Http\Controllers\Customer\SalesProcess\CartController;
+use App\Http\Controllers\LikeController;
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
 
@@ -428,6 +428,9 @@ Route::namespace('SalesProcess')->group(function () {
     Route::post('/shoping-cart/coupon', [CartController::class, 'coupon'])->name('customer.sales-process.coupon');
 });
 
+// like
+Route::post('/like/{type}/{id}', [LikeController::class, 'toggle'])->name('like.toggle');
+    
 
 // content
 Route::view('/about', 'customer.pages.about')->name('customer.about');
