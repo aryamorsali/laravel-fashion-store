@@ -430,7 +430,7 @@ Route::namespace('SalesProcess')->group(function () {
 
 // like
 Route::post('/like/{type}/{id}', [LikeController::class, 'toggle'])->name('like.toggle');
-    
+
 
 // content
 Route::view('/about', 'customer.pages.about')->name('customer.about');

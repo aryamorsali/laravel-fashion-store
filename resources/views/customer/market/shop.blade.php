@@ -666,7 +666,7 @@
                                 <img src="{{ asset($product->image['indexArray']['main']) }}"
                                     alt="{{ $product->name }}">
 
-                                <a href="{{ route('customer.market.product', $product) }}"
+                                <a href="{{ route('customer.market.product', [$product->slug, 'variant' => $variant->id]) }}"
                                     class="block2-btn flex-c-m stext-103 cl2 size-102 bg0 bor2 hov-btn1 p-lr-15 trans-04">
                                     Shop Now
                                 </a>
@@ -674,7 +674,7 @@
 
                             <div class="block2-txt flex-w flex-t p-t-14">
                                 <div class="block2-txt-child1 flex-col-l ">
-                                    <a href="{{ route('customer.market.product', $product) }}"
+                                    <a href="{{ route('customer.market.product', [$product->slug, 'variant' => $variant->id]) }}"
                                         class="stext-104 cl4 hov-cl1 trans-04 js-name-b2 p-b-6">
                                         {{ $product->name }}
                                     </a>
@@ -999,15 +999,23 @@
                 if (data.liked) {
                     heart1.style.display = "none";
                     heart2.style.display = "block";
+                    showToast('Product added to wishlist', 'success');
                 } else {
                     heart1.style.display = "block";
                     heart2.style.display = "none";
+                    showToast('Product remove from wishlist', 'success');
                 }
 
             });
         });
 
         function showToast(message) {
+
+            const existingToast = document.querySelector('.custom-toast');
+            if (existingToast) {
+                existingToast.remove(); 
+            }
+
             // ایجاد المان اصلی توست
             const toast = document.createElement('div');
             toast.className = 'custom-toast';

@@ -260,6 +260,79 @@
             z-index: 2;
         }
     </style>
+
+    <style>
+        .custom-toast {
+            position: fixed;
+            top: 110px;
+            right: 20px;
+            background: linear-gradient(135deg, #22c55e, #16a34a);
+            color: #fff;
+            padding: 14px 18px;
+            border-radius: 12px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 14px;
+            z-index: 9999;
+            animation: toastIn .4s ease;
+        }
+
+        .custom-toast .close-btn {
+            margin-left: 10px;
+            cursor: pointer;
+            font-size: 18px;
+            opacity: .8;
+        }
+
+        .custom-toast .close-btn:hover {
+            opacity: 1;
+        }
+
+        @keyframes toastIn {
+            from {
+                transform: translateX(40px);
+                opacity: 0;
+            }
+
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        .toast-link {
+            color: #fff;
+            font-weight: 600;
+            text-decoration: underline;
+        }
+
+        .toast-link:hover {
+            color: #d1fae5;
+        }
+
+
+        /* Brand Badge Hover */
+        .brand-badge:hover {
+            background: #7179e0 !important;
+            color: #fff !important;
+            border-color: #7179e0 !important;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(113, 121, 224, 0.25);
+        }
+
+
+
+        /* product tag  */
+        .product-tag:hover {
+            background: #7179e0 !important;
+            color: #fff !important;
+            border-color: #7179e0 !important;
+            transform: translateY(-2px);
+            box-shadow: 0 2px 8px rgba(113, 121, 224, 0.2);
+        }
+    </style>
 @endsection
 
 @section('content')
@@ -269,19 +342,21 @@
     <!-- breadcrumb -->
     <div class="container">
         <div class="bread-crumb flex-w p-l-25 p-r-15 p-t-30 p-lr-0-lg">
-            <a href="index.html" class="stext-109 cl8 hov-cl1 trans-04">
+            <a href="{{ route('customer.home') }}" class="stext-109 cl8 hov-cl1 trans-04">
                 Home
                 <i class="fa fa-angle-right m-l-9 m-r-10" aria-hidden="true"></i>
             </a>
             @if ($product->productCategory)
                 @if ($product->productCategory->parent)
-                    <a href="#" class="stext-109 cl8 hov-cl1 trans-04">
+                    <a href="{{ route('customer.market.shop', $product->productCategory->parent->slug) }}"
+                        class="stext-109 cl8 hov-cl1 trans-04">
                         {{ $product->productCategory->parent->name }}
                         <i class="fa fa-angle-right m-l-9 m-r-10" aria-hidden="true"></i>
                     </a>
                 @endif
 
-                <a href="#" class="stext-109 cl8 hov-cl1 trans-04">
+                <a href="{{ route('customer.market.shop', $product->productCategory->slug) }}"
+                    class="stext-109 cl8 hov-cl1 trans-04">
                     {{ $product->productCategory->name }}
                     <i class="fa fa-angle-right m-l-9 m-r-10" aria-hidden="true"></i>
                 </a>
@@ -355,7 +430,7 @@
 
                                 <div class="rating">
                                     <i class="fa fa-star"></i>
-                                    <span class="rating-number">4.5</span>
+                                    <span class="rating-number">{{ $aveRating }}</span>
                                 </div>
                             </div>
                         </div>
@@ -401,9 +476,9 @@
                                         </p>
                                     </div>
 
-                                    <div id="totalDiv" class="mt-3">
-                                        <p class="text-dark" style="font-size: 18px">Total: $<span
-                                                id="totalPrice">351.09</span></p>
+                                    <div id="totalDiv" class="mt-4">
+                                        <h3 class="text-dark mtext-101 cl2" style="font-size: 19px">Total: $<span
+                                                id="totalPrice">351.09</span></h3>
 
                                     </div>
 
@@ -440,11 +515,13 @@
                         <!--  -->
                         <div class="flex-w flex-m p-l-100 p-t-40 respon7">
                             <div class="flex-m bor9 p-r-10 m-r-11">
-                                <a href="#"
-                                    class="fs-14 cl3 hov-cl1 trans-04 lh-10 p-lr-5 p-tb-2 js-addwish-detail tooltip100"
-                                    data-tooltip="Add to Wishlist">
-                                    <i class="zmdi zmdi-favorite"></i>
-                                </a>
+
+                                <button class="like-btn fs-14 cl3 lh-10 hov-cl1 trans-04 p-lr-5 p-tb-2"
+                                    data-id="{{ $product->id }}" data-type="product"
+                                    title="{{ $product->isLikedByUser() ? 'Remove from favorites' : 'Add to Favorites' }}">
+                                    <i class="zmdi zmdi-favorite"
+                                        @if ($product->isLikedByUser()) style="color: rgb(113, 127, 224)" @endif></i>
+                                </button>
                             </div>
 
                             <a href="#" class="fs-14 cl3 hov-cl1 trans-04 lh-10 p-lr-5 p-tb-2 m-r-8 tooltip100"
@@ -495,6 +572,49 @@
                                 <p class="stext-102 cl6">
                                     {!! $product->description !!}
                                 </p>
+
+                                @if ($product->brand)
+                                    <!-- Brand Badge -->
+                                    <div
+                                        style="display:flex; align-items:center; gap:8px; margin-top: 24px; padding-top: 20px; border-top: 1px solid #e9ecef;">
+
+                                        <h6 style="font-size: 13px; color: #999; margin-bottom: 12px; font-weight: 500;">
+                                            Brand:
+                                        </h6>
+                                        <a href="{{ route('customer.market.shop', ['brands' => [$product->brand->slug]]) }}"
+                                            class="brand-badge"
+                                            style="display: inline-flex; align-items: center; gap: 6px;
+                                      padding: 4px 12px; background: #f0f1ff; 
+                                      border-radius: 16px; font-size: 13px; color: #7179e0;
+                                      text-decoration: none; margin-bottom: 12px;
+                                      transition: all 0.3s ease; border: 1px solid #d4d7f7;">
+                                            <i class="zmdi zmdi-label" style="font-size: 14px;"></i>
+                                            <span style="font-weight: 500;">{{ $product->brand->name }}</span>
+                                        </a>
+                                    </div>
+                                @endif
+
+
+                                @if ($product->tags && $product->tags->count() > 0)
+                                    <div style="margin-top: 14px; padding-top: 10px;">
+                                        <h6 style="font-size: 13px; color: #999; margin-bottom: 12px; font-weight: 500;">
+                                            Tags:
+                                        </h6>
+                                        <div style="display: flex; flex-wrap: wrap; gap: 8px;">
+                                            @foreach ($product->tags as $tag)
+                                                <a href="{{ route('customer.market.shop', ['tag' => $tag->slug]) }}"
+                                                    class="product-tag"
+                                                    style="display: inline-block; padding: 6px 14px;
+                                                       background: #f8f9fa; color: #555;
+                                                       border-radius: 16px; font-size: 12px;
+                                                       text-decoration: none; transition: all 0.3s ease;
+                                                       border: 1px solid #e9ecef;">
+                                                    #{{ $tag->name }}
+                                                </a>
+                                            @endforeach
+                                        </div>
+                                    </div>
+                                @endif
                             </div>
                         </div>
 
@@ -817,18 +937,13 @@
                 </div>
             </div>
             @if ($relatedProducts->count() >= 8)
-                {{-- <!-- دکمه مشاهده همه -->
-                <div class="text-center p-t-20">
-                    <a href="#" class="btn stext-103 cl2 size-102 bg0 bor2 hov-btn1 p-lr-15 trans-04 border">View All Products</a>
-                </div> --}}
+                <!-- دکمه مشاهده همه -->
+
                 <div style="padding-right: 10rem" class="text-right pt-20">
-                    <a href="#" style="color: white"
+                    <a href="{{ route('customer.market.shop', $product->productCategory->slug) }}" style="color: white"
                         class="btn bg-dark stext-103 cl2 size-102 bg0 bor2 hov-btn1 p-lr-15 ">View
                         All Products</a>
                 </div>
-                {{-- <div class="p-t-30">
-                    <a href="#" class="btn btn-primary btn-block">View All Products</a>
-                </div> --}}
             @endif
 
         </section>
@@ -932,7 +1047,7 @@
         // =========================
         const variants = {{ Js::from($variantsForJs) }};
         const hasSellableVariant = {{ Js::from($hasSellableVariant) }};
-
+        const selectedVariantId = {{ Js::from($selectedVariantId) }};
         // =========================
         // ELEMENTS
         // =========================
@@ -1024,21 +1139,36 @@
         // =========================
         // SHOW SIZES
         // =========================
-        function showSizes(colorId = null) {
+        function showSizes(colorId = null, preferredSizeId = null) {
 
             if (!hasSize) {
                 sizeWrapper.style.display = 'none';
                 return;
             }
 
-            const sizes = [...new Map(
-                variants
-                .filter(v => !hasColor || v.color_id === colorId)
-                .map(v => [v.size_id, {
-                    id: v.size_id,
-                    name: v.size_name
-                }])
-            ).values()];
+            let sizes;
+
+            // همه سایزهای محصول نشان داده شود colorId = null اگر 
+            if (colorId === null) {
+                sizes = [...new Map(
+                    variants
+                    .filter(v => v.size_id) // فقط واریانت‌هایی که سایز دارن
+                    .map(v => [v.size_id, {
+                        id: v.size_id,
+                        name: v.size_name
+                    }])
+                ).values()];
+            } else {
+                // فیلتر بر اساس رنگ انتخابی
+                sizes = [...new Map(
+                    variants
+                    .filter(v => (!hasColor || v.color_id === colorId) && v.size_id)
+                    .map(v => [v.size_id, {
+                        id: v.size_id,
+                        name: v.size_name
+                    }])
+                ).values()];
+            }
 
             //  جدا کردن موجود و ناموجود
             const availableSizes = sizes.filter(s => isSizeAvailable(s.id, colorId));
@@ -1058,18 +1188,33 @@
             </label> `;
             }).join('');
 
-            const first = sizeBox.querySelector('input:not(:disabled)');
+            const preferred = preferredSizeId ?
+                sizeBox.querySelector(`input[value="${preferredSizeId}"]:not(:disabled)`) :
+                null;
+
+            const first = preferred || sizeBox.querySelector('input:not(:disabled)');
 
             if (first) {
                 first.checked = true;
                 selectedSize = Number(first.value);
-                // بروز کردن متن selected size
-                const variant = variants.find(v => v.size_id === selectedSize && (!colorId || v.color_id === colorId));
-                if (variant) sizeText.innerText = variant.size_name;
+
+                const variant = variants.find(v =>
+                    v.size_id === selectedSize &&
+                    (!colorId || v.color_id === colorId)
+                );
+
+                if (variant && sizeText) {
+                    sizeText.innerText = variant.size_name;
+                }
 
             } else {
                 selectedSize = null;
+
+                if (sizeText) {
+                    sizeText.innerText = '';
+                }
             }
+
         }
 
         // =========================
@@ -1204,7 +1349,7 @@
             const stock = Number(variant.stock);
 
             if (stock === 0) stockText.innerText = 'Out of stock';
-            else if (stock <= 5) stockText.innerText = `Only ${stock} items left`;
+            else if (stock <= 10) stockText.innerText = `Only ${stock} items left`;
             else stockText.innerText = 'In stock';
 
             const maxQty = Math.min(stock, 10);
@@ -1268,31 +1413,22 @@
         // =========================
         // INIT
         // =========================
+
         document.addEventListener('DOMContentLoaded', () => {
 
             renderColors();
 
-            // Default select color
-            // if (hasColor) {
-            //     const first = colors.find(c => isColorAvailable(c.id));
-            //     if (first) {
-            //         selectedColor = first.id;
-            //         const input = colorBox.querySelector(`input[value="${selectedColor}"]`);
-            //         if (input) input.checked = true;
-            //         colorText.innerText = first.name;
-            //         showSizes(selectedColor);
-            //     }
-            // }
+            // اگر از URL واریانت خاصی آمده
 
+            const initialVariant = selectedVariantId ?
+                variants.find(v => v.id == selectedVariantId) :
+                null;
 
-            if (hasColor) {
+            if (initialVariant) {
 
-                const firstAvailable = colors.find(c => isColorAvailable(c.id));
+                if (hasColor && initialVariant.color_id) {
 
-                // محصول موجود دارد
-                if (firstAvailable) {
-
-                    selectedColor = firstAvailable.id;
+                    selectedColor = initialVariant.color_id;
 
                     const input = colorBox.querySelector(
                         `input[value="${selectedColor}"]`
@@ -1300,34 +1436,70 @@
 
                     if (input) input.checked = true;
 
-                    colorText.innerText = firstAvailable.name;
+                    const color = colors.find(c => c.id == selectedColor);
 
-                    showSizes(selectedColor);
-
-                } else {
-
-                    // کل محصول ناموجود است
-                    // سایزهای اولین رنگ را فقط برای نمایش نشان بده
-
-                    const firstColor = colors[0];
-
-                    if (firstColor) {
-                        showSizes(firstColor.id);
+                    if (color && colorText) {
+                        colorText.innerText = color.name;
                     }
+
+                    showSizes(selectedColor, initialVariant.size_id);
+
+                } else if (!hasColor && hasSize) {
+
+                    showSizes(null, initialVariant.size_id);
+
+                } else if (!hasColor && !hasSize) {
+
+                    if (sizeWrapper) {
+                        sizeWrapper.style.display = 'none';
+                    }
+
                 }
-            }
 
+            } else {
 
-            // If only size exists
-            if (!hasColor && hasSize) {
-                showSizes();
-            }
-            if (!hasColor && !hasSize) {
-                sizeWrapper.style.display = 'none';
+                if (hasColor) {
+
+                    const firstAvailable = colors.find(c => isColorAvailable(c.id));
+
+                    if (firstAvailable) {
+
+                        selectedColor = firstAvailable.id;
+
+                        const input = colorBox.querySelector(
+                            `input[value="${selectedColor}"]`
+                        );
+
+                        if (input) input.checked = true;
+
+                        if (colorText) {
+                            colorText.innerText = firstAvailable.name;
+                        }
+
+                        showSizes(selectedColor);
+
+                    } else {
+
+                        showSizes(null);
+
+                    }
+
+                } else if (!hasColor && hasSize) {
+
+                    showSizes();
+
+                } else if (!hasColor && !hasSize) {
+
+                    if (sizeWrapper) {
+                        sizeWrapper.style.display = 'none';
+                    }
+
+                }
             }
 
             currentVariant = findActiveVariant();
             refreshUI();
+
 
             // + / -
             if (btnPlus && btnMinus && qtyInput) {
@@ -1358,7 +1530,25 @@
                     refreshUI();
                 });
             }
+
+
+
+            // =========================
+            // ADD TO CART
+            // =========================
+            addToCartBtn.addEventListener('click', function(e) {
+                // مقدار variant انتخاب‌شده
+                const variantId = currentVariant?.id;
+
+                // مقدار تعداد انتخاب شده
+                const qty = parseInt(document.getElementById('num-product').value);
+
+                document.getElementById('variant_id').value = variantId;
+                document.getElementById('quantity').value = qty;
+            });
         });
+
+
 
         // =========================
         // EVENTS
@@ -1384,20 +1574,6 @@
                 if (variant) sizeText.innerText = variant.size_name;
                 refreshUI();
             }
-        });
-
-        // =========================
-        // ADD TO CART
-        // =========================
-        addToCartBtn.addEventListener('click', function(e) {
-            // مقدار variant انتخاب‌شده
-            const variantId = currentVariant?.id;
-
-            // مقدار تعداد انتخاب شده
-            const qty = parseInt(document.getElementById('num-product').value);
-
-            document.getElementById('variant_id').value = variantId;
-            document.getElementById('quantity').value = qty;
         });
     </script>
 
@@ -1488,5 +1664,73 @@
 
             }, 1000);
         });
+    </script>
+
+    <script>
+        document.querySelectorAll('.like-btn').forEach(btn => {
+            btn.addEventListener('click', async function(e) {
+                e.preventDefault();
+
+                const {
+                    id,
+                    type
+                } = this.dataset;
+                const icon = this.querySelector('i');
+
+                try {
+                    const res = await fetch(`/like/${type}/${id}`, {
+                        method: 'POST',
+                        headers: {
+                            'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                            'Accept': 'application/json'
+                        }
+                    });
+
+                    const data = await res.json();
+
+                    if (data.login_required) {
+                        showToast(data.message);
+                        return;
+                    }
+
+                    // تغییر آیکون و رنگ
+                    if (data.liked) {
+                        icon.className = 'zmdi zmdi-favorite';
+                        icon.style.color = 'rgb(113, 127, 224)';
+                        this.setAttribute('title', 'Remove from favorites');
+                        showToast('Product added to wishlist', 'success');
+
+                    } else {
+                        icon.className = 'zmdi zmdi-favorite';
+                        icon.style.color = '';
+                        this.setAttribute('title', 'Add to Favorites');
+                        showToast('Product remove from wishlist', 'success');
+
+                    }
+
+                } catch (error) {
+                    console.error('Like error:', error);
+                    showToast('An error occurred. Please try again.', 'error');
+                }
+            });
+        });
+
+        function showToast(message) {
+
+            document.querySelectorAll('.custom-toast').forEach(t => t.remove());
+
+            const toast = document.createElement('div');
+            toast.className = `custom-toast`;
+            toast.innerHTML = `
+            <span>${message}</span>
+            <span class="close-btn" onclick="this.parentElement.remove()">×</span>`;
+
+            document.body.appendChild(toast);
+
+            // حذف خودکار
+            setTimeout(() => {
+                if (toast) toast.remove();
+            }, 6000);
+        }
     </script>
 @endsection
