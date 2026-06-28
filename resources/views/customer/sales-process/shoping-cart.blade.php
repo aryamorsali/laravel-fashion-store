@@ -209,6 +209,8 @@
                                     $totalCartPrice = 0;
                                     $productDiscounts = 0;
                                     $productPrices = 0;
+                                    $commonDiscountAmount = 0;
+                                    $couponDiscount = 0;
                                 @endphp
 
                                 @if ($cartItems->count() >= 1)
@@ -216,8 +218,9 @@
                                         @php
                                             $price = $item->productVariant?->price;
                                             $finalPrice = $price;
-                                            $discount = null;
+                                            $amazingSaleDiscount = null;
 
+                                            // تخفیف شگفت انگیز
                                             $activeAmazingSale =
                                                 $item->productVariant &&
                                                 $item->productVariant->amazingSale &&
@@ -226,22 +229,24 @@
                                                 $item->productVariant->amazingSale->end_date >= now();
 
                                             if ($activeAmazingSale) {
-                                                $discount = $item->productVariant->amazingSale->percentage;
-                                                $finalPrice = $price - ($price * $discount) / 100;
+                                                $amazingSaleDiscount = $item->productVariant->amazingSale->percentage;
+                                                $finalPrice = $price - ($price * $amazingSaleDiscount) / 100;
                                             }
-                                            //  قیمت کل نهایی با حسب تخفیف و تعداد
-                                            $totalCartPrice += $item->quantity * $finalPrice;
 
                                             // قیمت نهایی تک آیتم
                                             $totalItemPrice = $item->quantity * $finalPrice;
 
                                             // مقدار تخفیف کالاها
                                             if ($activeAmazingSale) {
-                                                $productDiscounts += ($price * $item->quantity * $discount) / 100;
+                                                $productDiscounts +=
+                                                    ($price * $item->quantity * $amazingSaleDiscount) / 100;
                                             }
 
                                             // قیمت کل محصولات بدون تخفیف
                                             $productPrices += $price * $item->quantity;
+
+                                            //  قیمت کل نهایی با حسب تخفیف و تعداد
+                                            $totalCartPrice += $item->quantity * $finalPrice;
                                         @endphp
 
                                         <tr class="table_row">
@@ -277,7 +282,7 @@
                                             <!-- PRICE -->
                                             <td class="column-3" style="vertical-align: middle;">
                                                 @if ($activeAmazingSale)
-                                                    <div class="price-discount">{{ $discount }}% OFF</div>
+                                                    <div class="price-discount">{{ $amazingSaleDiscount }}% OFF</div>
                                                     <span class="price-old">${{ number_format($price, 2) }}</span>
                                                     <span class="price-box">${{ number_format($finalPrice, 2) }}</span>
                                                 @else
@@ -315,6 +320,59 @@
 
                                         </tr>
                                     @endforeach
+
+                                    @php
+                                        // اعمال تخفیف عمومی سایت
+                                        if (
+                                            $commonDiscount &&
+                                            $totalCartPrice >= $commonDiscount->minimal_order_amount
+                                        ) {
+                                            // محاسبه مبلغ تخفیف عمومی
+                                            $commonDiscountAmount =
+                                                ($totalCartPrice * $commonDiscount->percentage) / 100;
+
+                                            // چک کردن سقف تخفیف
+                                            if (
+                                                $commonDiscount->discount_ceiling &&
+                                                $commonDiscountAmount > $commonDiscount->discount_ceiling
+                                            ) {
+                                                $commonDiscountAmount = $commonDiscount->discount_ceiling;
+                                            }
+                                            $totalCartPrice = $totalCartPrice - $commonDiscountAmount;
+                                        }
+
+                                        // اعمال کوپن (اگه تو session باشه)
+
+                                        if (session('applied_coupon')) {
+                                            $coupon = \App\Models\Market\Coupon::where(
+                                                'code',
+                                                session('applied_coupon'),
+                                            )->first();
+
+                                            if (
+                                                $coupon &&
+                                                $coupon->status == 1 &&
+                                                $coupon->start_date <= now() &&
+                                                $coupon->end_date >= now()
+                                            ) {
+                                                if ($coupon->amount_type == 0) {
+                                                    $couponDiscount = ($totalCartPrice * $coupon->amount) / 100;
+                                                    if (
+                                                        $coupon->discount_ceiling &&
+                                                        $couponDiscount > $coupon->discount_ceiling
+                                                    ) {
+                                                        $couponDiscount = $coupon->discount_ceiling;
+                                                    }
+                                                } else {
+                                                    $couponDiscount = $coupon->amount;
+                                                }
+                                                $couponDiscount = min($couponDiscount, $totalCartPrice);
+                                                $totalCartPrice -= $couponDiscount;
+                                            } else {
+                                                session()->forget('applied_coupon');
+                                            }
+                                        }
+                                    @endphp
                                 @endif
 
 
@@ -327,9 +385,11 @@
                             @if ($cartItems->count() >= 1)
                                 <div class="flex-w flex-m m-r-20 m-tb-5">
                                     <input class="stext-104 cl2 plh4 size-117 bor13 p-lr-20 m-r-10 m-tb-5" type="text"
-                                        name="coupon" id="coupon" placeholder="Coupon Code">
+                                        name="coupon" id="coupon" placeholder="Coupon Code"
+                                        @if (session('applied_coupon')) readonly value="{{ session('applied_coupon') }}" @endif>
 
-                                    <button type="button" id="couponButton">
+                                    <button type="button" id="couponButton"
+                                        @if (session('applied_coupon')) disabled @endif>
                                         <div
                                             class="flex-c-m stext-101 cl2 size-118 bg8 bor13 hov-btn3 p-lr-15 trans-04 pointer m-tb-5">
                                             Apply coupon
@@ -348,7 +408,7 @@
                 </div>
 
                 <div class="col-sm-10 col-lg-7 col-xl-5 m-lr-auto m-b-50">
-                    <div class="bor10 p-lr-40 p-t-30 p-b-40 m-l-63 m-r-40 m-lr-0-xl p-lr-15-sm">
+                    <div class="bor10 p-lr-37 p-t-30 p-b-40 m-l-63 m-r-40 m-lr-0-xl p-lr-15-sm">
                         <h4 class="mtext-109 cl2 p-b-30">
                             Cart Totals
                         </h4>
@@ -367,7 +427,9 @@
                             </div>
                         </div>
 
-                        <div class="flex-w flex-t bor12 p-b-13">
+
+                        <div class="flex-w flex-t @if (!($commonDiscount && $commonDiscountAmount > 0)) bor12 @endif p-b-13"
+                            id="productDiscountsRow">
                             <div class="size-209">
                                 <span class="stext-110 cl2">
                                     Product discounts:
@@ -381,15 +443,38 @@
                             </div>
                         </div>
 
-                        <div class="flex-w flex-t p-b-13 pt-3" id="couponDiscountBox" hidden>
-                            <div class="size-212">
+
+                        <div class="flex-w flex-t bor12 p-b-13 bor12" id="commonDiscountRow"
+                            @if (!($commonDiscount && $commonDiscountAmount > 0)) hidden @endif>
+
+                            <div class="size-209">
                                 <span class="stext-110 cl2">
-                                    Coupon discount amount:
+                                    Common discount:
                                 </span>
                             </div>
 
-                            <div class="size-201">
+                            <div class="size-208">
+                                <span class="mtext-110 cl2 text-danger" id="commonDiscountPercentage">
+                                    {{ $commonDiscount->percentage }}%
+                                </span>
+                                - <span class="mtext-110 cl2 text-warning" id="commonDiscountAmount">
+                                    ${{ number_format($commonDiscountAmount, 2) }}
+                                </span>
+                            </div>
+
+                        </div>
+
+                        <div class="flex-w flex-t p-b-13 pt-3" id="couponDiscountBox"
+                            @if ($couponDiscount <= 0) hidden @endif>
+                            <div class="size-209">
+                                <span class="stext-110 cl2">
+                                    Coupon discount:
+                                </span>
+                            </div>
+
+                            <div class="size-208">
                                 <span class="mtext-110 cl2 text-danger" id="couponDiscountValue">
+                                    ${{ number_format($couponDiscount, 2) }}
                                 </span>
                             </div>
                         </div>
@@ -412,7 +497,41 @@
                             Proceed to Checkout
                         </button>
                     </div>
+                  
+                    @if ($commonDiscount && $cartItems->count() >= 1)
+                        <div id="common-discount-info-box"
+                            class="alert alert {{ $productPrices - $productDiscounts >= $commonDiscount->minimal_order_amount ? 'alert-success' : 'alert-warning' }}
+                            p-lr-20 p-t-15 p-b-20 m-l-63 m-r-40 m-lr-0-xl "
+                            data-minimal="{{ $commonDiscount->minimal_order_amount }}"
+                            data-percentage="{{ $commonDiscount->percentage }}"
+                            data-maximum="{{ $commonDiscount->maximum_discount }}"
+                            data-discount-ceiling="{{ $commonDiscount->discount_ceiling ?? '' }}"
+                            style="font-size: 14px;">
+                            <i class="fa fa-info-circle m-r-5"></i>
+
+                            <span id="common-discount-text">
+                                @if ($productPrices - $productDiscounts >= $commonDiscount->minimal_order_amount)
+                                    {{-- حالت تبریک --}}
+                                    You've unlocked a <strong>{{ $commonDiscount->percentage }}%</strong> common discount!
+                                    @if ($commonDiscount->discount_ceiling)
+                                        (Max discount:
+                                        <strong>${{ number_format($commonDiscount->discount_ceiling, 2) }}</strong>)
+                                    @endif
+                                @else
+                                    {{-- حالت شرط --}}
+
+                                    Spend at least <strong>${{ number_format($commonDiscount->minimal_order_amount, 2) }}
+                                    </strong> to get a <strong>{{ $commonDiscount->percentage }}%</strong> common
+                                    discount.”
+                                @endif
+                            </span>
+
+                        </div>
+                    @endif
                 </div>
+
+
+
             </div>
         </div>
     </form>
@@ -451,6 +570,10 @@
     <!--===============================================================================================-->
 
     <script>
+        // =============================
+        // مدیریت تعداد محصول
+        // =============================
+
         document.querySelectorAll('.qty-wrapper').forEach(wrapper => {
 
             let input = wrapper.querySelector('.qty-input')
@@ -469,7 +592,6 @@
                 let next = current + 1;
                 if (next > 10) next = 10; // محدودیت کاربر
                 input.value = next;
-                // اجرا کن این رویدادی که خودم ساختم روی این عنصر
                 input.dispatchEvent(new Event('input'))
             })
 
@@ -483,8 +605,9 @@
         })
 
         // =============================
-        // درخواست AJAX
+        // آپدیت سبد خرید
         // =============================
+
         function updateCartQuantity(input) {
 
             let quantity = input.value
@@ -516,24 +639,100 @@
                     row.querySelector('.total-price').innerText = "$" + data.totalItemPrice
 
                     // cart summary
-                    document.querySelector('#totalCartPrice').innerText = "$" + data.totalCartPrice
+
                     document.querySelector('#productPrices').innerText = "$" + data.productPrices
                     document.querySelector('#productDiscounts').innerText = "$" + data.productDiscounts
+                    document.querySelector('#totalCartPrice').innerText = "$" + data.totalCartPrice
+
+                    // مدیریت تخفیف عمومی
+                    if (data.commonDiscountAmount > 0) {
+                        document.querySelector('#commonDiscountRow').removeAttribute('hidden'); // نمایش
+                        document.querySelector('#commonDiscountAmount').innerText = "$" + data.commonDiscountAmount;
+                        document.querySelector('#commonDiscountPercentage').innerText = data.commonDiscountPercentage +
+                            '%';
+
+                        document.querySelector('#productDiscountsRow').classList.remove('bor12');
+                    } else {
+                        document.querySelector('#commonDiscountRow').setAttribute('hidden', ''); // مخفی کردن
+                        document.querySelector('#productDiscountsRow').classList.add('bor12');
+                    }
+
+                    // مدیریت کوپن
+                    if (data.couponApplied) {
+                        document.querySelector('#couponDiscountBox').style.display = 'block';
+                        document.querySelector('#couponDiscountValue').innerText = '$' + data.couponDiscount;
+                    } else if (document.querySelector('#couponDiscountBox').style.display !== 'none') {
+                        document.querySelector('#couponDiscountBox').style.display = 'none';
+
+                        document.querySelector('#couponButton').disabled = false;
+                        document.querySelector('#coupon').value = '';
+                        document.querySelector('#coupon').readOnly = false;
+                    }
+
+                    // آپدیت header cart
+                    const headerQtyElement = document.querySelector(`#header-cart-qty-${data.cart_item_id}`);
+                    if (headerQtyElement) {
+                        headerQtyElement.innerText = data.new_quantity;
+                    }
+                    const headerTotal = document.querySelector('#totalHeaderCart');
+                    if (headerTotal) {
+                        headerTotal.innerText = "Total:" + " " + "$" + (data.productPrices - data.productDiscounts);
+                    }
+
+
+                    //  پیام تبریک و شرط برای سقف تخفیف عمومی و حداقل مبلغ خرید لازم alert
+                    const infoBox = document.getElementById('common-discount-info-box');
+                    const infoText = document.getElementById('common-discount-text');
+
+                    if (infoBox && infoText) {
+
+                        const minimal = parseFloat(infoBox.getAttribute('data-minimal'));
+                        const percentage = infoBox.getAttribute('data-percentage');
+                        const discountCeiling = parseFloat(infoBox.getAttribute('data-discount-ceiling'));
+                        const currentPrice = data.productPrices - data.productDiscounts;
+
+
+                        let messageHTML = ''; 
+
+                        if (currentPrice >= minimal) {
+                            // حالت واجد شرایط 
+                            infoBox.classList.remove('alert-warning');
+                            infoBox.classList.add('alert-success');
+
+                            messageHTML = `You've unlocked a <strong>${percentage}%</strong> common discount!`;
+
+                            // اضافه کردن سقف تخفیف اگر وجود داشت و معتبر بود
+                            if (!isNaN(discountCeiling) && discountCeiling > 0) {
+                                messageHTML +=
+                                    ` (Max discount: <strong>$${discountCeiling.toLocaleString(undefined, {minimumFractionDigits: 2})}</strong>)`;
+                            }
+
+                        } else {
+                            // حالت عدم شرط 
+                            infoBox.classList.remove('alert-success');
+                            infoBox.classList.add('alert-warning');
+
+                            messageHTML =
+                                `Spend at least <strong>$${minimal.toLocaleString(undefined, {minimumFractionDigits: 2})}</strong> to get a <strong>${percentage}%</strong> common discount.`;
+                        }
+
+                        // به‌روزرسانی محتوای HTML پیام
+                        infoText.innerHTML = messageHTML;
+                    }
+
                 })
         }
-    </script>
 
-    <!--===============================================================================================-->
+        // =============================
+        // اعمال کوپن تخفیف روی total
+        // =============================
 
-    <script>
         document.querySelector('#couponButton').addEventListener('click', function() {
 
             let input = document.querySelector('#coupon');
             let errorMessage = document.querySelector('#errorMessage');
 
-            // =============================
             // درخواست AJAX
-            // =============================
 
             fetch("{{ route('customer.sales-process.coupon') }}", {
                     method: "POST",
@@ -555,9 +754,13 @@
                     }
 
                     if (data.status === 'success') {
-                        document.querySelector('#couponDiscountBox').hidden = false;
-                        document.querySelector('#couponDiscountValue').innerText = "$" + data.couponDiscountAmount;
+                        document.querySelector('#couponDiscountBox').removeAttribute('hidden');
+                        document.querySelector('#couponDiscountValue').innerText = "$" + data
+                            .couponDiscountAmount;
                         document.querySelector('#totalCartPrice').innerText = "$" + data.finalPrice;
+
+                        document.querySelector('#couponButton').disabled = true;
+                        document.querySelector('#coupon').readOnly = true;
                     } else {
                         errorMessage.innerText = data.message;
                     }

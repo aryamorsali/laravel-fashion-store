@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Customer\SalesProcess;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Customer\Product\AddToCartRequest;
 use App\Models\Market\CartItem;
+use App\Models\Market\CommonDiscount;
 use App\Models\Market\Coupon;
 use App\Models\Market\ProductVariant;
 use App\Models\Market\WarehouseVariant;
@@ -23,11 +24,25 @@ class CartController extends Controller
                  <a href="' . route('auth.login-register.form') . '" class="toast-link">Login / Register</a>'
             );
         }
-        $cartItems = CartItem::where('user_id', Auth::user()->id)->orderBy('created_at', 'desc')->get();
+
+        $cartItems = CartItem::with([
+            'productVariant.product',
+            'productVariant.color',
+            'productVariant.size',
+            'productVariant.amazingSale',
+        ])->where('user_id', Auth::user()->id)->orderBy('created_at', 'desc')->get();
+
+        $commonDiscount = CommonDiscount::where('status', 1)->where('start_date', '<', now())->where('end_date', '>', now())->first();
 
 
-        return view('customer.sales-process.shoping-cart', compact('cartItems'));
+        return view('customer.sales-process.shoping-cart', compact(
+            'cartItems',
+            'commonDiscount'
+        ));
     }
+
+
+
 
     public function addToCart(AddToCartRequest $request)
     {
@@ -146,10 +161,39 @@ class CartController extends Controller
             $totalCartPrice += $final * $item->quantity;
         }
 
+        // -------------------------
+        // محاسبه تخفیف عمومی
+        // -------------------------
+
+        $commonDiscountAmount = 0;
+        $commonDiscountPercentage = 0;
+
+        $commonDiscount = CommonDiscount::where('status', 1)
+            ->where('start_date', '<=', now())
+            ->where('end_date', '>=', now())
+            ->first();
+
+        if ($commonDiscount && $commonDiscount->percentage > 0 && $totalCartPrice >= $commonDiscount->minimal_order_amount) {
+
+            // محاسبه مبلغ تخفیف عمومی
+            $commonDiscountPercentage = $commonDiscount->percentage;
+            $commonDiscountAmount = ($totalCartPrice * $commonDiscountPercentage) / 100;
+
+            // چک کردن سقف تخفیف
+            if ($commonDiscount->discount_ceiling && $commonDiscountAmount > $commonDiscount->discount_ceiling) {
+
+                $commonDiscountAmount = $commonDiscount->discount_ceiling;
+            }
+            // جمع سبد خرید
+            $totalCartPrice = $totalCartPrice - $commonDiscountAmount;
+        }
+
         return [
             'totalCartPrice' => $totalCartPrice,
             'productPrices' => $productPrices,
             'productDiscounts' => $productDiscounts,
+            'commonDiscountAmount' => $commonDiscountAmount,
+            'commonDiscountPercentage' => $commonDiscountPercentage,
         ];
     }
 
@@ -258,6 +302,44 @@ class CartController extends Controller
             $totals = $this->calculateCartTotals(Auth::id());
 
 
+            // -------------------------
+            // اعمال کوپن روی total
+            // -------------------------
+            $couponDiscount = 0;
+            if (session('applied_coupon')) {
+                $coupon = Coupon::where('code', session('applied_coupon'))
+                    ->where('status', 1)
+                    ->where('start_date', '<=', now())
+                    ->where('end_date', '>=', now())
+                    ->first();
+
+                if (!$coupon) {
+                    session()->forget('applied_coupon');
+                } else {
+
+                    // چک کردن درصدی یا عددی بودن تخفیف
+                    $couponDiscountCalc = 0;
+                    if ($coupon->amount_type == 0) {
+                        $couponDiscountCalc = ($totals['totalCartPrice'] * $coupon->amount) / 100;
+
+                        if ($coupon->discount_ceiling && $couponDiscountCalc > $coupon->discount_ceiling) {
+
+                            $couponDiscountCalc = $coupon->discount_ceiling;
+                        }
+                    } elseif ($coupon->amount_type == 1) {
+
+                        $couponDiscountCalc = $coupon->amount;
+                    }
+
+                    // تخفیف نمی‌تواند از کل سبد بیشتر شود
+                    $couponDiscountCalc = min($couponDiscountCalc, $totals['totalCartPrice']);
+                    $couponDiscount = $couponDiscountCalc;
+
+                    $totals['totalCartPrice'] -= $couponDiscount;
+                }
+            }
+
+
             return response()->json([
                 'status' => 'success',
 
@@ -267,13 +349,27 @@ class CartController extends Controller
                 'finalPrice' => number_format($finalPrice, 2, '.', ','),
                 'discount' => $discount,
 
+                // مقادیر برای آپدیت هدر کارت
+                'cart_item_id' => $cartItem->id,
+                'new_quantity' => $newQuantity,
+
                 // کل سبد
                 'totalCartPrice' => number_format($totals['totalCartPrice'], 2),
                 'productPrices' => number_format($totals['productPrices'], 2),
                 'productDiscounts' => number_format($totals['productDiscounts'], 2),
+
+                // تخفیف عمومی
+                'commonDiscountAmount' => number_format($totals['commonDiscountAmount'], 2),
+                'commonDiscountPercentage' => $totals['commonDiscountPercentage'],
+
+                // کوپن تخفیف
+                'couponApplied' => $couponDiscount > 0,
+                'couponDiscount' => number_format($couponDiscount, 2),
             ]);
         });
     }
+
+
 
 
     public function coupon(Request $request)
@@ -282,7 +378,11 @@ class CartController extends Controller
             'coupon' => 'required|max:120|min:2'
         ]);
 
-        $coupon = Coupon::where('code', $data['coupon'])->first();
+        $coupon = Coupon::where('code', $data['coupon'])
+            ->where('status', 1)
+            ->where('start_date', '<=', now())
+            ->where('end_date', '>=', now())
+            ->first();
 
         if (!$coupon || $data['coupon'] == null) {
             return response()->json([
@@ -291,10 +391,17 @@ class CartController extends Controller
             ]);
         }
 
-        if ($coupon->status != 1 || $coupon->start_date > now() || $coupon->end_date < now()) {
+
+        // بررسی استفاده قبلی
+        $alreadyUsed = DB::table('coupon_user')
+            ->where('user_id', Auth::id())
+            ->where('coupon_id', $coupon->id)
+            ->exists();
+
+        if ($alreadyUsed) {
             return response()->json([
                 'status' => 'error',
-                'message' => 'coupon expired'
+                'message' => 'You have already used this discount code'
             ]);
         }
 
@@ -303,27 +410,38 @@ class CartController extends Controller
 
         $totalCartPrice = $totals['totalCartPrice'];
 
-        // چک کردن عمومی یا خصوصی بودن کوپن
-        if ($coupon->amount_type == 0)
-        {
-            $discount = ($totalCartPrice * $coupon->amount) / 100;
 
-            if ($coupon->discount_ceiling) {
-                $discount = min($discount, $coupon->discount_ceiling);
-            }
-        } elseif ($coupon->amount_type == 1)
-        {
-            if ($coupon->user_id != Auth::id())
-            {
+        // چک کردن عمومی یا خصوصی بودن کوپن
+        if ($coupon->type == 1) {
+            if ($coupon->user_id != Auth::id()) {
                 return response()->json([
                     'status' => 'error',
-                    'message' => 'invalid code'
+                    'message' => 'This discount code is specific to a specific user'
                 ]);
             }
-            $discount = min($coupon->amount, $totalCartPrice);
         }
 
-        $final_price = max(0, $totalCartPrice - $discount);
+
+        // چک کردن درصدی یا عددی بودن تخفیف
+        if ($coupon->amount_type == 0) {
+            $discount = ($totalCartPrice * $coupon->amount) / 100;
+
+            if ($coupon->discount_ceiling && $discount > $coupon->discount_ceiling) {
+
+                $discount = $coupon->discount_ceiling;
+            }
+        } elseif ($coupon->amount_type == 1) {
+
+            $discount = $coupon->amount;
+        }
+
+        // تخفیف نمی‌تواند از کل سبد بیشتر شود
+        $discount = min($discount, $totalCartPrice);
+
+        $final_price =  $totalCartPrice - $discount;
+
+        // سشن برای ذخیره کوپن
+        session(['applied_coupon' => $coupon->code]);
 
         return response()->json([
             'status' => 'success',

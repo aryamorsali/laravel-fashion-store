@@ -15,7 +15,7 @@ class CommonDiscountController extends Controller
      */
     public function index()
     {
-        $common_discounts = CommonDiscount::all();
+        $common_discounts = CommonDiscount::orderBy('created_at', 'desc')->get();
         return view('admin.market.discount.common_discount.index', compact('common_discounts'));
     }
 
@@ -36,6 +36,12 @@ class CommonDiscountController extends Controller
         if (Carbon::parse($inputs['end_date'])->isPast()) {
             $inputs['status'] = 2; // expired
         }
+
+        if ($inputs['status'] == 1) {
+            // تمام تخفیف‌های فعال قبلی را غیرفعال کن
+            CommonDiscount::where('status', 1)->update(['status' => 0]);
+        }
+
         $common_discount = CommonDiscount::create($inputs);
         return redirect()->route('admin.market.discount.common_discount')->with(
             'alert-section-success',
@@ -68,6 +74,14 @@ class CommonDiscountController extends Controller
         if (Carbon::parse($inputs['end_date'])->isPast()) {
             $inputs['status'] = 2; // expired
         }
+
+        if ($inputs['status'] == 1) {
+            // بقیه را غیرفعال کن بجز همین که داریم آپدیت می‌کنیم
+            CommonDiscount::where('id', '!=', $common_discount->id)
+                ->where('status', 1)
+                ->update(['status' => 0]);
+        }
+
         $common_discount->update($inputs);
         return redirect(route('admin.market.discount.common_discount'))->with(
             'alert-section-success',

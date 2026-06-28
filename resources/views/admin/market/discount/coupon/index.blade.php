@@ -62,15 +62,23 @@
                                 <td>
                                     @switch($coupon->status)
                                         @case(0)
-                                            inactive
+                                            <span class="text-warning">
+                                                inactive
+                                            </span>
                                         @break
 
                                         @case(1)
-                                            active
+                                            <span class="text-success">
+                                                active
+
+                                            </span>
                                         @break
 
                                         @case(2)
-                                            expired
+                                            <span class="text-danger">
+                                                expired
+
+                                            </span>
                                         @break
                                     @endswitch
                                 </td>

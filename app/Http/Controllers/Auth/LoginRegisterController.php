@@ -10,6 +10,7 @@ use App\Http\Services\Message\SMS\SmsService;
 use App\Models\Otp;
 use App\Models\User;
 use Carbon\Carbon;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\DB;
@@ -205,10 +206,16 @@ class LoginRegisterController extends Controller
         return redirect()->route('auth.login-confirm.form', $token);
     }
 
-    public function logout()
+    public function logout(Request $request)
     {
         if (Auth::check()) {
+
             Auth::logout();
+
+            // پاک کردن کامل session
+            $request->session()->invalidate();
+            $request->session()->regenerateToken();
+
             return redirect('/');
         } else {
             abort(404);

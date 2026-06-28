@@ -426,11 +426,12 @@ Route::namespace('SalesProcess')->group(function () {
     Route::get('/remove-from-cart/{cartItem}', [CartController::class, 'removeFromCart'])->name('customer.sales-process.remove-from-cart');
     Route::post('/shoping-cart/update', [CartController::class, 'updateCart'])->name('customer.sales-process.update-shoping-cart');
     Route::post('/shoping-cart/coupon', [CartController::class, 'coupon'])->name('customer.sales-process.coupon');
+    Route::get('/update-header-cart', [CartController::class, 'updateHeaderCart'])->name('customer.sales-process.update-header-cart');
 });
 
 // like
 Route::post('/like/{type}/{id}', [LikeController::class, 'toggle'])->name('like.toggle');
-    
+
 
 // content
 Route::view('/about', 'customer.pages.about')->name('customer.about');
