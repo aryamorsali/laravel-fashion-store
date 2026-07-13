@@ -53,9 +53,9 @@
                         </tr>
 
                         <tr class="border-bottom">
-                            <th>Address :</th>
+                            <th>Province :</th>
                             <td class="text-left font-weight-bolder">
-                                {{ $order->address->address ?? '-' }}
+                                {{ $order->address->province->name ?? '-' }}
                             </td>
                         </tr>
 
@@ -65,6 +65,15 @@
                                 {{ $order->address->city->name ?? '-' }}
                             </td>
                         </tr>
+
+                        <tr class="border-bottom">
+                            <th>Address :</th>
+                            <td class="text-left font-weight-bolder">
+                                {{ $order->address->address ?? '-' }}
+                            </td>
+                        </tr>
+
+
 
                         <tr class="border-bottom">
                             <th>Postal code :</th>
@@ -102,7 +111,7 @@
                         </tr>
 
                         <tr class="border-bottom">
-                            <th>Paymny type :</th>
+                            <th>Payment type :</th>
                             <td class="text-left font-weight-bolder">
                                 {{ $order->payment_type }}
                             </td>
@@ -118,7 +127,7 @@
                         <tr class="border-bottom">
                             <th>Delivery amount :</th>
                             <td class="text-left font-weight-bolder">
-                                {{ number_format($order->delivery_amount) ?? '-' }}
+                                {{ number_format($order->delivery_amount, 2) ?? '-' }}
                             </td>
                         </tr>
 
@@ -137,30 +146,30 @@
                         </tr>
 
                         <tr class="border-bottom">
-                            <th>Total order amount (without discount) :</th>
+                            <th>Total order amount (without discount + delivery cost) :</th>
                             <td class="text-left font-weight-bolder">
-                                {{ number_format($order->order_final_amount) ?? '-' }}
+                                {{ number_format($order->order_final_amount + ($order->order_discount_amount ?? 0), 2) }}
                             </td>
                         </tr>
 
                         <tr class="border-bottom">
                             <th>Total of all discounts :</th>
                             <td class="text-left font-weight-bolder">
-                                {{ number_format($order->order_discount_amount) ?? '-' }}
+                                {{ number_format($order->order_discount_amount, 2) ?? '-' }}
                             </td>
                         </tr>
 
                         <tr class="border-bottom">
                             <th>Discount amount of all products :</th>
                             <td class="text-left font-weight-bolder">
-                                {{ number_format($order->order_total_products_discount_amount) ?? '-' }}
+                                {{ number_format($order->order_total_products_discount_amount, 2) ?? '-' }}
                             </td>
                         </tr>
 
                         <tr class="border-bottom">
-                            <th>Final amount :</th>
+                            <th>Payable amount :</th>
                             <td class="text-left font-weight-bolder">
-                                {{ number_format($order->order_final_amount - $order->order_discount_amount) }}
+                                {{ number_format($order->order_final_amount, 2) }}
                             </td>
                         </tr>
 
@@ -179,9 +188,9 @@
                         </tr>
 
                         <tr class="border-bottom">
-                            <th>The discount amount of the discount code :</th>
+                            <th>The discount amount of the coupon code :</th>
                             <td class="text-left font-weight-bolder">
-                                {{ number_format($order->order_coupon_discount_amount) ?? '-' }}
+                                {{ number_format($order->order_coupon_discount_amount, 2) ?? '-' }}
                             </td>
                         </tr>
 
@@ -195,7 +204,7 @@
                         <tr class="border-bottom">
                             <th>Common discount amount :</th>
                             <td class="text-left font-weight-bolder">
-                                {{ number_format($order->order_common_discount_amount) ?? '-' }}
+                                {{ number_format($order->order_common_discount_amount, 2) ?? '-' }}
                             </td>
                         </tr>
 

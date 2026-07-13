@@ -10,6 +10,12 @@ class OrderItem extends Model
 {
         use HasFactory, SoftDeletes;
 
+        protected $guarded = ['id'];
+
+        protected $casts = [
+                'product_snapshot' => 'array',
+                'amazing_sale_snapshot' => 'array',
+        ];
 
         public function amazingSale()
         {

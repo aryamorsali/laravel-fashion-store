@@ -24,8 +24,7 @@ class DeliveryRequest extends FormRequest
         return [
             'name' => 'required|string|min:2|max:120|regex:/^[ا-یa-zA-Z0-9۰-۹ء-ي.,\-\s]+$/u',
             'delivery_cost' => 'nullable|numeric|min:0',
-            'delivery_time' => 'nullable|integer|min:0',
-            'delivery_time_unit' => 'nullable|string|regex:/^[ا-یa-zA-Zء-ي.,\s]+$/u',
+            'delivery_days' => 'nullable|integer|min:0',
             'status' => 'required|in:0,1',
         ];
     }

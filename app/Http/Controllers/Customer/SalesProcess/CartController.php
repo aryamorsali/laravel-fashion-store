@@ -9,13 +9,14 @@ use App\Models\Market\CommonDiscount;
 use App\Models\Market\Coupon;
 use App\Models\Market\ProductVariant;
 use App\Models\Market\WarehouseVariant;
+use App\Services\CartCalculator;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
 class CartController extends Controller
 {
-    public function shopingCart()
+    public function shopingCart(CartCalculator $cartCalculator)
     {
         if (!Auth::check()) {
             return redirect()->back()->with(
@@ -32,16 +33,33 @@ class CartController extends Controller
             'productVariant.amazingSale',
         ])->where('user_id', Auth::user()->id)->orderBy('created_at', 'desc')->get();
 
-        $commonDiscount = CommonDiscount::where('status', 1)->where('start_date', '<', now())->where('end_date', '>', now())->first();
+        $commonDiscount = CommonDiscount::where('status', 1)->where('start_date', '<=', now())->where('end_date', '>=', now())->first();
 
+        $coupon = Coupon::where('code', session('applied_coupon'))
+            ->where('status', 1)
+            ->where('start_date', '<=', now())
+            ->where('end_date', '>=', now())
+            ->first();
+
+        // چک کردن عمومی یا خصوصی بودن کوپن
+        if ($coupon && $coupon->type == 1) {
+            if ($coupon->user_id != Auth::id()) {
+                session()->forget('applied_coupon');
+            }
+        }
+
+        // -------------------------
+        // محاسبه کل سبد خرید
+        // -------------------------
+
+        $totals = $cartCalculator->calculateCartTotals($cartItems, $commonDiscount, session('applied_coupon'));
 
         return view('customer.sales-process.shoping-cart', compact(
             'cartItems',
-            'commonDiscount'
+            'commonDiscount',
+            'totals',
         ));
     }
-
-
 
 
     public function addToCart(AddToCartRequest $request)
@@ -58,7 +76,8 @@ class CartController extends Controller
         try {
             DB::transaction(function () use ($data) {
                 // چک کردن موجودی واریانت
-                $variant = ProductVariant::findOrFail($data['variant_id']);
+                $variant = ProductVariant::lockForUpdate()->findOrFail($data['variant_id']);
+
 
                 if ($data['quantity'] > $variant->availableStock()) {
                     throw new \Exception();
@@ -126,253 +145,175 @@ class CartController extends Controller
             });
 
             return back();
+        }else{
+            abort(403);
         }
     }
 
-    // محاسبه سبد
-    private function calculateCartTotals($userId)
+    public function updateCart(Request $request, CartCalculator $cartCalculator)
     {
-        $cartItems = CartItem::where('user_id', $userId)
-            ->with('productVariant.amazingSale')
-            ->get();
+        try {
+            return DB::transaction(function () use ($request, $cartCalculator) {
+                $cartItem = CartItem::findOrFail($request->cart_item_id);
 
-        $totalCartPrice = 0;
-        $productDiscounts = 0;
-        $productPrices = 0;
+                $variant = $cartItem->productVariant;
 
-        foreach ($cartItems as $item) {
+                $newQuantity = max((int)$request->quantity, 1);
+                $oldQuantity = $cartItem->quantity;
+                $diff = $newQuantity - $oldQuantity;
 
-            $price = $item->productVariant->price;
-            $final = $price;
+                $warehouseVariant = WarehouseVariant::where('product_variant_id', $variant->id)->lockForUpdate()->first();
 
-            $sale = $item->productVariant->amazingSale;
+                if (!$warehouseVariant) {
+                    return response()->json([
+                        'status'  => 'error',
+                        'message' => 'انبار مربوط به این محصول پیدا نشد.'
+                    ], 500);
+                }
 
-            if (
-                $sale &&
-                $sale->is_active &&
-                $sale->start_date <= now() &&
-                $sale->end_date >= now()
-            ) {
-                $final = $price - ($price * $sale->percentage) / 100;
-                $productDiscounts += ($price * $item->quantity * $sale->percentage) / 100;
-            }
+                // -------------------------
+                // محدودیت گزاشتن روی تعداد واریانت رزرو شده
+                // -------------------------
+                if ($newQuantity < 1) {
+                    $newQuantity = 1;
+                }
+                $availableStock = $variant->availableStock();
 
-            $productPrices += $price * $item->quantity;
-            $totalCartPrice += $final * $item->quantity;
-        }
+                $maxAllowed = min(10, $availableStock + $oldQuantity);
 
-        // -------------------------
-        // محاسبه تخفیف عمومی
-        // -------------------------
-
-        $commonDiscountAmount = 0;
-        $commonDiscountPercentage = 0;
-
-        $commonDiscount = CommonDiscount::where('status', 1)
-            ->where('start_date', '<=', now())
-            ->where('end_date', '>=', now())
-            ->first();
-
-        if ($commonDiscount && $commonDiscount->percentage > 0 && $totalCartPrice >= $commonDiscount->minimal_order_amount) {
-
-            // محاسبه مبلغ تخفیف عمومی
-            $commonDiscountPercentage = $commonDiscount->percentage;
-            $commonDiscountAmount = ($totalCartPrice * $commonDiscountPercentage) / 100;
-
-            // چک کردن سقف تخفیف
-            if ($commonDiscount->discount_ceiling && $commonDiscountAmount > $commonDiscount->discount_ceiling) {
-
-                $commonDiscountAmount = $commonDiscount->discount_ceiling;
-            }
-            // جمع سبد خرید
-            $totalCartPrice = $totalCartPrice - $commonDiscountAmount;
-        }
-
-        return [
-            'totalCartPrice' => $totalCartPrice,
-            'productPrices' => $productPrices,
-            'productDiscounts' => $productDiscounts,
-            'commonDiscountAmount' => $commonDiscountAmount,
-            'commonDiscountPercentage' => $commonDiscountPercentage,
-        ];
-    }
-
-    public function updateCart(Request $request)
-    {
-        return DB::transaction(function () use ($request) {
-            $cartItem = CartItem::findOrFail($request->cart_item_id);
-
-            $variant = $cartItem->productVariant;
-
-            $newQuantity = max((int)$request->quantity, 1);
-            $oldQuantity = $cartItem->quantity;
-            $diff = $newQuantity - $oldQuantity;
-
-            $warehouseVariant = WarehouseVariant::where('product_variant_id', $variant->id)->lockForUpdate()->first();
-
-            if (!$warehouseVariant) {
-                return response()->json([
-                    'status'  => 'error',
-                    'message' => 'انبار مربوط به این محصول پیدا نشد.'
-                ], 500);
-            }
-
-            // -------------------------
-            // محدودیت گزاشتن روی تعداد واریانت رزرو شده
-            // -------------------------
-            if ($newQuantity < 1) {
-                $newQuantity = 1;
-            }
-            $availableStock = $variant->availableStock();
-
-            $maxAllowed = min(10, $availableStock + $oldQuantity);
-
-            if ($newQuantity > $maxAllowed) {
-                return response()->json([
-                    'status'    => 'stock_error',
-                    'available' => $maxAllowed,
-                ]);
-            }
-            // -------------------------
-            // بررسی موجودی (فقط وقتی تعداد رو زیاد می‌کنیم)
-            // -------------------------
-
-            if ($diff > 0) {
-
-
-                if ($diff > $availableStock) {
+                if ($newQuantity > $maxAllowed) {
                     return response()->json([
                         'status'    => 'stock_error',
-                        'available' => $availableStock + $oldQuantity,
+                        'available' => $maxAllowed,
                     ]);
                 }
-            }
+                // -------------------------
+                // بررسی موجودی (فقط وقتی تعداد رو زیاد می‌کنیم)
+                // -------------------------
 
-            // -------------------------
-            // آپدیت reserved
-            // -------------------------
+                if ($diff > 0) {
 
-            if ($diff > 0) {
-                // یعنی تعداد سبد بیشتر شده → رزرو را بیشتر کن
-                $warehouseVariant->reserved = $warehouseVariant->reserved + $diff;
-                $warehouseVariant->save();
-            } elseif ($diff < 0) {
-                // یعنی تعداد سبد کمتر شده → رزرو را کم کن
-                $warehouseVariant->reserved = $warehouseVariant->reserved - abs($diff);
 
-                // برای احتیاط، نذار منفی بشه
-                if ($warehouseVariant->reserved < 0) {
-                    $warehouseVariant->reserved = 0;
+                    if ($diff > $availableStock) {
+                        return response()->json([
+                            'status'    => 'stock_error',
+                            'available' => $availableStock + $oldQuantity,
+                        ]);
+                    }
                 }
 
-                $warehouseVariant->save();
-            }
+                // -------------------------
+                // آپدیت reserved
+                // -------------------------
+
+                if ($diff > 0) {
+                    // یعنی تعداد سبد بیشتر شده → رزرو را بیشتر کن
+                    $warehouseVariant->reserved = $warehouseVariant->reserved + $diff;
+                    $warehouseVariant->save();
+                } elseif ($diff < 0) {
+                    // یعنی تعداد سبد کمتر شده → رزرو را کم کن
+                    $warehouseVariant->reserved = $warehouseVariant->reserved - abs($diff);
+
+                    // برای احتیاط، نذار منفی بشه
+                    if ($warehouseVariant->reserved < 0) {
+                        $warehouseVariant->reserved = 0;
+                    }
+
+                    $warehouseVariant->save();
+                }
 
 
-            $cartItem->update([
-                'quantity' => $newQuantity
-            ]);
+                $cartItem->update([
+                    'quantity' => $newQuantity
+                ]);
 
-            // -------------------------
-            // محاسبه قیمت 
-            // -------------------------
+                // آپدیت تعداد محصول Product prices(x)
+                $totalProductsQuantity = CartItem::where('user_id', Auth::id())->sum('quantity');
 
-            $price = $variant->price;
-            $finalPrice = $price;
-            $discount = null;
+                // -------------------------
+                //   محاسبه قیمت تک آیتم
+                // -------------------------
 
-            $sale = $variant->amazingSale;
+                $price = $variant->price;
+                $finalPrice = $price;
+                $discount = null;
 
-            if (
-                $sale &&
-                $sale->is_active &&
-                $sale->start_date <= now() &&
-                $sale->end_date >= now()
-            ) {
-                $discount = $sale->percentage;
-                $finalPrice = $price - ($price * $discount) / 100;
-            }
+                $sale = $variant->amazingSale;
 
-            $totalItemPrice = $finalPrice * $newQuantity;
-
-            // -------------------------
-            // محاسبه کل سبد خرید
-            // -------------------------
-
-            $totals = $this->calculateCartTotals(Auth::id());
+                if (
+                    $sale &&
+                    $sale->is_active &&
+                    $sale->start_date <= now() &&
+                    $sale->end_date >= now()
+                ) {
+                    $discount = $sale->percentage;
+                    $finalPrice = $price - ($price * $discount) / 100;
+                }
+                $totalItemPrice = $finalPrice * $newQuantity;
 
 
-            // -------------------------
-            // اعمال کوپن روی total
-            // -------------------------
-            $couponDiscount = 0;
-            if (session('applied_coupon')) {
-                $coupon = Coupon::where('code', session('applied_coupon'))
-                    ->where('status', 1)
+                // -------------------------
+                // محاسبه کل سبد خرید
+                // -------------------------
+                $cartItems = CartItem::where('user_id', Auth::user()->id)
+                    ->with('productVariant.amazingSale')
+                    ->get();
+
+
+                $commonDiscount = CommonDiscount::where('status', 1)
                     ->where('start_date', '<=', now())
                     ->where('end_date', '>=', now())
                     ->first();
 
-                if (!$coupon) {
-                    session()->forget('applied_coupon');
-                } else {
 
-                    // چک کردن درصدی یا عددی بودن تخفیف
-                    $couponDiscountCalc = 0;
-                    if ($coupon->amount_type == 0) {
-                        $couponDiscountCalc = ($totals['totalCartPrice'] * $coupon->amount) / 100;
-
-                        if ($coupon->discount_ceiling && $couponDiscountCalc > $coupon->discount_ceiling) {
-
-                            $couponDiscountCalc = $coupon->discount_ceiling;
-                        }
-                    } elseif ($coupon->amount_type == 1) {
-
-                        $couponDiscountCalc = $coupon->amount;
-                    }
-
-                    // تخفیف نمی‌تواند از کل سبد بیشتر شود
-                    $couponDiscountCalc = min($couponDiscountCalc, $totals['totalCartPrice']);
-                    $couponDiscount = $couponDiscountCalc;
-
-                    $totals['totalCartPrice'] -= $couponDiscount;
+                if ($cartItems->isEmpty()) {
+                    return response()->json([
+                        'status'    => 'error',
+                        'message' => 'empty',
+                    ]);
                 }
-            }
 
+                // -------------------------
+                // محاسبه کل سبد خرید
+                // -------------------------
 
-            return response()->json([
-                'status' => 'success',
+                $totals = $cartCalculator->calculateCartTotals($cartItems, $commonDiscount, session('applied_coupon'));
 
-                // آیتم
-                'totalItemPrice' => number_format($totalItemPrice, 2),
-                'price' => number_format($price, 2),
-                'finalPrice' => number_format($finalPrice, 2, '.', ','),
-                'discount' => $discount,
+                return response()->json([
+                    'status' => 'success',
 
-                // مقادیر برای آپدیت هدر کارت
-                'cart_item_id' => $cartItem->id,
-                'new_quantity' => $newQuantity,
+                    // آیتم
+                    'totalItemPrice' => number_format($totalItemPrice, 2),
+                    'price' => number_format($price, 2),
+                    'finalPrice' => number_format($finalPrice, 2),
+                    'discount' => $discount,
 
-                // کل سبد
-                'totalCartPrice' => number_format($totals['totalCartPrice'], 2),
-                'productPrices' => number_format($totals['productPrices'], 2),
-                'productDiscounts' => number_format($totals['productDiscounts'], 2),
+                    // مقادیر برای آپدیت هدر کارت
+                    'cart_item_id' => $cartItem->id,
+                    'new_quantity' => $newQuantity,
+                    'totalProductsQuantity' => $totalProductsQuantity,
 
-                // تخفیف عمومی
-                'commonDiscountAmount' => number_format($totals['commonDiscountAmount'], 2),
-                'commonDiscountPercentage' => $totals['commonDiscountPercentage'],
+                    // کل سبد
+                    'totalCartPrice' => number_format($totals['totalCartPrice'], 2),
+                    'productPrices' => number_format($totals['productPrices'], 2),
+                    'productDiscounts' => number_format($totals['productDiscounts'], 2),
 
-                // کوپن تخفیف
-                'couponApplied' => $couponDiscount > 0,
-                'couponDiscount' => number_format($couponDiscount, 2),
-            ]);
-        });
+                    // تخفیف عمومی
+                    'commonDiscountAmount' => number_format($totals['commonDiscountAmount'], 2),
+                    'commonDiscountPercentage' => $totals['commonDiscountPercentage'],
+
+                    // کوپن تخفیف
+                    'couponApplied' => $totals['couponDiscount'] > 0,
+                    'couponDiscount' => number_format($totals['couponDiscount'], 2),
+                ]);
+            });
+        } catch (\Exception $e) {
+            return response()->json(['status' => 'error', 'message' => $e->getMessage()], 500);
+        }
     }
 
 
-
-
-    public function coupon(Request $request)
+    public function coupon(Request $request, CartCalculator $cartCalculator)
     {
         $data = $request->validate([
             'coupon' => 'required|max:120|min:2'
@@ -384,7 +325,7 @@ class CartController extends Controller
             ->where('end_date', '>=', now())
             ->first();
 
-        if (!$coupon || $data['coupon'] == null) {
+        if (!$coupon) {
             return response()->json([
                 'status' => 'error',
                 'message' => 'invalid code',
@@ -405,11 +346,6 @@ class CartController extends Controller
             ]);
         }
 
-        // محاسبه سبد خرید
-        $totals = $this->calculateCartTotals(Auth::id());
-
-        $totalCartPrice = $totals['totalCartPrice'];
-
 
         // چک کردن عمومی یا خصوصی بودن کوپن
         if ($coupon->type == 1) {
@@ -421,32 +357,32 @@ class CartController extends Controller
             }
         }
 
+        // محاسبه سبد خرید
 
-        // چک کردن درصدی یا عددی بودن تخفیف
-        if ($coupon->amount_type == 0) {
-            $discount = ($totalCartPrice * $coupon->amount) / 100;
+        $cartItems = CartItem::where('user_id', Auth::user()->id)
+            ->with('productVariant.amazingSale')
+            ->get();
 
-            if ($coupon->discount_ceiling && $discount > $coupon->discount_ceiling) {
 
-                $discount = $coupon->discount_ceiling;
-            }
-        } elseif ($coupon->amount_type == 1) {
+        $commonDiscount = CommonDiscount::where('status', 1)
+            ->where('start_date', '<=', now())
+            ->where('end_date', '>=', now())
+            ->first();
 
-            $discount = $coupon->amount;
+
+        if ($cartItems->isEmpty()) {
+            return response()->json(['status' => 'error', 'message' => 'Cart is empty'], 422);
         }
 
-        // تخفیف نمی‌تواند از کل سبد بیشتر شود
-        $discount = min($discount, $totalCartPrice);
-
-        $final_price =  $totalCartPrice - $discount;
+        $totals = $cartCalculator->calculateCartTotals($cartItems, $commonDiscount, $coupon->code);
 
         // سشن برای ذخیره کوپن
         session(['applied_coupon' => $coupon->code]);
 
         return response()->json([
             'status' => 'success',
-            'finalPrice' => number_format($final_price, 2, '.', ','),
-            'couponDiscountAmount' => number_format($discount, 2),
+            'finalPrice' => number_format($totals['totalCartPrice'], 2),
+            'couponDiscountAmount' => number_format($totals['couponDiscount'], 2),
         ]);
     }
 }

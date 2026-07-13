@@ -37,6 +37,7 @@ use App\Http\Controllers\Admin\User\CustomerController;
 use App\Http\Controllers\Customer\HomeController;
 use App\Http\Controllers\Customer\Market\ProductController as MarketProductController;
 use App\Http\Controllers\Customer\Market\ShopController;
+use App\Http\Controllers\Customer\SalesProcess\AddressController;
 use App\Http\Controllers\Customer\SalesProcess\CartController;
 use App\Http\Controllers\LikeController;
 use App\Http\Controllers\ProfileController;
@@ -427,6 +428,13 @@ Route::namespace('SalesProcess')->group(function () {
     Route::post('/shoping-cart/update', [CartController::class, 'updateCart'])->name('customer.sales-process.update-shoping-cart');
     Route::post('/shoping-cart/coupon', [CartController::class, 'coupon'])->name('customer.sales-process.coupon');
     Route::get('/update-header-cart', [CartController::class, 'updateHeaderCart'])->name('customer.sales-process.update-header-cart');
+
+    //address
+    Route::get('/address-and-delivery', [AddressController::class, 'addressAndDelivery'])->name('customer.sales-process.address-and-delivery');
+    Route::post('/store-address', [AddressController::class, 'storeAddress'])->name('customer.sales-process.store-address');
+    Route::put('/update-address/{address}', [AddressController::class, 'updateAddress'])->name('customer.sales-process.update-address');
+    Route::get('/provinces/{province}/cities', [AddressController::class, 'getCities']);
+    Route::post('/choose-address-and-delivery', [AddressController::class, 'chooseAddressAndDelivery'])->name('customer.sales-process.choose-address-and-delivery');
 });
 
 // like

@@ -205,14 +205,6 @@
                                     <th class="column-5">Total</th>
                                 </tr>
 
-                                @php
-                                    $totalCartPrice = 0;
-                                    $productDiscounts = 0;
-                                    $productPrices = 0;
-                                    $commonDiscountAmount = 0;
-                                    $couponDiscount = 0;
-                                @endphp
-
                                 @if ($cartItems->count() >= 1)
                                     @foreach ($cartItems as $item)
                                         @php
@@ -236,17 +228,6 @@
                                             // قیمت نهایی تک آیتم
                                             $totalItemPrice = $item->quantity * $finalPrice;
 
-                                            // مقدار تخفیف کالاها
-                                            if ($activeAmazingSale) {
-                                                $productDiscounts +=
-                                                    ($price * $item->quantity * $amazingSaleDiscount) / 100;
-                                            }
-
-                                            // قیمت کل محصولات بدون تخفیف
-                                            $productPrices += $price * $item->quantity;
-
-                                            //  قیمت کل نهایی با حسب تخفیف و تعداد
-                                            $totalCartPrice += $item->quantity * $finalPrice;
                                         @endphp
 
                                         <tr class="table_row">
@@ -321,58 +302,6 @@
                                         </tr>
                                     @endforeach
 
-                                    @php
-                                        // اعمال تخفیف عمومی سایت
-                                        if (
-                                            $commonDiscount &&
-                                            $totalCartPrice >= $commonDiscount->minimal_order_amount
-                                        ) {
-                                            // محاسبه مبلغ تخفیف عمومی
-                                            $commonDiscountAmount =
-                                                ($totalCartPrice * $commonDiscount->percentage) / 100;
-
-                                            // چک کردن سقف تخفیف
-                                            if (
-                                                $commonDiscount->discount_ceiling &&
-                                                $commonDiscountAmount > $commonDiscount->discount_ceiling
-                                            ) {
-                                                $commonDiscountAmount = $commonDiscount->discount_ceiling;
-                                            }
-                                            $totalCartPrice = $totalCartPrice - $commonDiscountAmount;
-                                        }
-
-                                        // اعمال کوپن (اگه تو session باشه)
-
-                                        if (session('applied_coupon')) {
-                                            $coupon = \App\Models\Market\Coupon::where(
-                                                'code',
-                                                session('applied_coupon'),
-                                            )->first();
-
-                                            if (
-                                                $coupon &&
-                                                $coupon->status == 1 &&
-                                                $coupon->start_date <= now() &&
-                                                $coupon->end_date >= now()
-                                            ) {
-                                                if ($coupon->amount_type == 0) {
-                                                    $couponDiscount = ($totalCartPrice * $coupon->amount) / 100;
-                                                    if (
-                                                        $coupon->discount_ceiling &&
-                                                        $couponDiscount > $coupon->discount_ceiling
-                                                    ) {
-                                                        $couponDiscount = $coupon->discount_ceiling;
-                                                    }
-                                                } else {
-                                                    $couponDiscount = $coupon->amount;
-                                                }
-                                                $couponDiscount = min($couponDiscount, $totalCartPrice);
-                                                $totalCartPrice -= $couponDiscount;
-                                            } else {
-                                                session()->forget('applied_coupon');
-                                            }
-                                        }
-                                    @endphp
                                 @endif
 
 
@@ -416,19 +345,19 @@
                         <div class="flex-w flex-t p-b-13">
                             <div class="size-209">
                                 <span class="stext-110 cl2">
-                                    Product prices({{ $cartItems->count() }}):
+                                    Product prices(<span
+                                        id="cartItemsCountValue">{{ $cartItems->sum('quantity') }}</span>):
                                 </span>
                             </div>
 
                             <div class="size-208">
                                 <span class="mtext-110 cl2" id="productPrices">
-                                    ${{ rtrim(rtrim(number_format($productPrices, 2), '0'), '.') }}
+                                    ${{ rtrim(rtrim(number_format($totals['productPrices'], 2), '0'), '.') }}
                                 </span>
                             </div>
                         </div>
 
-
-                        <div class="flex-w flex-t @if (!($commonDiscount && $commonDiscountAmount > 0)) bor12 @endif p-b-13"
+                        <div class="flex-w flex-t @if (!($commonDiscount && $totals['commonDiscountAmount'] > 0)) bor12 @endif p-b-13"
                             id="productDiscountsRow">
                             <div class="size-209">
                                 <span class="stext-110 cl2">
@@ -438,14 +367,14 @@
 
                             <div class="size-208">
                                 <span class="mtext-110 cl2 text-danger" id="productDiscounts">
-                                    ${{ rtrim(rtrim(number_format($productDiscounts, 2), '0'), '.') }}
+                                    ${{ rtrim(rtrim(number_format($totals['productDiscounts'], 2), '0'), '.') }}
                                 </span>
                             </div>
                         </div>
 
 
                         <div class="flex-w flex-t bor12 p-b-13 bor12" id="commonDiscountRow"
-                            @if (!($commonDiscount && $commonDiscountAmount > 0)) hidden @endif>
+                            @if (!($commonDiscount && $totals['commonDiscountAmount'] > 0)) hidden @endif>
 
                             <div class="size-209">
                                 <span class="stext-110 cl2">
@@ -455,17 +384,17 @@
 
                             <div class="size-208">
                                 <span class="mtext-110 cl2 text-danger" id="commonDiscountPercentage">
-                                    {{ $commonDiscount->percentage }}%
+                                    {{ $commonDiscount?->percentage }}%
                                 </span>
                                 - <span class="mtext-110 cl2 text-warning" id="commonDiscountAmount">
-                                    ${{ number_format($commonDiscountAmount, 2) }}
+                                    ${{ number_format($totals['commonDiscountAmount'], 2) }}
                                 </span>
                             </div>
 
                         </div>
 
                         <div class="flex-w flex-t p-b-13 pt-3" id="couponDiscountBox"
-                            @if ($couponDiscount <= 0) hidden @endif>
+                            @if ($totals['couponDiscount'] <= 0) hidden @endif>
                             <div class="size-209">
                                 <span class="stext-110 cl2">
                                     Coupon discount:
@@ -474,7 +403,7 @@
 
                             <div class="size-208">
                                 <span class="mtext-110 cl2 text-danger" id="couponDiscountValue">
-                                    ${{ number_format($couponDiscount, 2) }}
+                                    ${{ number_format($totals['couponDiscount'], 2) }}
                                 </span>
                             </div>
                         </div>
@@ -488,19 +417,20 @@
 
                             <div class="size-209 p-t-1">
                                 <span class="mtext-110 cl2" id="totalCartPrice">
-                                    ${{ rtrim(rtrim(number_format($totalCartPrice, 2), '0'), '.') }}
+                                    ${{ rtrim(rtrim(number_format($totals['totalCartPrice'], 2), '0'), '.') }}
                                 </span>
                             </div>
                         </div>
 
-                        <button class="flex-c-m stext-101 cl0 size-116 bg3 bor14 hov-btn3 p-lr-15 trans-04 pointer">
+                        <a href="{{ route('customer.sales-process.address-and-delivery') }}"
+                            class="flex-c-m stext-101 cl0 size-116 bg3 bor14 hov-btn3 p-lr-15 trans-04 pointer">
                             Proceed to Checkout
-                        </button>
+                        </a>
                     </div>
-                  
+
                     @if ($commonDiscount && $cartItems->count() >= 1)
                         <div id="common-discount-info-box"
-                            class="alert alert {{ $productPrices - $productDiscounts >= $commonDiscount->minimal_order_amount ? 'alert-success' : 'alert-warning' }}
+                            class="alert alert {{ $totals['productPrices'] - $totals['productDiscounts'] >= $commonDiscount->minimal_order_amount ? 'alert-success' : 'alert-warning' }}
                             p-lr-20 p-t-15 p-b-20 m-l-63 m-r-40 m-lr-0-xl "
                             data-minimal="{{ $commonDiscount->minimal_order_amount }}"
                             data-percentage="{{ $commonDiscount->percentage }}"
@@ -510,7 +440,7 @@
                             <i class="fa fa-info-circle m-r-5"></i>
 
                             <span id="common-discount-text">
-                                @if ($productPrices - $productDiscounts >= $commonDiscount->minimal_order_amount)
+                                @if ($totals['productPrices'] - $totals['productDiscounts'] >= $commonDiscount->minimal_order_amount)
                                     {{-- حالت تبریک --}}
                                     You've unlocked a <strong>{{ $commonDiscount->percentage }}%</strong> common discount!
                                     @if ($commonDiscount->discount_ceiling)
@@ -635,6 +565,12 @@
                         return
                     }
 
+                    // آپدیت تعداد محصول Product prices(x)
+                    const itemsCountElement = document.getElementById('cartItemsCountValue');
+                    if (itemsCountElement) {
+                        itemsCountElement.innerText = data.totalProductsQuantity;
+                    }
+
                     // total item
                     row.querySelector('.total-price').innerText = "$" + data.totalItemPrice
 
@@ -659,7 +595,7 @@
 
                     // مدیریت کوپن
                     if (data.couponApplied) {
-                        document.querySelector('#couponDiscountBox').style.display = 'block';
+                        document.querySelector('#couponDiscountBox').removeAttribute('hidden');
                         document.querySelector('#couponDiscountValue').innerText = '$' + data.couponDiscount;
                     } else if (document.querySelector('#couponDiscountBox').style.display !== 'none') {
                         document.querySelector('#couponDiscountBox').style.display = 'none';
@@ -692,7 +628,7 @@
                         const currentPrice = data.productPrices - data.productDiscounts;
 
 
-                        let messageHTML = ''; 
+                        let messageHTML = '';
 
                         if (currentPrice >= minimal) {
                             // حالت واجد شرایط 
@@ -747,7 +683,6 @@
                 })
                 .then(res => res.json())
                 .then(data => {
-
                     if (data.status === "error") {
                         errorMessage.innerText = data.message;
                         return

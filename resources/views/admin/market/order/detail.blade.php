@@ -55,8 +55,8 @@
                                 <td>{{ $item->quantity ?? '-' }}</td>
                                 <td>{{ number_format(($item->final_product_price ?? 0) * ($item->quantity ?? 1)) }}</td>
                                 <td>{{ number_format($item->final_total_price ?? 0) }}</td>
-                                <td>{{ $item->color->name ?? '-' }}</td>
-                                <td>{{ $item->size->name ?? '-' }}</td>
+                                <td>{{ $item->productVariant->color->name ?? '-' }}</td>
+                                <td>{{ $item->productVariant->size->name ?? '-' }}</td>
                                 <td>
                                     @php
                                         $product = $item->productVariant?->product;
