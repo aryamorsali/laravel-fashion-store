@@ -7,9 +7,11 @@ use App\Http\Requests\Customer\Product\AddToCartRequest;
 use App\Models\Market\CartItem;
 use App\Models\Market\CommonDiscount;
 use App\Models\Market\Coupon;
+use App\Models\Market\CouponUser;
 use App\Models\Market\ProductVariant;
 use App\Models\Market\WarehouseVariant;
 use App\Services\CartCalculator;
+use App\Services\CartInventoryAllocator;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -18,14 +20,6 @@ class CartController extends Controller
 {
     public function shopingCart(CartCalculator $cartCalculator)
     {
-        if (!Auth::check()) {
-            return redirect()->back()->with(
-                'toast-success',
-                'Please log in to your account first. 
-                 <a href="' . route('auth.login-register.form') . '" class="toast-link">Login / Register</a>'
-            );
-        }
-
         $cartItems = CartItem::with([
             'productVariant.product',
             'productVariant.color',
@@ -62,19 +56,11 @@ class CartController extends Controller
     }
 
 
-    public function addToCart(AddToCartRequest $request)
+    public function addToCart(AddToCartRequest $request, CartInventoryAllocator $cartInventoryAllocator)
     {
-        if (!Auth::check()) {
-            return redirect()->back()->with(
-                'toast-success',
-                'Please log in to your account first. 
-                 <a href="' . route('auth.login-register.form') . '" class="toast-link">Login / Register</a>'
-            );
-        }
-
         $data = $request->validated();
         try {
-            DB::transaction(function () use ($data) {
+            DB::transaction(function () use ($data, $cartInventoryAllocator) {
                 // چک کردن موجودی واریانت
                 $variant = ProductVariant::lockForUpdate()->findOrFail($data['variant_id']);
 
@@ -83,38 +69,19 @@ class CartController extends Controller
                     throw new \Exception();
                 }
 
-                $cartItem = CartItem::where('user_id', Auth::id())
-                    ->where('product_variant_id', $variant->id)
-                    ->first();
-
-                $oldQty = $cartItem ? $cartItem->quantity : 0;
-                $newQty = $data['quantity']; // override
-
-
-                CartItem::updateOrCreate(
+                $cartItem = CartItem::updateOrCreate(
                     [
                         'user_id' => Auth::id(),
-                        'product_variant_id' => $variant->id,         // شرط (unique )
+                        'product_variant_id' => $variant->id,
                     ],
                     [
-                        'quantity' => $newQty,           // فیلدهایی که تغییر میکنن 
+                        'quantity' => 0,       //  بعدا در سرویس مقدارشو تغییر میدهیم
                     ]
                 );
 
-                //  گرفتن موجودی انبار
-                $warehouseVariant = WarehouseVariant::where('product_variant_id', $variant->id)->firstOrFail();
-
-                // فرمول: reserved = reserved - oldQty + newQty
-                $warehouseVariant->reserved = $warehouseVariant->reserved - $oldQty + $newQty;
-
-                // جلوگیری از منفی شدن
-                if ($warehouseVariant->reserved < 0) {
-                    $warehouseVariant->reserved = 0;
-                }
-                $warehouseVariant->save();
+                $cartInventoryAllocator->reallocate($cartItem, $data['quantity']);
             });
         } catch (\Exception $e) {
-
             return back()->with(
                 'toast-error',
                 'Sorry, there isn’t enough stock for this item.'
@@ -131,45 +98,50 @@ class CartController extends Controller
         if ($cartItem->user_id === Auth::user()->id) {
             DB::transaction(function () use ($cartItem) {
 
-                $warehouseVariant = WarehouseVariant::where('product_variant_id', $cartItem->product_variant_id)->firstOrFail();
-
-                $warehouseVariant->reserved -= $cartItem->quantity;
-
-                if ($warehouseVariant->reserved < 0) {
-                    $warehouseVariant->reserved = 0;
+                if ($cartItem->allocations()->whereNotNull('order_item_id')->exists()) {
+                    return back()->with(
+                        'toast-error',
+                        'This item has entered the checkout process and cannot be removed.'
+                    );
                 }
 
-                $warehouseVariant->save();
+                foreach ($cartItem->allocations as $allocation) {
+                    $warehouseVariant = WarehouseVariant::query()
+                        ->lockForUpdate()
+                        ->findOrFail($allocation->warehouse_variant_id);
+
+                    $warehouseVariant->reserved = max(
+                        0,
+                        $warehouseVariant->reserved - $allocation->quantity
+                    );
+
+                    $warehouseVariant->save();
+                }
+                
+                $cartItem->allocations()->delete();
 
                 $cartItem->delete();
             });
 
             return back();
-        }else{
+        } else {
             abort(403);
         }
     }
 
-    public function updateCart(Request $request, CartCalculator $cartCalculator)
+    public function updateCart(Request $request, CartCalculator $cartCalculator, CartInventoryAllocator $cartInventoryAllocator)
     {
         try {
-            return DB::transaction(function () use ($request, $cartCalculator) {
-                $cartItem = CartItem::findOrFail($request->cart_item_id);
+            return DB::transaction(function () use ($request, $cartCalculator, $cartInventoryAllocator) {
+                $cartItem = CartItem::where('id', $request->cart_item_id)
+                    ->where('user_id', Auth::id())
+                    ->firstOrFail();
 
                 $variant = $cartItem->productVariant;
 
                 $newQuantity = max((int)$request->quantity, 1);
                 $oldQuantity = $cartItem->quantity;
                 $diff = $newQuantity - $oldQuantity;
-
-                $warehouseVariant = WarehouseVariant::where('product_variant_id', $variant->id)->lockForUpdate()->first();
-
-                if (!$warehouseVariant) {
-                    return response()->json([
-                        'status'  => 'error',
-                        'message' => 'انبار مربوط به این محصول پیدا نشد.'
-                    ], 500);
-                }
 
                 // -------------------------
                 // محدودیت گزاشتن روی تعداد واریانت رزرو شده
@@ -206,28 +178,12 @@ class CartController extends Controller
                 // آپدیت reserved
                 // -------------------------
 
-                if ($diff > 0) {
-                    // یعنی تعداد سبد بیشتر شده → رزرو را بیشتر کن
-                    $warehouseVariant->reserved = $warehouseVariant->reserved + $diff;
-                    $warehouseVariant->save();
-                } elseif ($diff < 0) {
-                    // یعنی تعداد سبد کمتر شده → رزرو را کم کن
-                    $warehouseVariant->reserved = $warehouseVariant->reserved - abs($diff);
+                $cartInventoryAllocator->reallocate($cartItem, $newQuantity);
 
-                    // برای احتیاط، نذار منفی بشه
-                    if ($warehouseVariant->reserved < 0) {
-                        $warehouseVariant->reserved = 0;
-                    }
-
-                    $warehouseVariant->save();
-                }
-
-
-                $cartItem->update([
-                    'quantity' => $newQuantity
-                ]);
-
+                // -------------------------
                 // آپدیت تعداد محصول Product prices(x)
+                // -------------------------
+
                 $totalProductsQuantity = CartItem::where('user_id', Auth::id())->sum('quantity');
 
                 // -------------------------
@@ -334,8 +290,7 @@ class CartController extends Controller
 
 
         // بررسی استفاده قبلی
-        $alreadyUsed = DB::table('coupon_user')
-            ->where('user_id', Auth::id())
+        $alreadyUsed = CouponUser::where('user_id', Auth::id())
             ->where('coupon_id', $coupon->id)
             ->exists();
 

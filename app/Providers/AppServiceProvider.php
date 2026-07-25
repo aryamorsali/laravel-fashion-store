@@ -4,6 +4,7 @@ namespace App\Providers;
 
 use App\Models\Market\CartItem;
 use Illuminate\Cache\RateLimiting\Limit;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Facades\View;
@@ -24,16 +25,44 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        RateLimiter::for('login-register-limiter', function ($request) {
+        RateLimiter::for('login-register-limiter', function (Request $request) {
             return Limit::perMinute(5)->by($request->ip());
         });
 
-        RateLimiter::for('login-confirm-limiter', function ($request) {
+        RateLimiter::for('login-confirm-limiter', function (Request $request) {
             return Limit::perMinute(4)->by($request->ip());
         });
 
-        RateLimiter::for('login-resend-otp-limiter', function ($request) {
+        RateLimiter::for('login-resend-otp-limiter', function (Request $request) {
             return Limit::perMinute(3)->by($request->ip());
+        });
+
+        RateLimiter::for('add-comment', function (Request $request) {
+            return Limit::perMinute(10)->by($request->user()?->id ?: $request->ip());
+        });
+
+        RateLimiter::for('cart', function (Request $request) {
+            return Limit::perMinute(30)->by($request->user()?->id ?: $request->ip());
+        });
+
+        RateLimiter::for('coupon', function (Request $request) {
+            return Limit::perMinute(5)->by($request->user()?->id ?: $request->ip());
+        });
+
+        RateLimiter::for('address', function (Request $request) {
+            return Limit::perMinute(5)->by($request->user()?->id ?: $request->ip());
+        });
+
+        RateLimiter::for('payment', function (Request $request) {
+            return Limit::perMinute(10)->by($request->user()?->id ?: $request->ip());
+        });
+
+        RateLimiter::for('like', function (Request $request) {
+            return Limit::perMinute(30)->by($request->user()?->id ?: $request->ip());
+        });
+
+        RateLimiter::for('payment-callback', function (Request $request) {
+            return Limit::perMinute(30)->by($request->ip());
         });
 
         // برای هدر این مقادیر ارسال میشود

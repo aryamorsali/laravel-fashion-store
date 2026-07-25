@@ -13,6 +13,11 @@ class Payment extends Model
 
     protected $guarded = ['id'];
 
+    protected $casts = [
+        'first_response' => 'array',
+        'second_response' => 'array',
+    ];
+
     public function user()
     {
         return $this->belongsTo(User::class);

@@ -10,7 +10,7 @@ class WarehouseTransactionController extends Controller
 {
    public function index()
    {
-    $transactions = WarehouseTransaction::all();
+    $transactions = WarehouseTransaction::orderBy('created_at', 'desc')->get();
         return view('admin.market.warehouse.warehouse-transaction.index', compact('transactions'));
    }
 }

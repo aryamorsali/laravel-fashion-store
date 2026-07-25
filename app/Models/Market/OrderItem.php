@@ -32,4 +32,9 @@ class OrderItem extends Model
         {
                 return $this->belongsTo(ProductVariant::class);
         }
+
+        public function allocations()
+        {
+                return $this->hasMany(InventoryAllocation::class);
+        }
 }

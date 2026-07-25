@@ -600,7 +600,7 @@
                             </div>
 
                             <form id="myForm" method="POST"
-                                action="{{ route('customer.sales-process.choose-address-and-delivery') }}">
+                                action="{{ route('customer.sales-process.payment') }}">
                                 @csrf
                             </form>
                             <button onclick="document.getElementById('myForm').submit();"
