@@ -19,7 +19,7 @@ class WarehouseVariantController extends Controller
     public function index(Warehouse $warehouse)
     {
         // $warehouseVariants = $warehouse->variants()->with('productVariant')->paginate(15);
-        $warehouseVariants = $warehouse->variants()->with('productVariant')->get();
+        $warehouseVariants = $warehouse->variants()->with('productVariant')->orderBy('created_at', 'desc')->get();
         return view('admin.market.warehouse.warehouse-variant.index', compact('warehouseVariants', 'warehouse'));
     }
 
@@ -45,30 +45,43 @@ class WarehouseVariantController extends Controller
                 ->where('product_variant_id', $request->product_variant_id)
                 ->first();
 
+            $oldStock = 0;
+            $unitPrice = 0;
+
             // اگر واریانت قبلی وجود داشت
             if ($existing) {
+                $oldStock = $existing->stock;
+
                 $existing->stock = $request->stock;
+
                 $existing->save();
                 $existing->load('productVariant');
+
+                $unitPrice = $existing->productVariant->price ?? 0;
             } else {
-                $data['warehouse_id'] = $warehouse->id;
-                $data['reserved'] = 0;
-                $data['sold'] = 0;
-                $existing = WarehouseVariant::create($data);
-                $existing->load('productVariant');
+                $productVariant = ProductVariant::findOrFail($request->product_variant_id);
+                $unitPrice = $productVariant->price;
+
+                $existing = WarehouseVariant::create([
+                    'warehouse_id' => $warehouse->id,
+                    'product_variant_id' => $request->product_variant_id,
+                    'stock' => $request->stock,
+                    'reserved' => 0,
+                    'sold' => 0,
+                ]);
             }
-            // ثبت تراکنش انبار
-            $oldStock = $existing ? $existing->stock : 0;
+
+            // محاسبه مقدار تغییرات
             $quantityChange = $request->stock - $oldStock;
+
+            // ثبت تراکنش انبار
             if ($quantityChange != 0) {
                 WarehouseTransaction::create([
                     'warehouse_id' => $warehouse->id,
                     'product_variant_id' => $request->product_variant_id,
                     'type' => $quantityChange > 0 ? 'in' : 'out', // افزایش → in، کاهش → out
                     'quantity' => abs($quantityChange),
-                    'unit_price' => $existing
-                        ? $existing->productVariant->price
-                        : ProductVariant::find($request->product_variant_id)->price,
+                    'unit_price' => $unitPrice,
                 ]);
             }
         });

@@ -78,6 +78,10 @@ class CoupanController extends Controller
             $inputs['discount_ceiling'] = null;
         }
 
+        if ($coupon->user_id && $inputs['type'] == 0) {
+            $coupon->user_id = null;
+        }
+
         if (Carbon::parse($inputs['end_date'])->isPast()) {
             $inputs['status'] = 2; // expired
         }

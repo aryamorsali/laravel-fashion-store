@@ -18,7 +18,7 @@ class HomeController extends Controller
      */
     public function home()
     {
-        Auth::loginUsingId(1);
+        Auth::loginUsingId(2);
 
         $banners = Banner::where('status', 1)->get();
 

@@ -10,6 +10,12 @@ class OrderItem extends Model
 {
         use HasFactory, SoftDeletes;
 
+        protected $guarded = ['id'];
+
+        protected $casts = [
+                'product_snapshot' => 'array',
+                'amazing_sale_snapshot' => 'array',
+        ];
 
         public function amazingSale()
         {
@@ -25,5 +31,10 @@ class OrderItem extends Model
         public function productVariant()
         {
                 return $this->belongsTo(ProductVariant::class);
+        }
+
+        public function allocations()
+        {
+                return $this->hasMany(InventoryAllocation::class);
         }
 }

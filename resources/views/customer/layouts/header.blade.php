@@ -243,7 +243,7 @@
                  @endphp
 
                  @foreach ($cartItems as $item)
-                     <ul class="header-cart-wrapitem w-full">
+                     <ul class="header-cart-wrapitem w-full" id="headerCartItems">
                          <li class="header-cart-item flex-w flex-t m-b-12">
 
                              <div class="header-cart-item-img">
@@ -300,7 +300,9 @@
                                      style="display:flex; align-items:center; justify-content:space-between; margin-top:6px;">
 
                                      <span class="header-cart-item-info" style="font-size:13px; color:#666;">
-                                         {{ $item->quantity }} ×
+                                         <span id="header-cart-qty-{{ $item->id }}" class="header-item-quantity">
+                                             {{ $item->quantity }}
+                                         </span> ×
                                          @if ($activeAmazingSale)
                                              <span style="color:#e60023; font-weight:500;">
                                                  ${{ number_format($finalPrice, 2) }}
@@ -328,7 +330,7 @@
 
 
                  <div class="w-full">
-                     <div class="header-cart-total w-full p-tb-40">
+                     <div class="header-cart-total w-full p-tb-40" id="totalHeaderCart">
                          Total: ${{ rtrim(rtrim(number_format($totalPrice, 2), '0'), '.') }}
                      </div>
 

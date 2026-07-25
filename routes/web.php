@@ -37,7 +37,9 @@ use App\Http\Controllers\Admin\User\CustomerController;
 use App\Http\Controllers\Customer\HomeController;
 use App\Http\Controllers\Customer\Market\ProductController as MarketProductController;
 use App\Http\Controllers\Customer\Market\ShopController;
+use App\Http\Controllers\Customer\SalesProcess\AddressController;
 use App\Http\Controllers\Customer\SalesProcess\CartController;
+use App\Http\Controllers\Customer\SalesProcess\PaymentController as SalesProcessPaymentController;
 use App\Http\Controllers\LikeController;
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
@@ -415,22 +417,37 @@ Route::get('/shop/{category:slug?}', [ShopController::class, 'shop'])->name('cus
 // product detail
 Route::prefix('/product')->group(function () {
     Route::get('/{product:slug}', [MarketProductController::class, 'product'])->name('customer.market.product');
-    Route::post('/{product:slug}/add-comment', [MarketProductController::class, 'addComment'])->name('customer.market.add-comment');
+    Route::post('/{product:slug}/add-comment', [MarketProductController::class, 'addComment'])->name('customer.market.add-comment')->middleware(['auth', 'throttle:add-comment']);
 });
 
 // sales process
 Route::namespace('SalesProcess')->group(function () {
-    //cart
-    Route::get('/shoping-cart', [CartController::class, 'shopingCart'])->name('customer.sales-process.shoping-cart');
-    Route::post('/add-to-cart', [CartController::class, 'addToCart'])->name('customer.sales-process.add-to-cart');
-    Route::get('/remove-from-cart/{cartItem}', [CartController::class, 'removeFromCart'])->name('customer.sales-process.remove-from-cart');
-    Route::post('/shoping-cart/update', [CartController::class, 'updateCart'])->name('customer.sales-process.update-shoping-cart');
-    Route::post('/shoping-cart/coupon', [CartController::class, 'coupon'])->name('customer.sales-process.coupon');
+    Route::middleware('auth')->group(function () {
+        
+        //cart
+        Route::get('/shoping-cart', [CartController::class, 'shopingCart'])->name('customer.sales-process.shoping-cart');
+        Route::post('/add-to-cart', [CartController::class, 'addToCart'])->name('customer.sales-process.add-to-cart')->middleware('throttle:cart');
+        Route::get('/remove-from-cart/{cartItem}', [CartController::class, 'removeFromCart'])->name('customer.sales-process.remove-from-cart')->middleware('throttle:cart');
+        Route::post('/shoping-cart/update', [CartController::class, 'updateCart'])->name('customer.sales-process.update-shoping-cart');
+        Route::post('/shoping-cart/coupon', [CartController::class, 'coupon'])->name('customer.sales-process.coupon')->middleware('throttle:coupon');
+        Route::get('/update-header-cart', [CartController::class, 'updateHeaderCart'])->name('customer.sales-process.update-header-cart');
+
+        //address
+        Route::get('/address-and-delivery', [AddressController::class, 'addressAndDelivery'])->name('customer.sales-process.address-and-delivery');
+        Route::post('/store-address', [AddressController::class, 'storeAddress'])->name('customer.sales-process.store-address')->middleware('throttle:address');
+        Route::put('/update-address/{address}', [AddressController::class, 'updateAddress'])->name('customer.sales-process.update-address')->middleware('throttle:address');
+        Route::get('/provinces/{province}/cities', [AddressController::class, 'getCities']);
+
+        // payment
+        Route::post('/payment', [SalesProcessPaymentController::class, 'payment'])->name('customer.sales-process.payment')->middleware('throttle:payment');
+    });
+
+    Route::get('/payment-callback/{order}/{payment}', [SalesProcessPaymentController::class, 'paymentCallBack'])->name('customer.sales-process.payment-call-back');
 });
 
-// like
-Route::post('/like/{type}/{id}', [LikeController::class, 'toggle'])->name('like.toggle');
 
+// like
+Route::post('/like/{type}/{id}', [LikeController::class, 'toggle'])->name('like.toggle')->middleware(['auth', 'throttle:like',]);
 
 // content
 Route::view('/about', 'customer.pages.about')->name('customer.about');

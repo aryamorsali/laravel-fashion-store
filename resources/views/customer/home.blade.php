@@ -48,6 +48,8 @@
 @endsection
 
 @section('content')
+    @include('admin.alerts.toast.success')
+    @include('admin.alerts.toast.error')
     <!-- Slider -->
     <section class="section-slide">
         <div class="wrap-slick1">

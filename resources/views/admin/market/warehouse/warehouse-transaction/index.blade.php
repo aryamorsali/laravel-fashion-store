@@ -49,11 +49,11 @@
                         @foreach ($transactions as $transaction)
                             <tr>
                                 <th scope="row">{{ $loop->iteration }}</th>
-                                <td>{{ $transaction->warehouse->name }}</td>
+                                <td>{{ $transaction->warehouse->name ?? '-'}}</td>
 
-                                <td> {{ $transaction->productVariant->product->name }}</td>
-                                <td> {{ $transaction->productVariant->color->name }}</td>
-                                <td> {{ $transaction->productVariant->size->name }}</td>
+                                <td> {{ $transaction->productVariant->product->name ?? '-' }}</td>
+                                <td> {{ $transaction->productVariant->color->name ?? '-' }}</td>
+                                <td> {{ $transaction->productVariant->size->name ?? '-' }}</td>
                                 <td> {{ $transaction->type }}</td>
                                 <td> {{ $transaction->quantity }}</td>
                                 <td> {{ number_format($transaction->unit_price) }}</td>
