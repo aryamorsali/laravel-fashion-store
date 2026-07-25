@@ -32,7 +32,7 @@ class ProductRequest extends FormRequest
                 'tags' => ['nullable', 'array'],
                 'tags.*' => ['integer', 'exists:tags,id'],
 
-                'description' => 'required|max:600|min:5|regex:/^[ا-یa-zA-Z0-9\-۰-۹ء-ي.,><\/;\n\r& ]+$/u',
+                'description' => 'required|max:1600|min:5|regex:/^[ا-یa-zA-Z0-9\-۰-۹ء-ي.,><\/;\n\r& ]+$/u',
                 'published_at' => 'nullable|date_format:Y-m-d H:i',
                 'base_price' => 'required|numeric',
                 'has_color' => 'sometimes|boolean',
@@ -49,7 +49,7 @@ class ProductRequest extends FormRequest
                 'tags' => ['nullable', 'array'],
                 'tags.*' => ['integer', 'exists:tags,id'],
 
-                'description' => 'required|max:600|min:5|regex:/^[ا-یa-zA-Z0-9\-۰-۹ء-ي.,><\/;\n\r& ]+$/u',
+                'description' => 'required|max:1600|min:5|regex:/^[ا-یa-zA-Z0-9\-۰-۹ء-ي.,><\/;\n\r& ]+$/u',
                 'published_at' => 'nullable|date_format:Y-m-d H:i',
                 'base_price' => 'required|numeric',
                 'has_color' => 'sometimes|boolean',

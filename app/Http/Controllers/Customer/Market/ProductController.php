@@ -13,7 +13,7 @@ use Illuminate\Support\Facades\Auth;
 class ProductController extends Controller
 {
 
-    public function product(Product $product)
+    public function product(Product $product, Request $request)
     {
         abort_if(
             $product->status !== 'published',
@@ -44,6 +44,25 @@ class ProductController extends Controller
             })->values()->toArray();
 
 
+        // پیدا کردن واریانتی ک کاربر دیده است
+        $requestedVariantId = $request->query('variant');
+
+        $selectedVariant = null;
+
+        if ($requestedVariantId) {
+            $selectedVariant = $product->variants
+                ->firstWhere('id', (int) $requestedVariantId);
+        }
+
+        if (!$selectedVariant || $selectedVariant->availableStock() <= 0) {
+            $selectedVariant = $product->variants
+                ->first(fn($v) => $v->availableStock() > 0);
+        }
+
+        $selectedVariantId = $selectedVariant?->id;
+
+        // dd($selectedVariantId);
+
         // محصول در کل موجود هست یا نه؟
         $hasSellableVariant = $product->variants->contains(fn($v) => $v->availableStock() > 0);
 
@@ -54,17 +73,17 @@ class ProductController extends Controller
             ->paginate(5);
 
         // محصولات مرتبط با محصول فعلی
-        $relatedProductsQuery = Product::where('status', 'published')
+        $relatedProducts = Product::where('status', 'published')
             ->where('published_at', '<=', now())
             ->where('category_id', $product->category_id)
             ->where('id', '!=', $product->id)
 
             // فقط محصولاتی که حداقل یک واریانت موجود دارند
-            ->whereHas('variants.warehouseVariants', function ($q) {
-                $q->whereColumn('stock', '>', 'reserved');
+            ->whereHas('variants', function ($q) {
+                $q->whereHas('warehouseVariants', function ($wq) {
+                    $wq->whereColumn('stock', '>', 'reserved');
+                });
             })
-
-            // کل واریانت‌ها را برگردان، اما تمام روابط لازم را eager load کن
             ->with([
                 'variants' => function ($q) {
                     $q->with([
@@ -77,64 +96,24 @@ class ProductController extends Controller
                                 ->where('start_date', '<=', now())
                                 ->where('end_date', '>=', now());
                         },
-
-                        // پرفروش‌ترین variant را باید blade با این دیتا محاسبه کند
                         'orderItems',
                     ]);
                 }
-            ]);
-
-        $relatedProducts = $relatedProductsQuery
-            ->inRandomOrder()
+            ])->inRandomOrder()
             ->take(8)
             ->get();
 
-        // اگر کمتر از 4 محصول → fallback
-        if ($relatedProducts->count() < 4) {
-
-            $fallback = Product::where('status', 'published')
-                ->where('published_at', '<=', now())
-                ->where('id', '!=', $product->id)
-
-                // محصولاتی که حداقل یک واریانت موجود دارند
-                ->whereHas('variants.warehouseVariants', function ($q) {
-                    $q->whereColumn('stock', '>', 'reserved');
-                })
-
-                ->with([
-                    'variants' => function ($q) {
-                        $q->with([
-                            'warehouseVariants',
-                            'amazingSale' => function ($s) {
-                                $s->where('is_active', true)
-                                    ->where('start_date', '<=', now())
-                                    ->where('end_date', '>=', now());
-                            },
-                            'orderItems',
-                        ]);
-                    }
-                ])
-
-                ->inRandomOrder()
-                ->take(8)
-                ->get();
-
-            // merge + unique + limit
-            $relatedProducts = $relatedProducts
-                ->merge($fallback)
-                ->unique('id')
-                ->take(8)
-                ->values();
-        }
-
-
+        // میانگین امتیاز محصول
+        $aveRating = $product->activeComments->avg('rating') ?? 0;
 
         return view('customer.market.product-details', compact(
             'product',
             'variantsForJs',
             'hasSellableVariant',
             'approvedComments',
-            'relatedProducts'
+            'relatedProducts',
+            'aveRating',
+            'selectedVariantId'
         ));
     }
 

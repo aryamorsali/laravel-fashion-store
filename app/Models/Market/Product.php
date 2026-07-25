@@ -85,6 +85,11 @@ class Product extends Model
         return $this->morphToMany(Tag::class, 'taggable');
     }
 
+    public function brand()
+    {
+        return $this->belongsTo(Brand::class, 'brand_id');
+    }
+
     public function likes()
     {
         return $this->morphMany(Like::class, 'likeable');
