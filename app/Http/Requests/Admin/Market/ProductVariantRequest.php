@@ -21,12 +21,35 @@ class ProductVariantRequest extends FormRequest
      */
     public function rules()
     {
+        if ($this->isMethod('post')) {
+            $product = $this->route('product');
+
+            $rules = [
+                'price' => ['required', 'numeric', 'min:1'],
+            ];
+
+            // ===== COLOR =====
+            if ($product->has_color) {
+                $rules['colors'] = ['required', 'array', 'min:1'];
+                $rules['colors.*'] = ['integer', 'exists:product_colors,id'];
+            } else {
+                $rules['colors'] = ['prohibited'];
+            }
+
+            // ===== SIZE =====
+            if ($product->has_size) {
+                $rules['sizes'] = ['required', 'array', 'min:1'];
+                $rules['sizes.*'] = ['integer', 'exists:product_sizes,id'];
+            } else {
+                $rules['sizes'] = ['prohibited'];
+            }
+
+            return $rules;
+        }
         return [
-            'colors' => 'required|array|min:1',
-            'colors.*' => 'integer|exists:product_colors,id',
-            'sizes' => 'nullable|array',
-            'sizes.*' => 'integer|exists:product_sizes,id',
-            'price' => 'required|numeric|min:1',
+            'price' => ['required', 'numeric', 'min:1'],
+            'colors' => ['prohibited'],
+            'sizes'  => ['prohibited'],
         ];
     }
 }

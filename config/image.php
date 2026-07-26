@@ -25,16 +25,9 @@ return [
             'height' => 1485,
         ],
 
-        // تصاویر محصولات portrait (بلند)
         'main' => [
             'width' => 350,
             'height' => 434,
-        ],
-
-        // کوتاه و عریض
-        'wide' => [
-            'width' => 1200,
-            'height' => 810,
         ],
 
         'small' => [
@@ -46,11 +39,29 @@ return [
     'default-current-index-image' => 'main',
 
 
-    // index size
+    'blog-image-sizes' => [
+
+        'cover' => [
+            'width'  => 1600,
+            'height' => 1000,
+
+        ],
+
+        'thumb' => [
+            'width' => 300,
+            'height' => 366,
+        ],
+
+    ],
+    'default-current-blog-image' => 'cover',
+
+
+
+    // cache size
     'cache-image-sizes' => [
         'large' => [
-            'width' => 800,
-            'height' => 600
+            'width' => 700,
+            'height' => 868
         ],
         'medium' => [
             'width' => 270,

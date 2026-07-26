@@ -4,6 +4,8 @@ namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
 
+use App\Models\Market\Address;
+use App\Models\Market\CartItem;
 use App\Models\Ticket\AdminTicket;
 use App\Models\Ticket\Ticket;
 use App\Models\Ticket\TicketCategory;
@@ -38,6 +40,7 @@ class User extends Authenticatable
         'user_type',
         'mobile_verified_at',
         'email_verified_at',
+        'loyalty_level',
     ];
 
     /**
@@ -76,6 +79,11 @@ class User extends Authenticatable
     public function ticketAccesses()
     {
         return $this->hasMany(AdminTicket::class, 'admin_id');
+    }
+
+     public function addresses()
+    {
+        return $this->hasMany(Address::class);
     }
 
     public function accessibleCategories()

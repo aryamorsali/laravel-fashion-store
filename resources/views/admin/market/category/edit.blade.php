@@ -7,7 +7,7 @@
         .select2-selection__rendered {
             font-family: "Roboto", "Helvetica Neue", Arial, sans-serif;
             color: #000000;
-            padding: 4px 8px;
+            padding: 8px 12px;
             border-radius: 6px;
             font-size: 13px;
         }
@@ -19,7 +19,6 @@
 
         .select2-results__option {
             color: #000000;
-            background-color: #389af7;
             padding: 8px 12px;
             font-size: 13px;
         }
@@ -44,6 +43,26 @@
             color: #000000;
         }
     </style>
+
+   <style>
+        .image-option {
+            cursor: pointer;
+            transition: all 0.2s ease;
+            border: 2px solid transparent;
+            border-radius: 8px;
+        }
+
+        input[type="radio"] {
+            display: none;
+        }
+
+        input[type="radio"]:checked+label img {
+            border: 3px solid #3586fe;
+            transform: scale(1.05);
+            box-shadow: 0 0 12px rgba(13, 110, 253, 0.5);
+        }
+    </style>
+
 @endsection
 
 @section('content')
@@ -114,7 +133,7 @@
                             @enderror
                         </section>
 
-                        <section class="col-12 col-md-6 my-3">
+                        <section class="col-12 my-3">
                             <div class="form-group">
                                 <label for="image">Image</label>
                                 <input type="file" class="form-control form-control-sm" name="image" id="image">
@@ -125,38 +144,35 @@
                                 </div>
                             @enderror
                         </section>
+
                         @if ($productCategory->image)
-                            <section class="row my-2">
-                                @php
-                                    $number = 2;
-                                @endphp
+                            <section class="row mt-4 my-2">
                                 @foreach ($productCategory->image['indexArray'] as $key => $value)
-                                    <section class="col-md-{{ 6 / $number }} mr-5">
-                                        <div class="form-check  p-1">
-                                            <input type="radio" name="currentImage" class="form-check-input"
-                                                value="{{ $key }}" id="{{ $number }}"
-                                                @if ($productCategory->image['currentImage'] == $key) checked @endif>
-                                            <label for="{{ $number }}" class="form-check-label mx-3">
-                                                <img src="{{ asset($value) }}" class="img-fluid rounded w-100"
-                                                    alt="">
-                                            </label>
-                                        </div>
+                                    <section class="col-md-3 col-sm-6 mb-3">
+                                        <input type="radio" name="currentImage" id="image-{{ $key }}"
+                                            value="{{ $key }}" @checked($productCategory->image['currentImage'] == $key)>
+                                        <label for="image-{{ $key }}" class="d-block text-center">
+                                            <img src="{{ asset($value) }}" class="img-fluid rounded image-option"
+                                                alt="">
+                                        </label>
                                     </section>
-                                    @php
-                                        $number++;
-                                    @endphp
                                 @endforeach
                             </section>
                         @endif
 
 
-                        <section class="col-12 col-md-6 my-3">
-                            <div class="form-group">
-                                <label for="tags">Tags</label>
-                                <input type="hidden" class="form-control form-control-sm" name="tags" id="tags"
-                                    value="{{ old('tags', $productCategory->tags) }}">
-                                <select class="select2 form-control form-control-sm myselect" id="select_tags" multiple>
 
+                       <section class="col-12 col-md-6 my-3">
+                            <div class="form-group">
+                                <label>Tags</label>
+                                <select class="select2 form-control form-control-sm" id="select_tags" multiple
+                                    name="tags[]">
+                                    @foreach ($tags as $tag)
+                                        <option value="{{ $tag->id }}"
+                                            @if (in_array($tag->id, old('tags', $productCategory->tags->pluck('id')->toArray()))) selected @endif>
+                                            {{ $tag->name }}
+                                        </option>
+                                    @endforeach
                                 </select>
                             </div>
                             @error('tags')
@@ -183,23 +199,6 @@
                             @enderror
                         </section>
 
-                        <section class="col-12 col-md-6 my-3">
-                            <div class="form-group">
-                                <label for="show_in_menu">Show in menu</label>
-                                <select name="show_in_menu" class="form-control form-control-sm" id="show_in_menu">
-                                    <option value="0" @if (old('show_in_menu', $productCategory->show_in_menu) == 0) selected @endif>No
-                                    </option>
-                                    <option value="1" @if (old('show_in_menu', $productCategory->show_in_menu) == 1) selected @endif>Yes
-                                    </option>
-                                </select>
-                            </div>
-                            @error('show_in_menu')
-                                <div class="text-danger" style="margin-top: 9px; font-size: 12px; font-weight: 400;">
-                                    <strong>{{ $message }}</strong>
-                                </div>
-                            @enderror
-                        </section>
-
                         <section class="col-12 my-3 d-flex justify-content-end">
                             <button type="submit" class="btn btn-primary">Submit</button>
                         </section>
@@ -219,35 +218,12 @@
                 });
         </script>
 
+       {{-- select 2 --}}
         <script>
-            $(document).ready(function() {
-                var tags_input = $('#tags');
-                var select_tags = $('#select_tags');
-                var default_tags = tags_input.val();
-                var default_data = null;
-
-                if (tags_input.val() !== null && tags_input.val().length > 0) {
-                    default_data = default_tags.split(',');
-                }
-
-                select_tags.select2({
-                    placeholder: "Please enter your tags",
-                    tags: true,
-                    data: default_data,
-                    language: {
-                        noResults: function() {
-                            return '';
-                        }
-                    }
-                });
-                select_tags.children('option').attr('selected', true).trigger('change');
-
-                $('#form').submit(function(event) {
-                    if (select_tags.val() !== null && select_tags.val().length > 0) {
-                        var selectedSource = select_tags.val().join(',');
-                        tags_input.val(selectedSource)
-                    }
-                })
+            var select_tags = $('#select_tags');
+            select_tags.select2({
+                placeholder: 'Please enter tags (optional)',
+                multiple: true,
             })
         </script>
     @endsection

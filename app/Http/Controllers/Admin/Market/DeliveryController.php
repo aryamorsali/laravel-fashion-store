@@ -14,7 +14,7 @@ class DeliveryController extends Controller
      */
     public function index()
     {
-        $deliveries = Delivery::all();
+        $deliveries = Delivery::orderBy('created_at', 'desc')->get();
         return view('admin.market.delivery.index', compact('deliveries'));
     }
 

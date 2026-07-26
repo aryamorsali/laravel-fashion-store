@@ -5,8 +5,10 @@ namespace App\Http\Controllers\Admin\Market;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\Market\ProductCategoryRequest;
 use App\Http\Services\Image\ImageService;
+use App\Models\Content\Tag;
 use App\Models\Market\ProductCategory;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class CategoryController extends Controller
 {
@@ -15,7 +17,7 @@ class CategoryController extends Controller
      */
     public function index()
     {
-        $productCategories = ProductCategory::all();
+        $productCategories = ProductCategory::orderBy('created_at', 'desc')->get();;
         return view('admin.market.category.index', compact('productCategories'));
     }
 
@@ -24,8 +26,10 @@ class CategoryController extends Controller
      */
     public function create()
     {
+        $tags = Tag::all();
+
         $parent_categories = ProductCategory::where('parent_id', null)->get();
-        return view('admin.market.category.create', compact('parent_categories'));
+        return view('admin.market.category.create', compact('parent_categories', 'tags'));
     }
 
     /**
@@ -33,7 +37,11 @@ class CategoryController extends Controller
      */
     public function store(ProductCategoryRequest $request, ImageService $imageService)
     {
-        $inputs = $request->all();
+        $inputs = $request->validated();
+
+        $tags = $inputs['tags'] ?? null;
+
+
         if ($request->hasFile('image')) {
             $imageService->setExclusiveDirectory('images' . DIRECTORY_SEPARATOR . 'product-category');
             $result = $imageService->createIndexAndSave($request->file('image'));
@@ -50,8 +58,15 @@ class CategoryController extends Controller
         if (empty($inputs['parent_id'])) {
             $inputs['parent_id'] = null;
         }
+        DB::transaction(function () use ($inputs, $tags) {
+            $productCategory = ProductCategory::create($inputs);
 
-        ProductCategory::create($inputs);
+            // attach tags
+
+            if ($tags) {
+                $productCategory->tags()->sync($tags);
+            }
+        });
         return redirect()->route('admin.market.category.index')->with(
             'alert-section-success',
             'Your new category was successfully registered.'
@@ -71,8 +86,10 @@ class CategoryController extends Controller
      */
     public function edit(ProductCategory $productCategory)
     {
+        $tags = Tag::all();
+
         $parent_categories = ProductCategory::where('parent_id', null)->get()->except($productCategory->id);
-        return view('admin.market.category.edit', compact('parent_categories', 'productCategory'));
+        return view('admin.market.category.edit', compact('parent_categories', 'productCategory', 'tags'));
     }
 
     /**
@@ -80,7 +97,7 @@ class CategoryController extends Controller
      */
     public function update(ProductCategoryRequest $request, ProductCategory $productCategory, ImageService $imageService)
     {
-        $inputs = $request->all();
+        $inputs = $request->validated();
 
         // اگر کاربر فایل جدید آپلود کرد
         if ($request->hasFile('image')) {
@@ -108,7 +125,21 @@ class CategoryController extends Controller
         if (empty($inputs['parent_id'])) {
             $inputs['parent_id'] = null;
         }
-        $productCategory->update($inputs);
+
+        DB::transaction(function () use ($inputs, $productCategory) {
+
+            $productCategory->update($inputs);
+
+            // ---------------------------
+            // تگ‌ها
+            if (!empty($inputs['tags'])) {
+                $productCategory->tags()->sync($inputs['tags']);
+            } else {
+                $productCategory->tags()->detach();
+            }
+            // ---------------------------
+        });
+
         return redirect(route('admin.market.category.index'))->with(
             'alert-section-success',
             'Category editing completed successfully.'
@@ -139,21 +170,6 @@ class CategoryController extends Controller
             }
         } else {
             return response()->json(['status' => false]);
-        }
-    }
-
-    public function showInMenu(ProductCategory $productCategory)
-    {
-        $productCategory->show_in_menu = $productCategory->show_in_menu == 0 ? 1 : 0;
-        $result = $productCategory->save();
-        if ($result) {
-            if ($productCategory->show_in_menu == 0) {
-                return response()->json(['show_in_menu' => true, 'checked' => false]);
-            } else {
-                return response()->json(['show_in_menu' => true, 'checked' => true]);
-            }
-        } else {
-            return response()->json(['show_in_menu' => false]);
         }
     }
 }

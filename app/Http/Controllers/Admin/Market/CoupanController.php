@@ -35,6 +35,11 @@ class CoupanController extends Controller
     public function store(CouponRequest $request)
     {
         $inputs = $request->validated();
+
+        if ($inputs['amount_type'] == 1) {
+            $inputs['discount_ceiling'] = null;
+        }
+
         $coupon = Coupon::create($inputs);
         if (Carbon::parse($inputs['end_date'])->isPast()) {
             $inputs['status'] = 2; // expired
@@ -68,6 +73,15 @@ class CoupanController extends Controller
     public function update(CouponRequest $request, Coupon $coupon)
     {
         $inputs = $request->validated();
+
+        if ($inputs['amount_type'] == 1) {
+            $inputs['discount_ceiling'] = null;
+        }
+
+        if ($coupon->user_id && $inputs['type'] == 0) {
+            $coupon->user_id = null;
+        }
+
         if (Carbon::parse($inputs['end_date'])->isPast()) {
             $inputs['status'] = 2; // expired
         }

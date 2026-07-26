@@ -3,12 +3,11 @@
 @section('head-tag')
     <title>Edit Post</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/themes/material_blue.css">
-
     <style>
         .select2-selection__rendered {
             font-family: "Roboto", "Helvetica Neue", Arial, sans-serif;
             color: #000000;
-            padding: 4px 8px;
+            padding: 8px 12px;
             border-radius: 6px;
             font-size: 13px;
         }
@@ -20,7 +19,6 @@
 
         .select2-results__option {
             color: #000000;
-            background-color: #389af7;
             padding: 8px 12px;
             font-size: 13px;
         }
@@ -45,6 +43,25 @@
             color: #000000;
         }
     </style>
+
+    <style>
+        .image-option {
+            cursor: pointer;
+            transition: all 0.2s ease;
+            border: 2px solid transparent;
+            border-radius: 8px;
+        }
+
+        input[type="radio"] {
+            display: none;
+        }
+
+        input[type="radio"]:checked+label img {
+            border: 3px solid #3586fe;
+            transform: scale(1.05);
+            box-shadow: 0 0 12px rgba(13, 110, 253, 0.5);
+        }
+    </style>
 @endsection
 
 @section('content')
@@ -52,9 +69,9 @@
         <nav style="background-color: #eee; height: 2.25rem" class="my-4 rounded ps-2" aria-label="breadcrumb">
             <ol class="breadcrumb p-1 ">
                 <li class="breadcrumb-item"><a href="#" style="text-decoration: none">Dashboard</a></li>
-                <li class="breadcrumb-item"><a href="#" style="text-decoration: none">content</a></li>
-                <li class="breadcrumb-item"><a href="#" style="text-decoration: none">post</a></li>
-                <li class="breadcrumb-item active">edit post</li>
+                <li class="breadcrumb-item"><a href="#" style="text-decoration: none">Content</a></li>
+                <li class="breadcrumb-item"><a href="#" style="text-decoration: none">Post</a></li>
+                <li class="breadcrumb-item active">Edit Post</li>
             </ol>
         </nav>
         <section class="main-body-container">
@@ -103,6 +120,47 @@
                             @enderror
                         </section>
 
+
+                        <section class="col-12 my-3">
+                            <div class="form-group">
+                                <label for="image">Image</label>
+                                <input type="file" class="form-control form-control-sm" name="image" id="image">
+                            </div>
+                            @error('image')
+                                <div class="text-danger" style="margin-top: 9px; font-size: 12px; font-weight: 400;">
+                                    <strong>{{ $message }}</strong>
+                                </div>
+                            @enderror
+                        </section>
+                        @if ($post->image)
+                            <section class="row mt-4">
+
+                                {{-- Cover --}}
+                                <div class="col-md-6 mb-3 mx-5">
+                                    <input type="radio" id="cover" name="currentImage" value="cover"
+                                        @checked($post->image['currentImage'] === 'cover')>
+                                    <label for="cover" class="fw-bold d-block mb-2 text-center">
+                                        <img src="{{ asset($post->image['blogArray']['cover']) }}"
+                                            class="img-fluid rounded border" style="max-height: 200px;">
+                                    </label>
+                                </div>
+
+                                {{-- Thumbnail --}}
+                                <div class="col-md-3 mb-3">
+                                    <input type="radio" id="thumb" name="currentImage" value="thumb"
+                                        @checked($post->image['currentImage'] === 'thumb')>
+                                    <label for="thumb" class="fw-bold d-block mb-2 text-center">
+                                        <img src="{{ asset($post->image['blogArray']['thumb']) }}"
+                                            class="img-fluid rounded border" style="max-height: 120px;">
+                                    </label>
+                                </div>
+
+                            </section>
+                        @endif
+
+
+
+
                         <section class="col-12 col-md-6 my-3">
                             <div class="form-group">
                                 <label for="status">Status</label>
@@ -118,38 +176,6 @@
                                     <strong>{{ $message }}</strong>
                                 </div>
                             @enderror
-                        </section>
-
-                        <section class="col-12 col-md-6 my-3">
-                            <div class="form-group">
-                                <label for="image">Image</label>
-                                <input type="file" class="form-control form-control-sm" name="image" id="image">
-                            </div>
-                            @error('image')
-                                <div class="text-danger" style="margin-top: 9px; font-size: 12px; font-weight: 400;">
-                                    <strong>{{ $message }}</strong>
-                                </div>
-                            @enderror
-                        </section>
-                        <section class="row my-2">
-                            @php
-                                $number = 2;
-                            @endphp
-                            @foreach ($post->image['indexArray'] as $key => $value)
-                                <section class="col-md-{{ 6 / $number }} mr-5">
-                                    <div class="form-check  p-1">
-                                        <input type="radio" name="currentImage" class="form-check-input"
-                                            value="{{ $key }}" id="{{ $number }}"
-                                            @if ($post->image['currentImage'] == $key) checked @endif>
-                                        <label for="{{ $number }}" class="form-check-label mx-3">
-                                            <img src="{{ asset($value) }}" class="img-fluid rounded w-100" alt="">
-                                        </label>
-                                    </div>
-                                </section>
-                                @php
-                                    $number++;
-                                @endphp
-                            @endforeach
                         </section>
 
                         <section class="col-12 col-md-6 my-3">
@@ -183,13 +209,17 @@
                             </div>
                         </section>
 
-                        <section class="col-12 my-3">
+                        <section class="col-12 col-md-6 my-3">
                             <div class="form-group">
-                                <label for="tags">Tags</label>
-                                <input type="hidden" class="form-control form-control-sm" name="tags" id="tags"
-                                    value="{{ old('tags', $post->tags) }}">
-                                <select class="select2 form-control form-control-sm myselect" id="select_tags" multiple>
-
+                                <label>Tags</label>
+                                <select class="select2 form-control form-control-sm" id="select_tags" multiple
+                                    name="tags[]">
+                                    @foreach ($tags as $tag)
+                                        <option value="{{ $tag->id }}"
+                                            @if (in_array($tag->id, old('tags', $post->tags->pluck('id')->toArray()))) selected @endif>
+                                            {{ $tag->name }}
+                                        </option>
+                                    @endforeach
                                 </select>
                             </div>
                             @error('tags')
@@ -198,6 +228,7 @@
                                 </div>
                             @enderror
                         </section>
+
 
 
                         <section class="col-12 my-3">
@@ -262,35 +293,12 @@
             });
         </script>
 
+        {{-- select 2 --}}
         <script>
-            $(document).ready(function() {
-                var tags_input = $('#tags');
-                var select_tags = $('#select_tags');
-                var default_tags = tags_input.val();
-                var default_data = null;
-
-                if (tags_input.val() !== null && tags_input.val().length > 0) {
-                    default_data = default_tags.split(',');
-                }
-
-                select_tags.select2({
-                    placeholder: "Please enter your tags",
-                    tags: true,
-                    data: default_data,
-                    language: {
-                        noResults: function() {
-                            return '';
-                        }
-                    }
-                });
-                select_tags.children('option').attr('selected', true).trigger('change');
-
-                $('#form').submit(function(event) {
-                    if (select_tags.val() !== null && select_tags.val().length > 0) {
-                        var selectedSource = select_tags.val().join(',');
-                        tags_input.val(selectedSource)
-                    }
-                })
+            var select_tags = $('#select_tags');
+            select_tags.select2({
+                placeholder: 'Please enter tags (optional)',
+                multiple: true,
             })
         </script>
     @endsection

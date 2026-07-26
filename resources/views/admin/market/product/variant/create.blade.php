@@ -78,46 +78,49 @@
                                 </p>
                             </div>
                         </section>
-
-                        <section class="col-12 col-md-6 my-3">
-                            <div class="form-group">
-                                <label>colors</label>
-                                <select class="select2 form-control form-control-sm" id="select_colors" multiple
-                                    name="colors[]">
-                                    @foreach ($colors as $color)
-                                        <option value="{{ $color->id }}"
-                                            @if (is_array(old('colors')) && in_array($color->id, old('colors'))) selected @endif>
-                                            {{ $color->name }}
-                                        </option>
-                                    @endforeach
-                                </select>
-                            </div>
-                            @error('colors')
-                                <div class="text-danger" style="margin-top: 9px; font-size: 12px; font-weight: 400;">
-                                    <strong>{{ $message }}</strong>
+                        @if ($product->has_color == 1)
+                            <section class="col-12 col-md-6 my-3">
+                                <div class="form-group">
+                                    <label>colors</label>
+                                    <select class="select2 form-control form-control-sm" id="select_colors" multiple
+                                        name="colors[]">
+                                        @foreach ($colors as $color)
+                                            <option value="{{ $color->id }}"
+                                                @if (is_array(old('colors')) && in_array($color->id, old('colors'))) selected @endif>
+                                                {{ $color->name }}
+                                            </option>
+                                        @endforeach
+                                    </select>
                                 </div>
-                            @enderror
-                        </section>
+                                @error('colors')
+                                    <div class="text-danger" style="margin-top: 9px; font-size: 12px; font-weight: 400;">
+                                        <strong>{{ $message }}</strong>
+                                    </div>
+                                @enderror
+                            </section>
+                        @endif
 
-                        <section class="col-12 col-md-6 my-3">
-                            <div class="form-group">
-                                <label>sizes</label>
-                                <select class="select2 form-control form-control-sm" id="select_sizes" multiple
-                                    name="sizes[]">
-                                    @foreach ($sizes as $size)
-                                        <option value="{{ $size->id }}"
-                                            @if (is_array(old('sizes')) && in_array($size->id, old('sizes'))) selected @endif>
-                                            {{ $size->name }}
-                                        </option>
-                                    @endforeach
-                                </select>
-                            </div>
-                            @error('sizes')
-                                <div class="text-danger" style="margin-top: 9px; font-size: 12px; font-weight: 400;">
-                                    <strong>{{ $message }}</strong>
+                        @if ($product->has_size == 1)
+                            <section class="col-12 col-md-6 my-3">
+                                <div class="form-group">
+                                    <label>sizes</label>
+                                    <select class="select2 form-control form-control-sm" id="select_sizes" multiple
+                                        name="sizes[]">
+                                        @foreach ($sizes as $size)
+                                            <option value="{{ $size->id }}"
+                                                @if (is_array(old('sizes')) && in_array($size->id, old('sizes'))) selected @endif>
+                                                {{ $size->name }}
+                                            </option>
+                                        @endforeach
+                                    </select>
                                 </div>
-                            @enderror
-                        </section>
+                                @error('sizes')
+                                    <div class="text-danger" style="margin-top: 9px; font-size: 12px; font-weight: 400;">
+                                        <strong>{{ $message }}</strong>
+                                    </div>
+                                @enderror
+                            </section>
+                        @endif
 
                         <section class="col-12 col-md-6 my-3">
                             <div class="form-group">
@@ -132,7 +135,7 @@
                             @enderror
                         </section>
 
-                     
+
 
                         <section class="col-12 my-3 d-flex justify-content-end">
                             <button class="btn btn-primary">Submit</button>
@@ -146,13 +149,13 @@
         <script>
             var select_colors = $('#select_colors');
             select_colors.select2({
-                placeholder: 'Please enter colors',
+                placeholder: 'Please enter colors (optional)',
                 multiple: true,
             })
 
             var select_sizes = $('#select_sizes');
             select_sizes.select2({
-                placeholder: 'Please enter sizes',
+                placeholder: 'Please enter sizes (optional)',
                 multiple: true,
             })
         </script>

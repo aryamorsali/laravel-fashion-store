@@ -27,9 +27,9 @@ class ProductCategoryRequest extends FormRequest
             'slug' => 'nullable|unique:product_categories,slug',
             'image' => 'nullable|image|mimes:png,jpg,jpeg,gif|max:2048',
             'status' => 'required|numeric|in:0,1',
-            'show_in_menu' => 'required|numeric|in:0,1',
             'parent_id' => 'nullable|numeric|min:1|max:100000000|exists:product_categories,id',
-            'tags' => 'required|regex:/^[ا-یa-zA-Z0-9\-۰-۹ء-ي., ]+$/u',
+            'tags' => ['nullable', 'array'],
+            'tags.*' => ['integer', 'exists:tags,id'],
         ];
     }
 }

@@ -54,29 +54,18 @@
                         </section>
                         <section class="col-12 col-md-6 my-3">
                             <div class="form-group">
-                                <label for="delivery_time">Delivery Time</label>
-                                <input type="text" class="form-control form-control-sm" name="delivery_time" id="delivery_time" placeholder="optional"
-                                    value="{{ old('delivery_time', $delivery->delivery_time) }}">
+                                <label for="delivery_days">Delivery Days</label>
+                                <input type="text" class="form-control form-control-sm" name="delivery_days" id="delivery_days" 
+                                    value="{{ old('delivery_days', $delivery->delivery_days) }}"  placeholder="Number of days it takes to ship (optional)">
                             </div>
-                            @error('delivery_time')
+                            @error('delivery_days')
                                 <div class="text-danger" style="margin-top: 9px; font-size: 12px; font-weight: 400;">
                                     <strong>{{ $message }}</strong>
                                 </div>
                             @enderror
                         </section>
-                        <section class="col-12 col-md-6 my-3">
-                            <div class="form-group">
-                                <label for="delivery_time_unit">Sending time unit</label>
-                                <input type="text" class="form-control form-control-sm" name="delivery_time_unit" id="delivery_time_unit" placeholder="optional"
-                                    value="{{ old('delivery_time_unit', $delivery->delivery_time_unit) }}">
-                            </div>
-                            @error('delivery_time_unit')
-                                <div class="text-danger" style="margin-top: 9px; font-size: 12px; font-weight: 400;">
-                                    <strong>{{ $message }}</strong>
-                                </div>
-                            @enderror
-                        </section>
-                        <section class="col-12 my-3">
+
+                        <section class="col-12  col-md-6 my-3">
                             <div class="form-group">
                                 <label for="status">Status</label>
                                 <select name="status" class="form-control form-control-sm" id="status">

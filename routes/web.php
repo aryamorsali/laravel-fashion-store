@@ -1,12 +1,14 @@
 <?php
 
 use App\Http\Controllers\Admin\AdminDashboardController;
+use App\Http\Controllers\Admin\Content\BannerController;
 use App\Http\Controllers\Admin\Content\CategoryController as ContentCategoryController;
 use App\Http\Controllers\Admin\Content\CommentController as ContentCommentController;
 use App\Http\Controllers\Admin\Content\FAQController;
-use App\Http\Controllers\Admin\Content\FaqsController;
+use App\Http\Controllers\Admin\Market\HomeBoxController;
 use App\Http\Controllers\Admin\Content\MenuController;
 use App\Http\Controllers\Admin\Content\PostController;
+use App\Http\Controllers\Admin\Content\TagController;
 use App\Http\Controllers\Admin\Market\AmazingSaleController;
 use App\Http\Controllers\Admin\Market\BrandController;
 use App\Http\Controllers\Admin\Market\CategoryController;
@@ -26,6 +28,7 @@ use App\Http\Controllers\Admin\Market\PropertyValueController;
 use App\Http\Controllers\Admin\Market\WarehouseController;
 use App\Http\Controllers\Admin\Market\WarehouseTransactionController;
 use App\Http\Controllers\Admin\Market\WarehouseVariantController;
+use App\Http\Controllers\Admin\Setting\SettingController;
 use App\Http\Controllers\Admin\Ticket\AdminTicketController;
 use App\Http\Controllers\Admin\Ticket\TicketCategoryController;
 use App\Http\Controllers\Admin\Ticket\TicketController;
@@ -34,12 +37,15 @@ use App\Http\Controllers\Admin\User\AdminUserController;
 use App\Http\Controllers\Admin\User\CustomerController;
 use App\Http\Controllers\Admin\User\PermissionController;
 use App\Http\Controllers\Admin\User\RoleController;
+use App\Http\Controllers\Customer\HomeController;
+use App\Http\Controllers\Customer\Market\ProductController as MarketProductController;
+use App\Http\Controllers\Customer\Market\ShopController;
+use App\Http\Controllers\Customer\SalesProcess\AddressController;
+use App\Http\Controllers\Customer\SalesProcess\CartController;
+use App\Http\Controllers\Customer\SalesProcess\PaymentController as SalesProcessPaymentController;
+use App\Http\Controllers\LikeController;
+use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
-
-Route::get('/', function () {
-    return view('welcome');
-});
-
 
 // admin
 Route::prefix('admin')->group(function () {
@@ -56,6 +62,17 @@ Route::prefix('admin')->group(function () {
             Route::delete('/destroy/{productCategory}', [CategoryController::class, 'destroy'])->name('admin.market.category.destroy');
             Route::get('/status/{productCategory}', [CategoryController::class, 'status'])->name('admin.market.category.status');
             Route::get('/show-in-menu/{productCategory}', [CategoryController::class, 'showInMenu'])->name('admin.market.category.show-in-menu');
+        });
+
+        // home boxes
+        Route::prefix('home-box')->group(function () {
+            Route::get('/', [HomeBoxController::class, 'index'])->name('admin.market.home-box.index');
+            Route::get('/create', [HomeBoxController::class, 'create'])->name('admin.market.home-box.create');
+            Route::post('/store', [HomeBoxController::class, 'store'])->name('admin.market.home-box.store');
+            Route::get('/edit/{homeBox}', [HomeBoxController::class, 'edit'])->name('admin.market.home-box.edit');
+            Route::put('/update/{homeBox}', [HomeBoxController::class, 'update'])->name('admin.market.home-box.update');
+            Route::delete('/destroy/{homeBox}', [HomeBoxController::class, 'destroy'])->name('admin.market.home-box.destroy');
+            Route::get('/status/{homeBox}', [HomeBoxController::class, 'status'])->name('admin.market.home-box.status');
         });
 
         // brands
@@ -139,7 +156,6 @@ Route::prefix('admin')->group(function () {
             Route::get('/', [CommentController::class, 'index'])->name('admin.market.comment.index');
             Route::get('/show/{comment}', [CommentController::class, 'show'])->name('admin.market.comment.show');
             Route::delete('/destroy/{comment}', [CommentController::class, 'destroy'])->name('admin.market.comment.destroy');
-            Route::get('/status/{comment}', [CommentController::class, 'status'])->name('admin.market.comment.status');
             Route::get('/approved/{comment}', [CommentController::class, 'approved'])->name('admin.market.comment.approved');
             Route::post('/answer/{comment}', [CommentController::class, 'answer'])->name('admin.market.comment.answer');
         });
@@ -351,6 +367,16 @@ Route::prefix('admin')->group(function () {
             Route::get('/commentable/{post}', [PostController::class, 'commentable'])->name('admin.content.post.commentable');
         });
 
+        //tags
+        Route::prefix('tag')->group(function () {
+            Route::get('/', [TagController::class, 'index'])->name('admin.content.tag.index');
+            Route::get('/create', [TagController::class, 'create'])->name('admin.content.tag.create');
+            Route::post('/store', [TagController::class, 'store'])->name('admin.content.tag.store');
+            Route::get('/edit/{tag}', [TagController::class, 'edit'])->name('admin.content.tag.edit');
+            Route::put('/update/{tag}', [TagController::class, 'update'])->name('admin.content.tag.update');
+            Route::delete('/destroy/{tag}', [TagController::class, 'destroy'])->name('admin.content.tag.destroy');
+        });
+
 
         //menu
         Route::prefix('menu')->group(function () {
@@ -383,5 +409,83 @@ Route::prefix('admin')->group(function () {
             Route::get('/approved/{comment}', [ContentCommentController::class, 'approved'])->name('admin.content.comment.approved');
             Route::post('/answer/{comment}', [ContentCommentController::class, 'answer'])->name('admin.content.comment.answer');
         });
+        // banner
+        Route::prefix('banner')->group(function () {
+            Route::get('/', [BannerController::class, 'index'])->name('admin.content.banner.index');
+            Route::get('/create', [BannerController::class, 'create'])->name('admin.content.banner.create');
+            Route::post('/store', [BannerController::class, 'store'])->name('admin.content.banner.store');
+            Route::get('/edit/{banner}', [BannerController::class, 'edit'])->name('admin.content.banner.edit');
+            Route::put('/update/{banner}', [BannerController::class, 'update'])->name('admin.content.banner.update');
+            Route::delete('/destroy/{banner}', [BannerController::class, 'destroy'])->name('admin.content.banner.destroy');
+            Route::get('/status/{banner}', [BannerController::class, 'status'])->name('admin.content.banner.status');
+        });
+    });
+
+    // settings
+    Route::prefix('settings')->group(function () {
+        Route::get('/', [SettingController::class, 'index'])->name('admin.setting.index');
+        Route::get('/edit/{setting}', [SettingController::class, 'edit'])->name('admin.setting.edit');
+        Route::put('/update/{setting}', [SettingController::class, 'update'])->name('admin.setting.update');
+        Route::get('/status/{setting}', [SettingController::class, 'status'])->name('admin.setting.status');
     });
 });
+
+// Route::get('/dashboard', function () {
+//     return view('dashboard');
+// })->middleware(['auth', 'verified'])->name('dashboard');
+
+Route::middleware('auth')->group(function () {
+    Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
+    Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
+    Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+});
+
+require __DIR__ . '/auth.php';
+
+
+
+// -------------------------------------------------------------------------
+// view shop
+Route::get('/', [HomeController::class, 'home'])->name('customer.home');
+Route::get('/shop/{category:slug?}', [ShopController::class, 'shop'])->name('customer.market.shop');
+
+
+// product detail
+Route::prefix('/product')->group(function () {
+    Route::get('/{product:slug}', [MarketProductController::class, 'product'])->name('customer.market.product');
+    Route::post('/{product:slug}/add-comment', [MarketProductController::class, 'addComment'])->name('customer.market.add-comment')->middleware(['auth', 'throttle:add-comment']);
+});
+
+// sales process
+Route::namespace('SalesProcess')->group(function () {
+    Route::middleware('auth')->group(function () {
+        
+        //cart
+        Route::get('/shoping-cart', [CartController::class, 'shopingCart'])->name('customer.sales-process.shoping-cart');
+        Route::post('/add-to-cart', [CartController::class, 'addToCart'])->name('customer.sales-process.add-to-cart')->middleware('throttle:cart');
+        Route::get('/remove-from-cart/{cartItem}', [CartController::class, 'removeFromCart'])->name('customer.sales-process.remove-from-cart')->middleware('throttle:cart');
+        Route::post('/shoping-cart/update', [CartController::class, 'updateCart'])->name('customer.sales-process.update-shoping-cart');
+        Route::post('/shoping-cart/coupon', [CartController::class, 'coupon'])->name('customer.sales-process.coupon')->middleware('throttle:coupon');
+        Route::get('/update-header-cart', [CartController::class, 'updateHeaderCart'])->name('customer.sales-process.update-header-cart');
+
+        //address
+        Route::get('/address-and-delivery', [AddressController::class, 'addressAndDelivery'])->name('customer.sales-process.address-and-delivery');
+        Route::post('/store-address', [AddressController::class, 'storeAddress'])->name('customer.sales-process.store-address')->middleware('throttle:address');
+        Route::put('/update-address/{address}', [AddressController::class, 'updateAddress'])->name('customer.sales-process.update-address')->middleware('throttle:address');
+        Route::get('/provinces/{province}/cities', [AddressController::class, 'getCities']);
+
+        // payment
+        Route::post('/payment', [SalesProcessPaymentController::class, 'payment'])->name('customer.sales-process.payment')->middleware('throttle:payment');
+    });
+
+    Route::get('/payment-callback/{order}/{payment}', [SalesProcessPaymentController::class, 'paymentCallBack'])->name('customer.sales-process.payment-call-back');
+});
+
+
+// like
+Route::post('/like/{type}/{id}', [LikeController::class, 'toggle'])->name('like.toggle')->middleware(['auth', 'throttle:like',]);
+
+// content
+Route::view('/about', 'customer.pages.about')->name('customer.about');
+Route::view('/contact', 'customer.pages.contact')->name('customer.contact');
+Route::view('/blog', 'customer.pages.blog')->name('customer.blog');

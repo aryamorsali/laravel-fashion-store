@@ -215,4 +215,17 @@
                 }).trigger('change'); // برای مقدار اولیه
             });
         </script>
+        <script>
+            // قفل کردن اینپوت سقف تخفیف اگر نوع عددی بود
+            document.getElementById('amount_type').addEventListener('change', function() {
+                let ceilingInput = document.getElementById('discount_ceiling');
+
+                if (this.value == '1') { // Fixed
+                    ceilingInput.disabled = true;
+                    ceilingInput.value = '';
+                } else {
+                    ceilingInput.disabled = false;
+                }
+            });
+        </script>
     @endsection

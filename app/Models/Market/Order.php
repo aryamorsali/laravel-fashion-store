@@ -13,6 +13,13 @@ class Order extends Model
 
     protected $guarded = ['id'];
 
+    protected $casts = [
+        'address_snapshot' => 'array',
+        'delivery_snapshot' => 'array',
+        'coupon_snapshot' => 'array',
+        'common_discount_snapshot' => 'array',
+    ];
+
     public function payments()
     {
         return $this->hasMany(Payment::class);

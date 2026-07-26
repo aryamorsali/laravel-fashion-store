@@ -53,7 +53,14 @@
                                 <td>{{ Str::limit(strip_tags($postCategory->description), 20) }}</td>
                                 <td>{{ $postCategory->slug }}</td>
                                 <td>{{ $postCategory->name }}</td>
-                                <td>{{ $postCategory->tags }}</td>
+                                <td>
+                                    @if ($postCategory->tags->isEmpty())
+                                        <span class="text-danger">No tag</span>
+                                    @else
+                                        {{ $postCategory->tags->pluck('name')->join(', ') }}
+                                    @endif
+                                </td>
+
                                 <td>
                                     <label>
                                         <input id="{{ $postCategory->id }}" onchange="changeStatus({{ $postCategory->id }})"

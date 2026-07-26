@@ -12,8 +12,8 @@ class AmazingSale extends Model
 
     protected $guarded = ['id'];
 
-    public function product()
+    public function productVariant()
     {
-        return $this->belongsTo(Product::class);
+        return $this->belongsTo(ProductVariant::class);
     }
 }

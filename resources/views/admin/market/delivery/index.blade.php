@@ -37,8 +37,7 @@
                             <th scope="col">#</th>
                             <th>Delivery Method</th>
                             <th>Delivery Cost</th>
-                            <th>Time</th>
-                            <th>Time Unit</th>
+                            <th>Delivery Time</th>
                             <th>Status</th>
                             <th class="max-width-16-rem text-center"><i class="fa fa-cogs"></i> Action</th>
                         </tr>
@@ -50,21 +49,26 @@
                                 <th scope="row">{{ $loop->iteration }}</th>
                                 <td>{{ $delivery->name }}</td>
                                 <td>{{ number_format($delivery->delivery_cost) }}</td>
-                                <td>{{ $delivery->delivery_time }}</td>
-                                <td>{{ $delivery->delivery_time_unit }}</td>
+                                <td>
+                                    @if ($delivery->delivery_days)
+                                        {{ $delivery->delivery_days }} days
+                                    @else
+                                        -
+                                    @endif
+                                </td>
                                 <td>
                                     <label>
                                         <input id="{{ $delivery->id }}" onchange="changeStatus({{ $delivery->id }})"
-                                            data-url="{{ route('admin.market.delivery.status', $delivery->id) }}" type="checkbox"
-                                            @if ($delivery->status === 1) checked @endif>
+                                            data-url="{{ route('admin.market.delivery.status', $delivery->id) }}"
+                                            type="checkbox" @if ($delivery->status === 1) checked @endif>
                                     </label>
                                 </td>
                                 <td class="width-16-rem text-center">
                                     <a href="{{ route('admin.market.delivery.edit', $delivery->id) }}"
                                         class="btn btn-primary btn-sm width-6-rem mi"><i class="fa fa-edit"></i>
                                         Edit</a>
-                                    <form class="d-inline" action="{{ route('admin.market.delivery.destroy', $delivery->id) }}"
-                                        method="post">
+                                    <form class="d-inline"
+                                        action="{{ route('admin.market.delivery.destroy', $delivery->id) }}" method="post">
                                         @csrf
                                         @method('delete')
                                         <button class="btn btn-danger btn-sm width-6-rem mi delete" type="submit"><i

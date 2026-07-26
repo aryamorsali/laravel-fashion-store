@@ -10,24 +10,31 @@ class OrderItem extends Model
 {
         use HasFactory, SoftDeletes;
 
-        public function singleProduct()
-        {
-                return $this->belongsTo(Product::class, 'product_id');
-        }
+        protected $guarded = ['id'];
+
+        protected $casts = [
+                'product_snapshot' => 'array',
+                'amazing_sale_snapshot' => 'array',
+        ];
 
         public function amazingSale()
         {
                 return $this->belongsTo(AmazingSale::class);
         }
 
-        public function color()
+        public function order()
         {
-                return $this->belongsTo(ProductColor::class);
+                return $this->belongsTo(Order::class);
         }
 
 
-        public function size()
+        public function productVariant()
         {
-                return $this->belongsTo(ProductSize::class);
+                return $this->belongsTo(ProductVariant::class);
+        }
+
+        public function allocations()
+        {
+                return $this->hasMany(InventoryAllocation::class);
         }
 }

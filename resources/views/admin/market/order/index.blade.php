@@ -1,7 +1,8 @@
 @extends('admin.layouts.master2')
 
 @section('head-tag')
-    <title>Orders</title>
+    <title>
+        Orders</title>
     <style>
         table th {
             font-size: 13.5px;
@@ -39,10 +40,10 @@
                         <tr>
                             <th scope="col">#</th>
                             <th>Order code</th>
-                            <th>Total order amount (without discount)</th>
+                            <th>Total order amount (without discount + delivery cost)</th>
                             <th>Total of all discounts</th>
                             <th>Discount amount (all products)</th>
-                            <th>Final amount</th>
+                            <th>Payable amount</th>
                             <th>Payment status</th>
                             <th>bank</th>
                             <th>Shipping status</th>
@@ -56,16 +57,38 @@
                         @foreach ($orders as $order)
                             <tr>
                                 <th scope="row">{{ $loop->iteration }}</th>
-                                <td>{{ $order->id }}</td>
-                                <td>{{ number_format($order->order_final_amount) }}</td>
-                                <td>{{ number_format($order->order_discount_amount) }}</td>
-                                <td>{{ number_format($order->order_total_products_discount_amount) }}</td>
-                                <td>{{ number_format($order->order_final_amount - $order->order_discount_amount) }}</td>
-                                <td>{{ $order->payment_status }}</td>
+                                <td>${{ $order->id }}</td>
+                                <td>${{ number_format($order->order_final_amount + ($order->order_discount_amount ?? 0), 2) }}
+                                </td>
+                                <td>${{ number_format($order->order_discount_amount, 2) }}</td>
+                                <td>${{ number_format($order->order_total_products_discount_amount, 2) }}</td>
+                                <td><span class="text-success">{{ number_format($order->order_final_amount, 2) }}</span>
+                                </td>
+                                <td>
+                                    @switch($order->payment_status)
+                                        @case('paid')
+                                            <span class="text-success">{{ $order->payment_status }}</span>
+                                        @break
+
+                                        @case('unpaid')
+                                            <span class="text-danger">{{ $order->payment_status }}</span>
+                                        @break
+
+                                        @case('failed')
+                                            <span class="text-warning">{{ $order->payment_status }}</span>
+                                        @break
+
+                                        @case('returned')
+                                            <span class="text-danger">{{ $order->payment_status }}</span>
+                                        @break
+
+                                        @default
+                                    @endswitch
+                                </td>
                                 <td>{{ $order->payments->where('status', 'paid')->last()->gateway ?? '-' }}</td>
                                 <td>{{ $order->delivery_status }}</td>
 
-                                <td>{{ $order->delivery->name }}</td>
+                                <td>{{ $order->delivery->name ?? '-' }}</td>
                                 <td>{{ $order->order_status_value }}</td>
 
                                 <td class="width-14-rem text-center">

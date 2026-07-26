@@ -13,7 +13,7 @@ class Comment extends Model
 
     protected $guarded = ['id'];
 
-    protected $fillable = ['body', 'parent_id', 'author_id', 'commentable_id', 'status', 'commentable_type', 'approved'];
+    protected $fillable = ['body', 'rating', 'parent_id', 'author_id', 'commentable_id', 'status', 'commentable_type', 'approved'];
 
     public function commentable()
     {

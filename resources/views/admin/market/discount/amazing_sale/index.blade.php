@@ -25,8 +25,7 @@
                 <div class="me-auto" style="max-width: 16rem;">
                     <input type="text" class="form-control form-control-sm form-text" placeholder="search..">
                 </div>
-                <a href="{{ route('admin.market.discount.amazingSale.create') }}"
-                    class="btn btn-dark btn-sm my-btn ">Add
+                <a href="{{ route('admin.market.discount.amazingSale.create') }}" class="btn btn-dark btn-sm my-btn ">Add
                     Product to Amazing Sale List</a>
             </section>
 
@@ -49,22 +48,33 @@
                         @foreach ($amazingSales as $amazingSale)
                             <tr>
                                 <th scope="row">{{ $loop->iteration }}</th>
-                                <td>{{ $amazingSale->product->name }}</td>
+                                <td>
+                                    <strong>{{ $amazingSale->productVariant?->product?->name }}</strong>
+                                    <div class="small text-muted">
+                                        Color: {{ $amazingSale->productVariant?->color?->name ?? '—' }},
+                                        Size:
+                                        @if ($amazingSale->productVariant?->size)
+                                            {{ $amazingSale->productVariant->size->name }}
+                                        @else
+                                            <span class="text-danger">no size</span>
+                                        @endif
+                                        ,
+                                        Price: ${{ rtrim(rtrim(number_format($amazingSale->productVariant?->price, 2), '0'), '.') }},
+                                        Stock: {{ $amazingSale->productVariant?->availableStock() ?? '—' }},
+                                    </div>
+                                </td>
+
                                 <td>{{ $amazingSale->percentage }}%</td>
                                 <td>{{ $amazingSale->start_date }}</td>
                                 <td>{{ $amazingSale->end_date }}</td>
                                 <td>
-                                    @switch($amazingSale->status)
+                                    @switch($amazingSale->is_active)
                                         @case(0)
-                                            inactive
+                                            <span class="text-danger">inactive</span>
                                         @break
 
                                         @case(1)
-                                            active
-                                        @break
-
-                                        @case(2)
-                                            expired
+                                            <span class="text-success">active</span>
                                         @break
                                     @endswitch
                                 </td>

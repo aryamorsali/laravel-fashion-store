@@ -25,7 +25,8 @@
                 <div class="me-auto" style="max-width: 16rem;">
                     <input type="text" class="form-control form-control-sm form-text" placeholder="search..">
                 </div>
-                <a href="{{ route('admin.market.discount.common_discount.create') }}" class="btn btn-dark btn-sm my-btn ">Create new
+                <a href="{{ route('admin.market.discount.common_discount.create') }}"
+                    class="btn btn-dark btn-sm my-btn ">Create new
                     common discount</a>
             </section>
 
@@ -36,6 +37,7 @@
                         <tr>
                             <th scope="col">#</th>
                             <th scope="col">Discount percentage</th>
+                            <th scope="col">Minimum purchase</th>
                             <th scope="col">Discount ceiling</th>
                             <th scope="col">Occasion title</th>
                             <th scope="col">Start date</th>
@@ -50,22 +52,41 @@
                             <tr>
                                 <th scope="row">{{ $loop->iteration }}</th>
                                 <td>{{ $common_discount->percentage }}%</td>
-                                <td>{{ $common_discount->discount_ceiling ?? '-' }}</td>
+                                <td>
+                                    @if ($common_discount->minimal_order_amount)
+                                        ${{ $common_discount->minimal_order_amount ?? '-' }}
+                                    @else-
+                                    @endif
+                                </td>
+                                <td>
+                                    @if ($common_discount->discount_ceiling)
+                                        ${{ $common_discount->discount_ceiling ?? '-' }}
+                                    @else-
+                                    @endif
+                                </td>
                                 <td>{{ $common_discount->title }}</td>
                                 <td>{{ $common_discount->start_date }}</td>
                                 <td>{{ $common_discount->end_date }}</td>
                                 <td>
                                     @switch($common_discount->status)
                                         @case(0)
-                                            inactive
+                                            <span class="text-warning">
+                                                inactive
+                                            </span>
                                         @break
 
                                         @case(1)
-                                            active
+                                            <span class="text-success">
+                                                active
+
+                                            </span>
                                         @break
 
                                         @case(2)
-                                            expired
+                                            <span class="text-danger">
+                                                expired
+
+                                            </span>
                                         @break
                                     @endswitch
                                 </td>

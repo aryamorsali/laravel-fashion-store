@@ -31,7 +31,7 @@ class ProductSizeController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'name' => 'required|max:120|min:2|regex:/^[ا-یa-zA-Z0-9\-۰-۹ء-ي., ]+$/u',
+            'name' => 'required|max:120|min:1|regex:/^[ا-یa-zA-Z0-9\-۰-۹ء-ي., ]+$/u',
             'type' => 'nullable|max:150|regex:/^[ا-یa-zA-Z0-9\-۰-۹ء-ي., ]+$/u',
         ]);
 

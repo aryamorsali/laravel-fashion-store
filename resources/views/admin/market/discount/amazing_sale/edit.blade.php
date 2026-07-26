@@ -29,27 +29,15 @@
                     @method('put')
                     <section class="row">
 
-                        <section class="col-12 col-md-6 my-3">
-                            <div class="form-group">
-                                <label for="product_id">Product selection</label>
-                                <select name="product_id" id="product_id" class="form-control form-control-sm">
-                                    <option value="">Select the product</option>
-                                    @foreach ($products as $product)
-                                        <option value="{{ $product->id }}"
-                                            @if (old('product_id', $amazingSale->product_id) == $product->id) selected @endif>
-                                            {{ $product->name }}
-                                        </option>
-                                    @endforeach
-                                </select>
-                            </div>
-                            @error('product_id')
-                                <div class="text-danger" style="margin-top: 9px; font-size: 12px; font-weight: 400;">
-                                    <strong>{{ $message }}</strong>
-                                </div>
-                            @enderror
-                        </section>
+                        <div class="form-group">
+                            <label>Product Variant</label>
+                            <input type="text" class="form-control" disabled
+                                value="{{ $amazingSale->productVariant->product->name }} - {{ $amazingSale->productVariant->color?->name }} / {{ $amazingSale->productVariant->size?->name }}">
+                        </div>
 
-                        <section class="col-12 col-md-6 my-3">
+
+
+                        <section class="col-12 my-3">
                             <div class="form-group">
                                 <label for="percentage">Discount percentage</label>
                                 <input type="text" class="form-control form-control-sm" name="percentage" id="percentage"
@@ -90,16 +78,15 @@
 
                         <section class="col-12 my-3">
                             <div class="form-group">
-                                <label for="status">Status</label>
-                                <select name="status" class="form-control form-control-sm" id="status">
-                                    <option value="0" @if (old('status', $amazingSale->status) == 0) selected @endif>inactive
+                                <label for="is_active">Status</label>
+                                <select name="is_active" class="form-control form-control-sm" id="is_active">
+                                    <option value="0" @if (old('is_active', $amazingSale->is_active) == 0) selected @endif>inactive
                                     </option>
-                                    <option value="1" @if (old('status', $amazingSale->status) == 1 && $amazingSale->end_date && now() <= $amazingSale->end_date) selected @endif>active</option>
-                                    <option value="2" @if (now() > $amazingSale->end_date) selected @endif>expired
+                                    <option value="1" @if (old('is_active', $amazingSale->is_active) == 1) selected @endif>active</option>
                                     </option>
                                 </select>
                             </div>
-                            @error('status')
+                            @error('is_active')
                                 <div class="text-danger" style="margin-top: 9px; font-size: 12px; font-weight: 400;">
                                     <strong>{{ $message }}</strong>
                                 </div>
@@ -133,6 +120,40 @@
                 dateFormat: "Y-m-d H:i",
                 altInput: true,
                 altFormat: "F j, Y H:i",
+            });
+        </script>
+
+        <script>
+            const productSelect = document.getElementById('product_id');
+            const wrappers = document.querySelectorAll('.variants-wrapper');
+
+            function toggleVariants(productId) {
+                wrappers.forEach(w => {
+                    w.classList.toggle(
+                        'd-none',
+                        w.dataset.productId !== productId
+                    );
+                });
+            }
+
+            // on load (edit / old)
+            if (productSelect.value) {
+                toggleVariants(productSelect.value);
+            }
+
+            // on change
+            productSelect.addEventListener('change', e => {
+                toggleVariants(e.target.value);
+            });
+
+            // select all
+            document.querySelectorAll('.select-all').forEach(selectAll => {
+                selectAll.addEventListener('change', function() {
+                    const card = this.closest('.variants-wrapper');
+                    card.querySelectorAll(
+                        'input[name="product_variant_ids[]"]'
+                    ).forEach(cb => cb.checked = this.checked);
+                });
             });
         </script>
     @endsection
