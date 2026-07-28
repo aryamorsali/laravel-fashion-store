@@ -21,9 +21,12 @@
                 <a href="{{ route('admin.user.admin.index') }}" class="btn btn-dark btn-sm">Back</a>
             </section>
 
+            @include('admin.alerts.alert-section.success')
+            @include('admin.alerts.alert-section.error')
+
             <section>
-                <form action="{{ route('admin.user.admin.update', $admin) }}" method="post"
-                    enctype="multipart/form-data" id="form">
+                <form action="{{ route('admin.user.admin.update', $admin) }}" method="post" enctype="multipart/form-data"
+                    id="form">
                     @csrf
                     @method('put')
                     <section class="row">

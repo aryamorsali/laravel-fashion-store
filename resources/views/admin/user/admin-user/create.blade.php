@@ -22,6 +22,9 @@
                 <a href="{{ route('admin.user.admin.index') }}" class="btn btn-dark btn-sm">Back</a>
             </section>
 
+            @include('admin.alerts.alert-section.success')
+            @include('admin.alerts.alert-section.error')
+
             <section>
                 <form action="{{ route('admin.user.admin.store') }}" method="post" enctype="multipart/form-data"
                     id="form">
@@ -108,7 +111,8 @@
                         <section class="col-12 col-md-6 my-3">
                             <div class="form-group">
                                 <label for="profile_photo_path">Image</label>
-                                <input type="file" class="form-control form-control-sm" name="profile_photo_path" id="profile_photo_path">
+                                <input type="file" class="form-control form-control-sm" name="profile_photo_path"
+                                    id="profile_photo_path">
                             </div>
                             @error('profile_photo_path')
                                 <div class="text-danger" style="margin-top: 9px; font-size: 12px; font-weight: 400;">

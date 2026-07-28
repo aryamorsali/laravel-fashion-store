@@ -272,6 +272,10 @@ Route::prefix('admin')->group(function () {
             Route::get('/edit/{admin}', [AdminUserController::class, 'edit'])->name('admin.user.admin.edit');
             Route::put('/update/{admin}', [AdminUserController::class, 'update'])->name('admin.user.admin.update');
             Route::delete('/destroy/{admin}', [AdminUserController::class, 'destroy'])->name('admin.user.admin.destroy');
+
+            Route::get('/add-admin', [AdminUserController::class, 'addAdmin'])->name('admin.user.admin.add');
+            Route::post('/add-admin', [AdminUserController::class, 'storeAddAdmin'])->name('admin.user.admin.add.store');
+
             Route::get('/activation/{admin}', [AdminUserController::class, 'activation'])->name('admin.user.admin.activation');
             Route::get('/role/{admin}', [AdminUserController::class, 'role'])->name('admin.user.admin.role');
             Route::post('/role/{admin}/store', [AdminUserController::class, 'roleStore'])->name('admin.user.admin.role.store');

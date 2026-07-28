@@ -23,10 +23,24 @@
 
             <section class="d-flex align-items-center mt-4 mb-3 border-bottom pb-2">
                 <div class="me-auto" style="max-width: 16rem;">
-                    <input type="text" class="form-control form-control-sm form-text" placeholder="search..">
+                    {{-- // search --}}
+                    <form class="d-flex align-items-center" action="{{ route('admin.user.admin.index') }}" method="GET">
+
+                        <input type="text" name="search" value="{{ request('search') }}"
+                            class="form-control form-control-sm" style="margin-right: 5px" placeholder="search..">
+
+                        <button type="submit" class="btn btn-sm btn-secondary">
+                            <i class="fa fa-search"></i>
+                        </button>
+
+                    </form>
+
                 </div>
-                <a href="{{ route('admin.user.admin.create') }}" class="btn btn-dark btn-sm my-btn ">Create new
+                <a href="{{ route('admin.user.admin.add') }}" class="btn btn-primary btn-sm" style="margin-right: 4px">Add
                     admin</a>
+
+                <a href="{{ route('admin.user.admin.create') }}" class="btn btn-dark btn-sm">Create new admin</a>
+
             </section>
 
 
@@ -53,7 +67,9 @@
                                 <td>{{ $admin->mobile }}</td>
                                 <td>{{ $admin->email }}</td>
                                 <td>
-                                    @if ($admin->roles->isEmpty())
+                                    @if ($admin->is_owner)
+                                        <span class="text-success">Site owner</span>
+                                    @elseif($admin->roles->isEmpty())
                                         <span class="text-danger">No role found.</span>
                                     @else
                                         @foreach ($admin->roles as $index => $role)
@@ -62,7 +78,9 @@
                                     @endif
                                 </td>
                                 <td>
-                                    @if ($admin->permissions->isEmpty())
+                                    @if ($admin->is_owner)
+                                        <span class="text-success">Full discretion</span>
+                                    @elseif($admin->permissions->isEmpty())
                                         <span class="text-danger">No permissions found.</span>
                                     @else
                                         @foreach ($admin->permissions as $index => $permission)
@@ -71,56 +89,66 @@
                                     @endif
                                 </td>
                                 <td>
-                                    <label>
-                                        <input id="{{ $admin->id }}" onchange="changeStatus({{ $admin->id }})"
-                                            data-url="{{ route('admin.user.admin.activation', $admin->id) }}"
-                                            type="checkbox" @if ($admin->activation === 1) checked @endif>
-                                    </label>
+                                    @if ($admin->is_owner)
+                                        <span class="text-success">Active</span>
+                                    @else
+                                        <label>
+                                            <input id="{{ $admin->id }}" onchange="changeStatus({{ $admin->id }})"
+                                                data-url="{{ route('admin.user.admin.activation', $admin->id) }}"
+                                                type="checkbox" @if ($admin->activation === 1) checked @endif>
+                                        </label>
+                                    @endif
+                                </td>
+
                                 <td class="width-14-rem text-center">
-                                    <div class="dropdown">
-                                        <a href="#" class="btn btn-success btn-sm btn-block dropdown-toggle"
-                                            role="button" id="dropdownMenuLink" data-bs-toggle="dropdown"
-                                            aria-expanded="false">
-                                            <i class="fa fa-tools"></i> Operation
-                                        </a>
+                                    @if ($admin->is_owner)
+                                        -
+                                    @else
+                                        <div class="dropdown">
+                                            <a href="#" class="btn btn-success btn-sm btn-block dropdown-toggle"
+                                                role="button" id="dropdownMenuLink" data-bs-toggle="dropdown"
+                                                aria-expanded="false">
+                                                <i class="fa fa-tools"></i> Operation
+                                            </a>
 
-                                        <ul class="dropdown-menu" aria-labelledby="dropdownMenuLink">
-                                            <li>
-                                                <a href="{{ route('admin.user.admin.edit', $admin->id) }}"
-                                                    class="dropdown-item text-right"><i class="fa fa-edit"></i>
-                                                    Edit</a>
-                                            </li>
-                                            <li>
-                                                <form class="d-inline"
-                                                    action="{{ route('admin.user.admin.destroy', $admin->id) }}"
-                                                    method="post">
-                                                    @csrf
-                                                    @method('delete')
-                                                    <button class="dropdown-item text-right delete"
-                                                        type="submit"><i class="fa fa-trash-alt"></i> Delete</button>
-                                                </form>
-                                            </li>
+                                            <ul class="dropdown-menu" aria-labelledby="dropdownMenuLink">
+                                                <li>
+                                                    <a href="{{ route('admin.user.admin.edit', $admin->id) }}"
+                                                        class="dropdown-item text-right"><i class="fa fa-edit"></i>
+                                                        Edit</a>
+                                                </li>
+                                                <li>
+                                                    <form class="d-inline"
+                                                        action="{{ route('admin.user.admin.destroy', $admin->id) }}"
+                                                        method="post">
+                                                        @csrf
+                                                        @method('delete')
+                                                        <button class="dropdown-item text-right delete" type="submit"><i
+                                                                class="fa fa-trash-alt"></i> Delete</button>
+                                                    </form>
+                                                </li>
 
-                                            <li>
-                                                <a href="{{ route('admin.user.admin.role', $admin) }}"
-                                                    class="dropdown-item text-right">
-                                                    <i class="fa-solid fa-user-tag"></i> Roles
-                                                </a>
-                                            </li>
-                                            <li>
-                                                <a href="{{ route('admin.user.admin.permission', $admin) }}"
-                                                    class="dropdown-item text-right">
-                                                    <i class="fa-solid fa-key"></i> Permissions
-                                                </a>
-                                            </li>
-                                            <li>
-                                                <a href="{{ route('admin.user.admin.revokeAdmin', $admin) }}"
-                                                    class="dropdown-item text-right">
-                                                    <i class="fa-solid fa-user-slash"></i> Revoke Admin
-                                                </a>
-                                            </li>
-                                        </ul>
-                                    </div>
+                                                <li>
+                                                    <a href="{{ route('admin.user.admin.role', $admin) }}"
+                                                        class="dropdown-item text-right">
+                                                        <i class="fa-solid fa-user-tag"></i> Roles
+                                                    </a>
+                                                </li>
+                                                <li>
+                                                    <a href="{{ route('admin.user.admin.permission', $admin) }}"
+                                                        class="dropdown-item text-right">
+                                                        <i class="fa-solid fa-key"></i> Permissions
+                                                    </a>
+                                                </li>
+                                                <li>
+                                                    <a href="{{ route('admin.user.admin.revokeAdmin', $admin) }}"
+                                                        class="dropdown-item text-right">
+                                                        <i class="fa-solid fa-user-slash"></i> Revoke Admin
+                                                    </a>
+                                                </li>
+                                            </ul>
+                                        </div>
+                                    @endif
 
                                 </td>
                             </tr>
@@ -132,6 +160,7 @@
                     {{ $admins->onEachSide(1)->links('vendor.pagination.custom') }}
                 </div>
             </section>
+
         </section>
 
     </section>

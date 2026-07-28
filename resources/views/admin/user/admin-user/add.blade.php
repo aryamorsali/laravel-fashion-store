@@ -1,7 +1,7 @@
 @extends('admin.layouts.master2')
 
 @section('head-tag')
-    <title>Create Admin Access</title>
+    <title>Add Admin</title>
     <style>
         .select2-selection__rendered {
             font-family: "Roboto", "Helvetica Neue", Arial, sans-serif;
@@ -50,12 +50,12 @@
             <ol class="breadcrumb p-1 ">
                 <li class="breadcrumb-item"><a href="#" style="text-decoration: none">Dashboard</a></li>
                 <li class="breadcrumb-item"><a href="#" style="text-decoration: none">Users</a></li>
-                <li class="breadcrumb-item active">Create Admin Access</li>
+                <li class="breadcrumb-item active">Add Admin</li>
             </ol>
         </nav>
         <section class="main-body-container">
             <section>
-                <h3 class="mt-2">Create Admin Access</h3>
+                <h3 class="mt-2">Add Admin</h3>
             </section>
             <section class="d-flex justify-content-between align-items-center mt-3 mb-3 border-bottom pb-3">
                 <a href="{{ route('admin.user.admin.index') }}" class="btn btn-dark btn-sm">Back</a>
@@ -65,25 +65,42 @@
             @include('admin.alerts.alert-section.error')
 
             <section>
-                <form action="{{ route('admin.user.admin.permission.store', $admin) }}" method="post"
-                    enctype="multipart/form-data" id="form">
+                <form action="{{ route('admin.user.admin.add.store') }}" method="post" enctype="multipart/form-data"
+                    id="form">
                     @csrf
                     <section class="row">
 
                         <section class="col-12 my-3">
                             <div class="form-group">
-                                <label for="tags">Permissions</label>
-                                <select class="select2 form-control form-control-sm" id="select_permissions" multiple
-                                    name="permissions[]">
-                                    @foreach ($permissions as $permission)
-                                        <option value="{{ $permission->id }}"
-                                            @foreach ($admin->permissions as $user_permission)
-                                                  @if ($user_permission->id === $permission->id) selected  @endif @endforeach>
-                                            {{ $permission->name }}</option>
+                                <label for="users">Users</label>
+                                <select class="select2 form-control form-control-sm" id="select_users" multiple
+                                    name="users[]">
+                                    @foreach ($users as $user)
+                                        <option value="{{ $user->id }}">
+                                            {{ $user->full_name ?? '-' }}
+                                        </option>
                                     @endforeach
                                 </select>
                             </div>
-                            @error('permissions')
+                            @error('users')
+                                <div class="text-danger" style="margin-top: 9px; font-size: 12px; font-weight: 400;">
+                                    <strong>{{ $message }}</strong>
+                                </div>
+                            @enderror
+                        </section>
+
+                        <section class="col-12 my-3">
+                            <div class="form-group">
+                                <label for="tags">Roles</label>
+                                <select class="select2 form-control form-control-sm" id="select_roles" multiple
+                                    name="roles[]">
+                                    @foreach ($roles as $role)
+                                        <option value="{{ $role->id }}">
+                                            {{ $role->name }}</option>
+                                    @endforeach
+                                </select>
+                            </div>
+                            @error('roles')
                                 <div class="text-danger" style="margin-top: 9px; font-size: 12px; font-weight: 400;">
                                     <strong>{{ $message }}</strong>
                                 </div>
@@ -101,9 +118,17 @@
     @endsection
     @section('script')
         <script>
-            var select_permissions = $('#select_permissions');
-            select_permissions.select2({
-                placeholder: 'Please enter permissions',
+            var select_users = $('#select_users');
+            select_users.select2({
+                placeholder: 'Please enter users',
+                multiple: true,
+            })
+        </script>
+
+        <script>
+            var select_roles = $('#select_roles');
+            select_roles.select2({
+                placeholder: 'Please enter roles',
                 multiple: true,
             })
         </script>
