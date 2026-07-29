@@ -48,7 +48,7 @@ use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
 
 // admin
-Route::prefix('admin')->group(function () {
+Route::prefix('admin')->middleware('auth')->group(function () {
     Route::get('/', [AdminDashboardController::class, 'index'])->name('admin.home');
     // market
     Route::prefix('market')->group(function () {
@@ -265,7 +265,7 @@ Route::prefix('admin')->group(function () {
             Route::get('/activation/{customer}', [CustomerController::class, 'activation'])->name('admin.user.customer.activation');
         });
         // admin users
-        Route::prefix('admin-user')->group(function () {
+        Route::prefix('admin-user')->middleware('owner')->group(function () {
             Route::get('/', [AdminUserController::class, 'index'])->name('admin.user.admin.index');
             Route::get('/create', [AdminUserController::class, 'create'])->name('admin.user.admin.create');
             Route::post('/store', [AdminUserController::class, 'store'])->name('admin.user.admin.store');

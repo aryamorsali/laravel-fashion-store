@@ -78,12 +78,22 @@
                                     @endif
                                 </td>
                                 <td>
+                                    @php
+                                        $permissions = collect();
+
+                                        foreach ($admin->roles as $role) {
+                                            $permissions = $permissions->merge($role->permissions);
+                                        }
+
+                                        $permissions = $permissions->merge($admin->permissions)->unique('id');
+                                    @endphp
+
                                     @if ($admin->is_owner)
                                         <span class="text-success">Full discretion</span>
-                                    @elseif($admin->permissions->isEmpty())
+                                    @elseif($permissions->isEmpty())
                                         <span class="text-danger">No permissions found.</span>
                                     @else
-                                        @foreach ($admin->permissions as $index => $permission)
+                                        @foreach ($permissions as $index => $permission)
                                             {{ $index + 1 }} - {{ $permission->name }}<br>
                                         @endforeach
                                     @endif

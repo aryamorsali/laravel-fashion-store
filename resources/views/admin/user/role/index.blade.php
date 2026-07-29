@@ -23,7 +23,17 @@
 
             <section class="d-flex align-items-center mt-4 mb-3 border-bottom pb-2">
                 <div class="me-auto" style="max-width: 16rem;">
-                    <input type="text" class="form-control form-control-sm form-text" placeholder="search..">
+                    {{-- // search --}}
+                    <form class="d-flex align-items-center" action="{{ route('admin.user.role.index') }}" method="GET">
+
+                        <input type="text" name="search" value="{{ request('search') }}"
+                            class="form-control form-control-sm" style="margin-right: 5px" placeholder="search..">
+
+                        <button type="submit" class="btn btn-sm btn-secondary">
+                            <i class="fa fa-search"></i>
+                        </button>
+
+                    </form>
                 </div>
                 <a href="{{ route('admin.user.role.create') }}" class="btn btn-dark btn-sm my-btn ">Create new
                     role</a>
@@ -78,7 +88,8 @@
                                         method="post">
                                         @csrf
                                         @method('delete')
-                                        <button class="btn btn-danger btn-sm width-5-rem mi delete" type="submit">Delete</button>
+                                        <button class="btn btn-danger btn-sm width-5-rem mi delete"
+                                            type="submit">Delete</button>
                                     </form>
                                 </td>
                             </tr>
@@ -86,6 +97,9 @@
 
                     </tbody>
                 </table>
+                <div class="d-flex justify-content-center mt-4">
+                    {{ $roles->onEachSide(1)->links('vendor.pagination.custom') }}
+                </div>
             </section>
         </section>
 

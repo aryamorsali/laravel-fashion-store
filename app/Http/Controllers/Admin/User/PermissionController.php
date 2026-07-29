@@ -8,9 +8,24 @@ use Illuminate\Http\Request;
 
 class PermissionController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $permissions = Permission::all();
+        $validated = $request->validate([
+            'search' => 'nullable|string|max:100',
+        ]);
+
+        $search = $validated['search'] ?? null;
+
+        $query = Permission::where('name', '!=', 'access-admin-panel');
+
+
+        if ($request->filled('search')) {
+
+           $query->where('name', 'LIKE', '%' . $search . '%');
+        }
+
+        $permissions = $query->orderByDesc('id')->paginate(15)->appends(request()->query());
+
         return view('admin.user.permission.index', compact('permissions'));
     }
 

@@ -40,16 +40,14 @@ class AdminUserController extends Controller
             });
         }
 
-        $admins = $query->orderByDesc('id')->paginate(15)->appends(request()->query());
+        $admins = $query->orderByDesc('created_at')->paginate(15)->appends(request()->query());
+
         return view('admin.user.admin-user.index', compact('admins'));
     }
 
 
     public function role(User $admin)
     {
-        if (!Auth::user()->is_owner) {
-            abort(403);
-        }
         $roles = Role::where('status', 1)->where('is_system', 0)->get();
         return view('admin.user.admin-user.roleForm', compact('admin', 'roles'));
     }
@@ -57,9 +55,6 @@ class AdminUserController extends Controller
 
     public function roleStore(Request $request, User $admin)
     {
-        if (!Auth::user()->is_owner) {
-            return back()->with('alert-section-error', 'Only owner can change roles.');
-        }
         if ($admin->is_owner) {
             return back()->with('alert-section-error', 'Cannot modify owner roles or permissions.');
         }
@@ -78,19 +73,22 @@ class AdminUserController extends Controller
 
     public function permission(User $admin)
     {
-        if (!Auth::user()->is_owner) {
-            abort(403);
+        $admin->load(['roles.permissions']);
+
+        // جلوگیری از نشان دادن دسترسی های کاربر از طرق رول خودش
+        $userHasThisPermissions = collect();
+
+        foreach ($admin->roles as $role) {
+            $userHasThisPermissions = $userHasThisPermissions->merge($role->permissions);
         }
-        $permissions = Permission::where('status', 1)->where('name', '!=', 'access-admin-panel')->get();
+
+        $permissionIds = $userHasThisPermissions->pluck('id');
+
+        $permissions = Permission::where('status', 1)->where('name', '!=', 'access-admin-panel')->whereNotIn('id', $permissionIds)->get();
         return view('admin.user.admin-user.permissionForm', compact('admin', 'permissions'));
     }
     public function permissionStore(Request $request, User $admin)
     {
-        // فقط owner می‌تونه
-        if (!Auth::user()->is_owner) {
-            return back()->with('alert-section-error', 'Only owner can change permissions.');
-        }
-
         // نمی‌تونه owner تغییر کنه
         if ($admin->is_owner) {
             return back()->with('alert-section-error', 'Cannot modify owner roles or permissions.');
@@ -100,19 +98,25 @@ class AdminUserController extends Controller
             return back()->with('alert-section-error', 'Cannot assign permissions to normal users.');
         }
 
-        $validated = $request->validate([
-            'permissions' => 'required|array|min:1',
+        $inputs = $request->validate([
+            'permissions' => 'nullable|array|min:1',
             'permissions.*' => 'integer|exists:permissions,id',
         ]);
+        $permissions = $inputs['permissions'] ?? null;
+        if (empty($permissions)) {
+            $admin->permissions()->detach();
+        } else {
+            $allowedPermissions = Permission::whereIn('id', $permissions)
+                ->where('name', '!=', 'access-admin-panel')->get();
 
-        $allowedPermissions = Permission::whereIn('id', $validated['permissions'])
-            ->where('name', '!=', 'view-admin-panel')->get();
 
-        if ($allowedPermissions->isEmpty()) {
-            return back()->with('alert-section-error', 'No valid permissions selected.');
+            if ($allowedPermissions->isEmpty()) {
+                return back()->with('alert-section-error', 'No valid permissions selected.');
+            }
+
+            $admin->permissions()->sync($allowedPermissions);
         }
 
-        $admin->permissions()->sync($allowedPermissions->id);
 
         return redirect()->route('admin.user.admin.index')->with(
             'alert-section-success',
@@ -132,10 +136,6 @@ class AdminUserController extends Controller
      */
     public function store(AdminUserRequest $request, ImageService $imageService)
     {
-        // فقط Owner می‌تواند ادمین بسازد
-        if (!Auth::user()->is_owner) {
-            return back()->with('alert-section-error', 'Only owner can create admins.');
-        }
 
         $inputs = $request->validated();
 
@@ -192,11 +192,6 @@ class AdminUserController extends Controller
     public function storeAddAdmin(Request $request)
     {
 
-        // فقط Owner می‌تواند ادمین بسازد
-        if (!Auth::user()->is_owner) {
-            return back()->with('alert-section-error', 'Only owner can add admins.');
-        }
-
         $inputs = $request->validate([
             'users' => 'required|array|min:1',
             'users.*' => 'integer|exists:users,id',
@@ -235,9 +230,6 @@ class AdminUserController extends Controller
      */
     public function edit(User $admin)
     {
-        if (!Auth::user()->is_owner) {
-            abort(403);
-        }
         return view('admin.user.admin-user.edit', compact('admin'));
     }
 
@@ -246,11 +238,6 @@ class AdminUserController extends Controller
      */
     public function update(AdminUserRequest $request, User $admin, ImageService $imageService)
     {
-        // فقط Owner می‌تواند
-        if (!Auth::user()->is_owner) {
-            return back()->with('alert-section-error', 'Only owner can edit admins.');
-        }
-
         if ($admin->is_owner) {
             return back()->with('alert-section-error', 'Cannot edit system owner.');
         }
@@ -289,9 +276,6 @@ class AdminUserController extends Controller
      */
     public function destroy(User $admin)
     {
-        if (!Auth::check()) {
-            abort(403, 'Not authenticated.');
-        }
         if ($admin->is_owner) {
             return back()->with('alert-section-error', 'The system owner cannot be deleted.');
         }
@@ -322,10 +306,6 @@ class AdminUserController extends Controller
             return back()->with('alert-section-error', 'Owner status cannot be changed.');
         }
 
-        if (!Auth::user()->is_owner) {
-            return back()->with('alert-section-error', 'Only the system owner can change admin status.');
-        }
-
         $admin->activation = $admin->activation == 0 ? 1 : 0;
         $result = $admin->save();
         if ($result) {
@@ -341,16 +321,8 @@ class AdminUserController extends Controller
 
     public function revokeAdmin(User $admin)
     {
-        if (!Auth::check()) {
-            abort(403, 'Not authenticated.');
-        }
         if ($admin->is_owner) {
             return back()->with('alert-section-error', 'Cannot modify owner.');
-        }
-
-        // فقط Owner می‌ توانند ادمین‌ ها را تنزل دهند
-        if (!Auth::user()->is_owner) {
-            return back()->with('alert-section-error', 'Only the system owner can revoke admin.');
         }
 
         // حذف تمام نقش‌های مدیریتی و فقط دادن نقش user

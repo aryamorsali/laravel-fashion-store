@@ -7,15 +7,29 @@ use App\Models\User\Role;
 use Illuminate\Http\Request;
 use App\Http\Requests\Admin\User\RoleRequest;
 use App\Models\User\Permission;
+use Illuminate\Support\Facades\DB;
 
 class RoleController extends Controller
 {
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
-        $roles = Role::orderBy('id', 'desc')->paginate(20);
+        $validated = $request->validate([
+            'search' => 'nullable|string|max:100',
+        ]);
+
+        $search = $validated['search'] ?? null;
+
+        $query = Role::where('is_system', 0);
+
+        if ($request->filled('search')) {
+
+            $query->where('name', 'Like', '%' . $search . '%');
+        }
+
+        $roles  = $query->orderByDesc('created_at')->paginate(15)->appends($request->query());
         return view('admin.user.role.index', compact('roles'));
     }
 
@@ -24,7 +38,7 @@ class RoleController extends Controller
      */
     public function create()
     {
-        $permissions = Permission::all();
+        $permissions = Permission::where('status', 1)->where('name', '!=', 'access-admin-panel')->get();
         return view('admin.user.role.create', compact('permissions'));
     }
 
@@ -33,12 +47,16 @@ class RoleController extends Controller
      */
     public function store(RoleRequest $request)
     {
-        $inputs = $request->all();
-        $role = Role::create($inputs);
+        $inputs = $request->validated();
+        DB::transaction(function () use ($inputs){
 
-        $inputs['permissions'] = $inputs['permissions'] ?? [];
+            $role = Role::create($inputs);
 
-        $role->permissions()->sync($inputs['permissions']);
+            $permissions = $inputs['permissions'] ?? [];
+
+            $role->permissions()->sync($permissions);
+        });
+
         return redirect()->route('admin.user.role.index')->with(
             'alert-section-success',
             'New role successfully registered.'
@@ -112,15 +130,15 @@ class RoleController extends Controller
 
     public function permissionForm(Role $role)
     {
-        $permissions = Permission::all();
+        $permissions = Permission::where('status', 1)->where('name', '!=', 'access-admin-panel')->get();
         return view('admin.user.role.permission-form', compact('role', 'permissions'));
     }
     public function permissionUpdate(RoleRequest $request, Role $role)
     {
-        $inputs = $request->all();
+        $inputs = $request->validated();
 
-        $inputs['permissions'] = $inputs['permissions'] ?? [];
-        $role->permissions()->sync($inputs['permissions']);
+        $permissions = $inputs['permissions'] ?? [];
+        $role->permissions()->sync($permissions);
 
         return redirect()->route('admin.user.role.index')->with(
             'alert-section-success',

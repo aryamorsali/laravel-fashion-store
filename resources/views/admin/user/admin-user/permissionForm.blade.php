@@ -50,12 +50,12 @@
             <ol class="breadcrumb p-1 ">
                 <li class="breadcrumb-item"><a href="#" style="text-decoration: none">Dashboard</a></li>
                 <li class="breadcrumb-item"><a href="#" style="text-decoration: none">Users</a></li>
-                <li class="breadcrumb-item active">Create Admin Access</li>
+                <li class="breadcrumb-item active">Create $ Update Admin Access</li>
             </ol>
         </nav>
         <section class="main-body-container">
             <section>
-                <h3 class="mt-2">Create Admin Access</h3>
+                <h3 class="mt-2">Create & Update Admin Access</h3>
             </section>
             <section class="d-flex justify-content-between align-items-center mt-3 mb-3 border-bottom pb-3">
                 <a href="{{ route('admin.user.admin.index') }}" class="btn btn-dark btn-sm">Back</a>
