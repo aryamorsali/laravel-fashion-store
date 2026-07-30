@@ -9,6 +9,7 @@ use App\Http\Services\Message\MessageService;
 use App\Http\Services\Message\SMS\SmsService;
 use App\Models\Otp;
 use App\Models\User;
+use App\Models\User\Role;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -67,7 +68,15 @@ class LoginRegisterController extends Controller
             $newUser['activation'] = 0;                        //
             $newUser['loyalty_level'] = 'bronze';
             $newUser['registration_date'] = Carbon::now();
-            $user = User::create($newUser);
+            DB::transaction(function () use (&$user, $newUser) {
+                $user = User::create($newUser);
+
+                $defaultRole = Role::query()->where('name', 'user')->first();
+
+                if ($defaultRole) {
+                    $user->roles()->sync([$defaultRole->id]);
+                }
+            });
         }
 
         // create otp code

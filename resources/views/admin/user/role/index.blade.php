@@ -65,9 +65,12 @@
                                     @if ($role->permissions->isEmpty())
                                         <span class="text-danger">No permissions are defined for this role.</span>
                                     @else
-                                        @foreach ($role->permissions as $index => $permission)
+                                        @foreach ($role->permissions->take(5) as $index => $permission)
                                             {{ $index + 1 }} - {{ $permission->name }}<br>
                                         @endforeach
+                                        @if ($role->permissions->count() > 5)
+                                            <span class="text-muted">…</span>
+                                        @endif
                                     @endif
                                 </td>
                                 <td>

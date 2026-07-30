@@ -81,7 +81,7 @@ class User extends Authenticatable
         return $this->hasMany(AdminTicket::class, 'admin_id');
     }
 
-     public function addresses()
+    public function addresses()
     {
         return $this->hasMany(Address::class);
     }
@@ -124,8 +124,29 @@ class User extends Authenticatable
     {
         return $this->belongsToMany(Permission::class);
     }
-    public function hasRole($role)
+    public function hasRole(string $role)
     {
         return $this->roles()->where('name', $role)->exists();
+    }
+
+    public function hasPermissionTo(string $permissionName): bool
+    {
+        // چک کردن پرمیشن‌ های مستقیم کاربر
+        if ($this->permissions->contains(fn($p) => $p->name === $permissionName && $p->status == 1)) {
+            return true;
+        }
+
+        foreach ($this->roles as $role) {
+            if ($role->status == 0) {
+                continue;    //  این نقش رو رد کن بقیه رو چک کن
+            }
+            // چک کردن پرمیشن‌ هایی که کاربر از طریق نقش‌ هایش دارد
+
+            if ($role->permissions->contains(fn($p) => $p->name === $permissionName && $p->status == 1)) {
+                return true;
+            }
+        }
+
+        return false;
     }
 }

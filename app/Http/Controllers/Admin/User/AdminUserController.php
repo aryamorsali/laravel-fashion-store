@@ -71,7 +71,7 @@ class AdminUserController extends Controller
         );
     }
 
-    public function permission(User $admin)
+    public function addPermission(User $admin)
     {
         $admin->load(['roles.permissions']);
 
@@ -85,9 +85,9 @@ class AdminUserController extends Controller
         $permissionIds = $userHasThisPermissions->pluck('id');
 
         $permissions = Permission::where('status', 1)->where('name', '!=', 'access-admin-panel')->whereNotIn('id', $permissionIds)->get();
-        return view('admin.user.admin-user.permissionForm', compact('admin', 'permissions'));
+        return view('admin.user.admin-user.addPermissionForm', compact('admin', 'permissions'));
     }
-    public function permissionStore(Request $request, User $admin)
+    public function addPermissionStore(Request $request, User $admin)
     {
         // نمی‌تونه owner تغییر کنه
         if ($admin->is_owner) {
@@ -122,6 +122,20 @@ class AdminUserController extends Controller
             'alert-section-success',
             'The admin permissions was successfully updated.'
         );
+    }
+
+
+    public function permission(User $admin)
+    {
+        $permissions = collect();
+
+        foreach ($admin->roles as $role) {
+            $permissions = $permissions->merge($role->permissions);
+        }
+
+        $permissions = $permissions->merge($admin->permissions)->unique('id');
+
+        return view('admin.user.admin-user.adminPermissions', compact('permissions'));
     }
     /**
      * Show the form for creating a new resource.

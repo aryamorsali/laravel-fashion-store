@@ -65,7 +65,7 @@
             @include('admin.alerts.alert-section.error')
 
             <section>
-                <form action="{{ route('admin.user.admin.permission.store', $admin) }}" method="post"
+                <form action="{{ route('admin.user.admin.add.permission.store', $admin) }}" method="post"
                     enctype="multipart/form-data" id="form">
                     @csrf
                     <section class="row">

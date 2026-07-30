@@ -3,9 +3,12 @@
 namespace App\Providers;
 
 use App\Models\Market\CartItem;
+use App\Models\User;
+use App\Models\User\Permission;
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Facades\View;
 use Illuminate\Support\ServiceProvider;
@@ -71,5 +74,19 @@ class AppServiceProvider extends ServiceProvider
                 $view->with('cartItems', CartItem::where('user_id', Auth::user()->id)->get());
             }
         });
+
+        // Gates
+        Gate::before(function (User $user) {
+            if ($user->is_owner) return true;
+            return null; // برو ادامه بده
+        });
+
+        $permissions = Permission::all()->pluck('name');
+
+        foreach ($permissions as $permission) {
+            Gate::define($permission, function (User $user) use ($permission) {
+                return $user->hasPermissionTo($permission);
+            });
+        }
     }
 }

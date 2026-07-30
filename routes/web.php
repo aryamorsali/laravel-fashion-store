@@ -48,111 +48,114 @@ use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
 
 // admin
-Route::prefix('admin')->middleware('auth')->group(function () {
+Route::prefix('admin')->middleware(['auth', 'can:access-admin-panel'])->group(function () {
     Route::get('/', [AdminDashboardController::class, 'index'])->name('admin.home');
     // market
     Route::prefix('market')->group(function () {
         // product_category
         Route::prefix('category')->group(function () {
-            Route::get('/', [CategoryController::class, 'index'])->name('admin.market.category.index');
-            Route::get('/create', [CategoryController::class, 'create'])->name('admin.market.category.create');
-            Route::post('/store', [CategoryController::class, 'store'])->name('admin.market.category.store');
-            Route::get('/edit/{productCategory}', [CategoryController::class, 'edit'])->name('admin.market.category.edit');
-            Route::put('/update/{productCategory}', [CategoryController::class, 'update'])->name('admin.market.category.update');
-            Route::delete('/destroy/{productCategory}', [CategoryController::class, 'destroy'])->name('admin.market.category.destroy');
-            Route::get('/status/{productCategory}', [CategoryController::class, 'status'])->name('admin.market.category.status');
-            Route::get('/show-in-menu/{productCategory}', [CategoryController::class, 'showInMenu'])->name('admin.market.category.show-in-menu');
+            Route::get('/', [CategoryController::class, 'index'])->name('admin.market.category.index')->middleware('can:view-product-category');
+            Route::get('/create', [CategoryController::class, 'create'])->name('admin.market.category.create')->middleware('can:create-product-category');
+            Route::post('/store', [CategoryController::class, 'store'])->name('admin.market.category.store')->middleware('can:create-product-category');
+            Route::get('/edit/{productCategory}', [CategoryController::class, 'edit'])->name('admin.market.category.edit')->middleware('can:update-product-category');
+            Route::put('/update/{productCategory}', [CategoryController::class, 'update'])->name('admin.market.category.update')->middleware('can:update-product-category');
+            Route::delete('/destroy/{productCategory}', [CategoryController::class, 'destroy'])->name('admin.market.category.destroy')->middleware('can:delete-product-category');
+            Route::get('/status/{productCategory}', [CategoryController::class, 'status'])->name('admin.market.category.status')->middleware('can:update-product-category');
+            Route::get('/show-in-menu/{productCategory}', [CategoryController::class, 'showInMenu'])->name('admin.market.category.show-in-menu')->middleware('can:update-product-category');
         });
 
         // home boxes
         Route::prefix('home-box')->group(function () {
-            Route::get('/', [HomeBoxController::class, 'index'])->name('admin.market.home-box.index');
-            Route::get('/create', [HomeBoxController::class, 'create'])->name('admin.market.home-box.create');
-            Route::post('/store', [HomeBoxController::class, 'store'])->name('admin.market.home-box.store');
-            Route::get('/edit/{homeBox}', [HomeBoxController::class, 'edit'])->name('admin.market.home-box.edit');
-            Route::put('/update/{homeBox}', [HomeBoxController::class, 'update'])->name('admin.market.home-box.update');
-            Route::delete('/destroy/{homeBox}', [HomeBoxController::class, 'destroy'])->name('admin.market.home-box.destroy');
-            Route::get('/status/{homeBox}', [HomeBoxController::class, 'status'])->name('admin.market.home-box.status');
+            Route::get('/', [HomeBoxController::class, 'index'])->name('admin.market.home-box.index')->middleware('can:view-home-box');
+            Route::get('/create', [HomeBoxController::class, 'create'])->name('admin.market.home-box.create')->middleware('can:create-home-box');
+            Route::post('/store', [HomeBoxController::class, 'store'])->name('admin.market.home-box.store')->middleware('can:create-home-box');
+            Route::get('/edit/{homeBox}', [HomeBoxController::class, 'edit'])->name('admin.market.home-box.edit')->middleware('can:update-home-box');
+            Route::put('/update/{homeBox}', [HomeBoxController::class, 'update'])->name('admin.market.home-box.update')->middleware('can:update-home-box');
+            Route::delete('/destroy/{homeBox}', [HomeBoxController::class, 'destroy'])->name('admin.market.home-box.destroy')->middleware('can:delete-home-box');
+            Route::get('/status/{homeBox}', [HomeBoxController::class, 'status'])->name('admin.market.home-box.status')->middleware('can:update-home-box');
         });
 
         // brands
         Route::prefix('brand')->group(function () {
-            Route::get('/', [BrandController::class, 'index'])->name('admin.market.brand.index');
-            Route::get('/create', [BrandController::class, 'create'])->name('admin.market.brand.create');
-            Route::post('/store', [BrandController::class, 'store'])->name('admin.market.brand.store');
-            Route::get('/edit/{brand}', [BrandController::class, 'edit'])->name('admin.market.brand.edit');
-            Route::put('/update/{brand}', [BrandController::class, 'update'])->name('admin.market.brand.update');
-            Route::delete('/destroy/{brand}', [BrandController::class, 'destroy'])->name('admin.market.brand.destroy');
-            Route::get('/status/{brand}', [BrandController::class, 'status'])->name('admin.market.brand.status');
+            Route::get('/', [BrandController::class, 'index'])->name('admin.market.brand.index')->middleware('can:view-brand');
+            Route::get('/create', [BrandController::class, 'create'])->name('admin.market.brand.create')->middleware('can:create-brand');
+            Route::post('/store', [BrandController::class, 'store'])->name('admin.market.brand.store')->middleware('can:create-brand');
+            Route::get('/edit/{brand}', [BrandController::class, 'edit'])->name('admin.market.brand.edit')->middleware('can:update-brand');
+            Route::put('/update/{brand}', [BrandController::class, 'update'])->name('admin.market.brand.update')->middleware('can:update-brand');
+            Route::delete('/destroy/{brand}', [BrandController::class, 'destroy'])->name('admin.market.brand.destroy')->middleware('can:delete-brand');
+            Route::get('/status/{brand}', [BrandController::class, 'status'])->name('admin.market.brand.status')->middleware('can:update-brand');
         });
 
         // products
         Route::prefix('product')->group(function () {
-            Route::get('/', [ProductController::class, 'index'])->name('admin.market.product.index');
-            Route::get('/create', [ProductController::class, 'create'])->name('admin.market.product.create');
-            Route::post('/store', [ProductController::class, 'store'])->name('admin.market.product.store');
-            Route::get('/edit/{product}', [ProductController::class, 'edit'])->name('admin.market.product.edit');
-            Route::put('/update/{product}', [ProductController::class, 'update'])->name('admin.market.product.update');
-            Route::delete('/destroy/{product}', [ProductController::class, 'destroy'])->name('admin.market.product.destroy');
+            Route::get('/', [ProductController::class, 'index'])->name('admin.market.product.index')->middleware('can:view-product');
+            Route::get('/create', [ProductController::class, 'create'])->name('admin.market.product.create')->middleware('can:create-product');
+            Route::post('/store', [ProductController::class, 'store'])->name('admin.market.product.store')->middleware('can:create-product');
+            Route::get('/edit/{product}', [ProductController::class, 'edit'])->name('admin.market.product.edit')->middleware('can:update-product');
+            Route::put('/update/{product}', [ProductController::class, 'update'])->name('admin.market.product.update')->middleware('can:update-product');
+            Route::delete('/destroy/{product}', [ProductController::class, 'destroy'])->name('admin.market.product.destroy')->middleware('can:delete-product');
 
             // product gallery
-            Route::get('/gallery/{product}', [GalleryController::class, 'index'])->name('admin.market.gallery.index');
-            Route::get('/gallery/create/{product}', [GalleryController::class, 'create'])->name('admin.market.gallery.create');
-            Route::post('/gallery/store/{product}', [GalleryController::class, 'store'])->name('admin.market.gallery.store');
-            Route::delete('/gallery/destroy/{product}/{gallery}', [GalleryController::class, 'destroy'])->name('admin.market.gallery.destroy');
+            Route::prefix('/gallery')->middleware('can:manage-product-gallery')->group(function () {
+                Route::get('/{product}', [GalleryController::class, 'index'])->name('admin.market.gallery.index');
+                Route::get('/create/{product}', [GalleryController::class, 'create'])->name('admin.market.gallery.create');
+                Route::post('/store/{product}', [GalleryController::class, 'store'])->name('admin.market.gallery.store');
+                Route::delete('/destroy/{product}/{gallery}', [GalleryController::class, 'destroy'])->name('admin.market.gallery.destroy');
+            });
+
 
             // product variant
             Route::prefix('variant')->group(function () {
-                Route::get('/{product}', [ProductVariantController::class, 'index'])->name('admin.market.variant.index');
-                Route::get('/create/{product}', [ProductVariantController::class, 'create'])->name('admin.market.variant.create');
-                Route::post('/store/{product}', [ProductVariantController::class, 'store'])->name('admin.market.variant.store');
-                Route::get('/edit/{product}/{variant}', [ProductVariantController::class, 'edit'])->name('admin.market.variant.edit');
-                Route::put('/update/{product}/{variant}', [ProductVariantController::class, 'update'])->name('admin.market.variant.update');
-                Route::delete('/destroy/{product}/{variant}', [ProductVariantController::class, 'destroy'])->name('admin.market.variant.destroy');
-                Route::delete('/destroyAllVariants/{product}', [ProductVariantController::class, 'destroyAllVariants'])->name('admin.market.variant.destroyAllVariants');
+                Route::get('/{product}', [ProductVariantController::class, 'index'])->name('admin.market.variant.index')->middleware('can:view-product-variant');
+                Route::get('/create/{product}', [ProductVariantController::class, 'create'])->name('admin.market.variant.create')->middleware('can:create-product-variant');
+                Route::post('/store/{product}', [ProductVariantController::class, 'store'])->name('admin.market.variant.store')->middleware('can:create-product-variant');
+                Route::get('/edit/{product}/{variant}', [ProductVariantController::class, 'edit'])->name('admin.market.variant.edit')->middleware('can:update-product-variant');
+                Route::put('/update/{product}/{variant}', [ProductVariantController::class, 'update'])->name('admin.market.variant.update')->middleware('can:update-product-variant');
+                Route::delete('/destroy/{product}/{variant}', [ProductVariantController::class, 'destroy'])->name('admin.market.variant.destroy')->middleware('can:delete-product-variant');
+                Route::delete('/destroyAllVariants/{product}', [ProductVariantController::class, 'destroyAllVariants'])->name('admin.market.variant.destroyAllVariants')->middleware('can:delete-product-variant');
             });
         });
 
 
         // product attributes
         Route::prefix('property')->group(function () {
-            Route::get('/', [PropertyController::class, 'index'])->name('admin.market.property.index');
-            Route::get('/create', [PropertyController::class, 'create'])->name('admin.market.property.create');
-            Route::post('/store', [PropertyController::class, 'store'])->name('admin.market.property.store');
-            Route::get('/edit/{productAttribute}', [PropertyController::class, 'edit'])->name('admin.market.property.edit');
-            Route::put('/update/{productAttribute}', [PropertyController::class, 'update'])->name('admin.market.property.update');
-            Route::delete('/destroy/{productAttribute}', [PropertyController::class, 'destroy'])->name('admin.market.property.destroy');
+            Route::get('/', [PropertyController::class, 'index'])->name('admin.market.property.index')->middleware('can:view-product-attribute');
+            Route::get('/create', [PropertyController::class, 'create'])->name('admin.market.property.create')->middleware('can:create-product-attribute');
+            Route::post('/store', [PropertyController::class, 'store'])->name('admin.market.property.store')->middleware('can:create-product-attribute');
+            Route::get('/edit/{productAttribute}', [PropertyController::class, 'edit'])->name('admin.market.property.edit')->middleware('can:update-product-attribute');
+            Route::put('/update/{productAttribute}', [PropertyController::class, 'update'])->name('admin.market.property.update')->middleware('can:update-product-attribute');
+            Route::delete('/destroy/{productAttribute}', [PropertyController::class, 'destroy'])->name('admin.market.property.destroy')->middleware('can:delete-product-attribute');
 
 
             // product attribute values
             Route::prefix('value')->group(function () {
-                Route::get('/{productAttribute}', [PropertyValueController::class, 'index'])->name('admin.market.value.index');
-                Route::get('/create/{productAttribute}', [PropertyValueController::class, 'create'])->name('admin.market.value.create');
-                Route::post('/store/{productAttribute}', [PropertyValueController::class, 'store'])->name('admin.market.value.store');
-                Route::get('/edit/{productAttribute}/{value}', [PropertyValueController::class, 'edit'])->name('admin.market.value.edit');
-                Route::put('/update/{productAttribute}/{value}', [PropertyValueController::class, 'update'])->name('admin.market.value.update');
-                Route::delete('/destroy/{productAttribute}/{value}', [PropertyValueController::class, 'destroy'])->name('admin.market.value.destroy');
+                Route::get('/{productAttribute}', [PropertyValueController::class, 'index'])->name('admin.market.value.index')->middleware('can:view-product-attribute-value');
+                Route::get('/create/{productAttribute}', [PropertyValueController::class, 'create'])->name('admin.market.value.create')->middleware('can:create-product-attribute-value');
+                Route::post('/store/{productAttribute}', [PropertyValueController::class, 'store'])->name('admin.market.value.store')->middleware('can:create-product-attribute-value');
+                Route::get('/edit/{productAttribute}/{value}', [PropertyValueController::class, 'edit'])->name('admin.market.value.edit')->middleware('can:update-product-attribute-value');
+                Route::put('/update/{productAttribute}/{value}', [PropertyValueController::class, 'update'])->name('admin.market.value.update')->middleware('can:update-product-attribute-value');
+                Route::delete('/destroy/{productAttribute}/{value}', [PropertyValueController::class, 'destroy'])->name('admin.market.value.destroy')->middleware('can:delete-product-attribute-value');
             });
         });
 
         // colors
         Route::prefix('color')->group(function () {
-            Route::get('/', [ProductColorController::class, 'index'])->name('admin.market.color.index');
-            Route::get('/create', [ProductColorController::class, 'create'])->name('admin.market.color.create');
-            Route::post('/store', [ProductColorController::class, 'store'])->name('admin.market.color.store');
-            Route::delete('/destroy/{color}', [ProductColorController::class, 'destroy'])->name('admin.market.color.destroy');
+            Route::get('/', [ProductColorController::class, 'index'])->name('admin.market.color.index')->middleware('can:view-color');
+            Route::get('/create', [ProductColorController::class, 'create'])->name('admin.market.color.create')->middleware('can:create-color');
+            Route::post('/store', [ProductColorController::class, 'store'])->name('admin.market.color.store')->middleware('can:create-color');
+            Route::delete('/destroy/{color}', [ProductColorController::class, 'destroy'])->name('admin.market.color.destroy')->middleware('can:delete-color');
         });
 
         // sizes
         Route::prefix('size')->group(function () {
-            Route::get('/', [ProductSizeController::class, 'index'])->name('admin.market.size.index');
-            Route::get('/create', [ProductSizeController::class, 'create'])->name('admin.market.size.create');
-            Route::post('/store', [ProductSizeController::class, 'store'])->name('admin.market.size.store');
-            Route::delete('/destroy/{size}', [ProductSizeController::class, 'destroy'])->name('admin.market.size.destroy');
+            Route::get('/', [ProductSizeController::class, 'index'])->name('admin.market.size.index')->middleware('can:view-size');
+            Route::get('/create', [ProductSizeController::class, 'create'])->name('admin.market.size.create')->middleware('can:create-size');
+            Route::post('/store', [ProductSizeController::class, 'store'])->name('admin.market.size.store')->middleware('can:create-size');
+            Route::delete('/destroy/{size}', [ProductSizeController::class, 'destroy'])->name('admin.market.size.destroy')->middleware('can:delete-size');
         });
 
         //comments
-        Route::prefix('comment')->group(function () {
+        Route::prefix('comment')->middleware('can:manage-product-comments')->group(function () {
             Route::get('/', [CommentController::class, 'index'])->name('admin.market.comment.index');
             Route::get('/show/{comment}', [CommentController::class, 'show'])->name('admin.market.comment.show');
             Route::delete('/destroy/{comment}', [CommentController::class, 'destroy'])->name('admin.market.comment.destroy');
@@ -162,41 +165,41 @@ Route::prefix('admin')->middleware('auth')->group(function () {
 
         // warehouse
         Route::prefix('warehouse')->group(function () {
-            Route::get('/', [WarehouseController::class, 'index'])->name('admin.market.warehouse.index');
-            Route::get('/create', [WarehouseController::class, 'create'])->name('admin.market.warehouse.create');
-            Route::post('/store', [WarehouseController::class, 'store'])->name('admin.market.warehouse.store');
-            Route::get('/edit/{warehouse}', [WarehouseController::class, 'edit'])->name('admin.market.warehouse.edit');
-            Route::put('/update/{warehouse}', [WarehouseController::class, 'update'])->name('admin.market.warehouse.update');
-            Route::delete('/destroy/{warehouse}', [WarehouseController::class, 'destroy'])->name('admin.market.warehouse.destroy');
+            Route::get('/', [WarehouseController::class, 'index'])->name('admin.market.warehouse.index')->middleware('can:view-warehouse');
+            Route::get('/create', [WarehouseController::class, 'create'])->name('admin.market.warehouse.create')->middleware('can:create-warehouse');
+            Route::post('/store', [WarehouseController::class, 'store'])->name('admin.market.warehouse.store')->middleware('can:create-warehouse');
+            Route::get('/edit/{warehouse}', [WarehouseController::class, 'edit'])->name('admin.market.warehouse.edit')->middleware('can:update-warehouse');
+            Route::put('/update/{warehouse}', [WarehouseController::class, 'update'])->name('admin.market.warehouse.update')->middleware('can:update-warehouse');
+            Route::delete('/destroy/{warehouse}', [WarehouseController::class, 'destroy'])->name('admin.market.warehouse.destroy')->middleware('can:delete-warehouse');
 
             // warehouse_variant
             Route::prefix('{warehouse}/variants')->group(function () {
-                Route::get('/', [WarehouseVariantController::class, 'index'])->name('admin.market.warehouse.variant.index');
-                Route::get('/create', [WarehouseVariantController::class, 'create'])->name('admin.market.warehouse.variant.create');
-                Route::post('/store', [WarehouseVariantController::class, 'store'])->name('admin.market.warehouse.variant.store');
-                Route::get('/edit/{warehouseVariant}', [WarehouseVariantController::class, 'edit'])->name('admin.market.warehouse.variant.edit');
-                Route::put('/update/{warehouseVariant}', [WarehouseVariantController::class, 'update'])->name('admin.market.warehouse.variant.update');
+                Route::get('/', [WarehouseVariantController::class, 'index'])->name('admin.market.warehouse.variant.index')->middleware('can:view-inventory');
+                Route::get('/create', [WarehouseVariantController::class, 'create'])->name('admin.market.warehouse.variant.create')->middleware('can:create-inventory');
+                Route::post('/store', [WarehouseVariantController::class, 'store'])->name('admin.market.warehouse.variant.store')->middleware('can:create-inventory');
+                Route::get('/edit/{warehouseVariant}', [WarehouseVariantController::class, 'edit'])->name('admin.market.warehouse.variant.edit')->middleware('can:update-inventory');
+                Route::put('/update/{warehouseVariant}', [WarehouseVariantController::class, 'update'])->name('admin.market.warehouse.variant.update')->middleware('can:update-inventory');
             });
         });
 
         // warehouse_transaction
-        Route::prefix('/transaction')->group(function () {
+        Route::prefix('/transaction')->middleware('can:view-warehouse-transaction')->group(function () {
             Route::get('/', [WarehouseTransactionController::class, 'index'])->name('admin.market.transaction.index');
         });
 
         // delivery
         Route::prefix('delivery')->group(function () {
-            Route::get('/', [DeliveryController::class, 'index'])->name('admin.market.delivery.index');
-            Route::get('/create', [DeliveryController::class, 'create'])->name('admin.market.delivery.create');
-            Route::post('/store', [DeliveryController::class, 'store'])->name('admin.market.delivery.store');
-            Route::get('/edit/{delivery}', [DeliveryController::class, 'edit'])->name('admin.market.delivery.edit');
-            Route::put('/update/{delivery}', [DeliveryController::class, 'update'])->name('admin.market.delivery.update');
-            Route::delete('/destroy/{delivery}', [DeliveryController::class, 'destroy'])->name('admin.market.delivery.destroy');
-            Route::get('/status/{delivery}', [DeliveryController::class, 'status'])->name('admin.market.delivery.status');
+            Route::get('/', [DeliveryController::class, 'index'])->name('admin.market.delivery.index')->middleware('can:view-delivery');
+            Route::get('/create', [DeliveryController::class, 'create'])->name('admin.market.delivery.create')->middleware('can:create-delivery');
+            Route::post('/store', [DeliveryController::class, 'store'])->name('admin.market.delivery.store')->middleware('can:create-delivery');
+            Route::get('/edit/{delivery}', [DeliveryController::class, 'edit'])->name('admin.market.delivery.edit')->middleware('can:update-delivery');
+            Route::put('/update/{delivery}', [DeliveryController::class, 'update'])->name('admin.market.delivery.update')->middleware('can:update-delivery');
+            Route::delete('/destroy/{delivery}', [DeliveryController::class, 'destroy'])->name('admin.market.delivery.destroy')->middleware('can:delete-delivery');
+            Route::get('/status/{delivery}', [DeliveryController::class, 'status'])->name('admin.market.delivery.status')->middleware('can:update-delivery');
         });
 
         // order
-        Route::prefix('/order')->group(function () {
+        Route::prefix('/order')->middleware('can:manage-orders')->group(function () {
             Route::get('/', [OrderController::class, 'index'])->name('admin.market.order.index');
             Route::get('/show/{order}', [OrderController::class, 'show'])->name('admin.market.order.show');
             Route::get('/new-order', [OrderController::class, 'newOrder'])->name('admin.market.order.newOrder');
@@ -212,48 +215,48 @@ Route::prefix('admin')->middleware('auth')->group(function () {
         });
         // payment
         Route::prefix('payment')->group(function () {
-            Route::get('/', [PaymentController::class, 'index'])->name('admin.market.payment.index');
-            Route::get('/show/{payment}', [PaymentController::class, 'show'])->name('admin.market.payment.show');
-            Route::get('/change-payment-status/{payment}', [PaymentController::class, 'changePaymentStatus'])->name('admin.market.payment.changePaymentStatus');
-            Route::get('/filter', [PaymentController::class, 'filter'])->name('admin.market.payment.filter');
+            Route::get('/', [PaymentController::class, 'index'])->name('admin.market.payment.index')->middleware('can:manage-payments');
+            Route::get('/show/{payment}', [PaymentController::class, 'show'])->name('admin.market.payment.show')->middleware('can:manage-payments');
+            Route::get('/change-payment-status/{payment}', [PaymentController::class, 'changePaymentStatus'])->name('admin.market.payment.changePaymentStatus')->middleware('can:manage-payments');
+            Route::get('/filter', [PaymentController::class, 'filter'])->name('admin.market.payment.filter')->middleware('can:manage-payments');
         });
 
         // discount
         Route::prefix('/discount')->group(function () {
             // coupon
             Route::prefix('/coupon')->group(function () {
-                Route::get('/', [CoupanController::class, 'index'])->name('admin.market.discount.coupon');
-                Route::get('/create', [CoupanController::class, 'create'])->name('admin.market.discount.coupon.create');
-                Route::post('/store', [CoupanController::class, 'store'])->name('admin.market.discount.coupon.store');
-                Route::get('/edit/{coupon}', [CoupanController::class, 'edit'])->name('admin.market.discount.coupon.edit');
-                Route::put('/update/{coupon}', [CoupanController::class, 'update'])->name('admin.market.discount.coupon.update');
-                Route::delete('/destroy/{coupon}', [CoupanController::class, 'destroy'])->name('admin.market.discount.coupon.destroy');
+                Route::get('/', [CoupanController::class, 'index'])->name('admin.market.discount.coupon')->middleware('can:view-coupon');
+                Route::get('/create', [CoupanController::class, 'create'])->name('admin.market.discount.coupon.create')->middleware('can:create-coupon');
+                Route::post('/store', [CoupanController::class, 'store'])->name('admin.market.discount.coupon.store')->middleware('can:create-coupon');
+                Route::get('/edit/{coupon}', [CoupanController::class, 'edit'])->name('admin.market.discount.coupon.edit')->middleware('can:update-coupon');
+                Route::put('/update/{coupon}', [CoupanController::class, 'update'])->name('admin.market.discount.coupon.update')->middleware('can:update-coupon');
+                Route::delete('/destroy/{coupon}', [CoupanController::class, 'destroy'])->name('admin.market.discount.coupon.destroy')->middleware('can:delete-coupon');
             });
             // common_discount
             Route::prefix('/common-discount')->group(function () {
-                Route::get('/', [CommonDiscountController::class, 'index'])->name('admin.market.discount.common_discount');
-                Route::get('/create', [CommonDiscountController::class, 'create'])->name('admin.market.discount.common_discount.create');
-                Route::post('/store', [CommonDiscountController::class, 'store'])->name('admin.market.discount.common_discount.store');
-                Route::get('/edit/{common_discount}', [CommonDiscountController::class, 'edit'])->name('admin.market.discount.common_discount.edit');
-                Route::put('/update/{common_discount}', [CommonDiscountController::class, 'update'])->name('admin.market.discount.common_discount.update');
-                Route::delete('/destroy/{common_discount}', [CommonDiscountController::class, 'destroy'])->name('admin.market.discount.common_discount.destroy');
+                Route::get('/', [CommonDiscountController::class, 'index'])->name('admin.market.discount.common_discount')->middleware('can:view-common-discount');
+                Route::get('/create', [CommonDiscountController::class, 'create'])->name('admin.market.discount.common_discount.create')->middleware('can:create-common-discount');
+                Route::post('/store', [CommonDiscountController::class, 'store'])->name('admin.market.discount.common_discount.store')->middleware('can:create-common-discount');
+                Route::get('/edit/{common_discount}', [CommonDiscountController::class, 'edit'])->name('admin.market.discount.common_discount.edit')->middleware('can:update-common-discount');
+                Route::put('/update/{common_discount}', [CommonDiscountController::class, 'update'])->name('admin.market.discount.common_discount.update')->middleware('can:update-common-discount');
+                Route::delete('/destroy/{common_discount}', [CommonDiscountController::class, 'destroy'])->name('admin.market.discount.common_discount.destroy')->middleware('can:delete-common-discount');
             });
 
             // amzing_sale
             Route::prefix('/amazing-sale')->group(function () {
-                Route::get('/', [AmazingSaleController::class, 'index'])->name('admin.market.discount.amazingSale');
-                Route::get('/create', [AmazingSaleController::class, 'create'])->name('admin.market.discount.amazingSale.create');
-                Route::post('/store', [AmazingSaleController::class, 'store'])->name('admin.market.discount.amazingSale.store');
-                Route::get('/edit/{amazingSale}', [AmazingSaleController::class, 'edit'])->name('admin.market.discount.amazingSale.edit');
-                Route::put('/update/{amazingSale}', [AmazingSaleController::class, 'update'])->name('admin.market.discount.amazingSale.update');
-                Route::delete('/destroy/{amazingSale}', [AmazingSaleController::class, 'destroy'])->name('admin.market.discount.amazingSale.destroy');
+                Route::get('/', [AmazingSaleController::class, 'index'])->name('admin.market.discount.amazingSale')->middleware('can:view-amazing-sale');
+                Route::get('/create', [AmazingSaleController::class, 'create'])->name('admin.market.discount.amazingSale.create')->middleware('can:create-amazing-sale');
+                Route::post('/store', [AmazingSaleController::class, 'store'])->name('admin.market.discount.amazingSale.store')->middleware('can:create-amazing-sale');
+                Route::get('/edit/{amazingSale}', [AmazingSaleController::class, 'edit'])->name('admin.market.discount.amazingSale.edit')->middleware('can:update-amazing-sale');
+                Route::put('/update/{amazingSale}', [AmazingSaleController::class, 'update'])->name('admin.market.discount.amazingSale.update')->middleware('can:update-amazing-sale');
+                Route::delete('/destroy/{amazingSale}', [AmazingSaleController::class, 'destroy'])->name('admin.market.discount.amazingSale.destroy')->middleware('can:delete-amazing-sale');
             });
         });
     });
 
 
     // user 
-    Route::prefix('user')->group(function () {
+    Route::prefix('user')->middleware('owner')->group(function () {
         // customer  مشتریان
         Route::prefix('customer')->group(function () {
             Route::get('/', [CustomerController::class, 'index'])->name('admin.user.customer.index');
@@ -265,7 +268,7 @@ Route::prefix('admin')->middleware('auth')->group(function () {
             Route::get('/activation/{customer}', [CustomerController::class, 'activation'])->name('admin.user.customer.activation');
         });
         // admin users
-        Route::prefix('admin-user')->middleware('owner')->group(function () {
+        Route::prefix('admin-user')->group(function () {
             Route::get('/', [AdminUserController::class, 'index'])->name('admin.user.admin.index');
             Route::get('/create', [AdminUserController::class, 'create'])->name('admin.user.admin.create');
             Route::post('/store', [AdminUserController::class, 'store'])->name('admin.user.admin.store');
@@ -279,8 +282,9 @@ Route::prefix('admin')->middleware('auth')->group(function () {
             Route::get('/activation/{admin}', [AdminUserController::class, 'activation'])->name('admin.user.admin.activation');
             Route::get('/role/{admin}', [AdminUserController::class, 'role'])->name('admin.user.admin.role');
             Route::post('/role/{admin}/store', [AdminUserController::class, 'roleStore'])->name('admin.user.admin.role.store');
+            Route::get('/add-permission/{admin}', [AdminUserController::class, 'addPermission'])->name('admin.user.admin.add.permission');
+            Route::post('/add-permission/{admin}/store', [AdminUserController::class, 'addPermissionStore'])->name('admin.user.admin.add.permission.store');
             Route::get('/permission/{admin}', [AdminUserController::class, 'permission'])->name('admin.user.admin.permission');
-            Route::post('/permission/{admin}/store', [AdminUserController::class, 'permissionStore'])->name('admin.user.admin.permission.store');
             Route::get('/revoke/{admin}', [AdminUserController::class, 'revokeAdmin'])->name('admin.user.admin.revokeAdmin');
         });
 
@@ -306,7 +310,7 @@ Route::prefix('admin')->middleware('auth')->group(function () {
 
 
     // tickets
-    Route::prefix('/ticket')->group(function () {
+    Route::prefix('/ticket')->middleware('can:manage-tickets')->group(function () {
         Route::get('/', [TicketController::class, 'index'])->name('admin.ticket.index');
         Route::get('/filter', [TicketController::class, 'filter'])->name('admin.ticket.filter');
         Route::get('/show/{ticket}', [TicketController::class, 'show'])->name('admin.ticket.show');
@@ -350,62 +354,62 @@ Route::prefix('admin')->middleware('auth')->group(function () {
     Route::prefix('content')->group(function () {
         // category
         Route::prefix('category')->group(function () {
-            Route::get('/', [ContentCategoryController::class, 'index'])->name('admin.content.category.index');
-            Route::get('/create', [ContentCategoryController::class, 'create'])->name('admin.content.category.create');
-            Route::post('/store', [ContentCategoryController::class, 'store'])->name('admin.content.category.store');
-            Route::get('/edit/{postCategory}', [ContentCategoryController::class, 'edit'])->name('admin.content.category.edit');
-            Route::put('/update/{postCategory}', [ContentCategoryController::class, 'update'])->name('admin.content.category.update');
-            Route::delete('/destroy/{postCategory}', [ContentCategoryController::class, 'destroy'])->name('admin.content.category.destroy');
-            Route::get('/status/{postCategory}', [ContentCategoryController::class, 'status'])->name('admin.content.category.status');
+            Route::get('/', [ContentCategoryController::class, 'index'])->name('admin.content.category.index')->middleware('can:view-post-category');
+            Route::get('/create', [ContentCategoryController::class, 'create'])->name('admin.content.category.create')->middleware('can:create-post-category');
+            Route::post('/store', [ContentCategoryController::class, 'store'])->name('admin.content.category.store')->middleware('can:create-post-category');
+            Route::get('/edit/{postCategory}', [ContentCategoryController::class, 'edit'])->name('admin.content.category.edit')->middleware('can:update-post-category');
+            Route::put('/update/{postCategory}', [ContentCategoryController::class, 'update'])->name('admin.content.category.update')->middleware('can:update-post-category');
+            Route::delete('/destroy/{postCategory}', [ContentCategoryController::class, 'destroy'])->name('admin.content.category.destroy')->middleware('can:delete-post-category');
+            Route::get('/status/{postCategory}', [ContentCategoryController::class, 'status'])->name('admin.content.category.status')->middleware('can:update-post-category');
         });
 
         //post
         Route::prefix('post')->group(function () {
-            Route::get('/', [PostController::class, 'index'])->name('admin.content.post.index');
-            Route::get('/create', [PostController::class, 'create'])->name('admin.content.post.create');
-            Route::post('/store', [PostController::class, 'store'])->name('admin.content.post.store');
-            Route::get('/edit/{post}', [PostController::class, 'edit'])->name('admin.content.post.edit');
-            Route::put('/update/{post}', [PostController::class, 'update'])->name('admin.content.post.update');
-            Route::delete('/destroy/{post}', [PostController::class, 'destroy'])->name('admin.content.post.destroy');
-            Route::get('/status/{post}', [PostController::class, 'status'])->name('admin.content.post.status');
-            Route::get('/commentable/{post}', [PostController::class, 'commentable'])->name('admin.content.post.commentable');
+            Route::get('/', [PostController::class, 'index'])->name('admin.content.post.index')->middleware('can:view-post');
+            Route::get('/create', [PostController::class, 'create'])->name('admin.content.post.create')->middleware('can:create-post');
+            Route::post('/store', [PostController::class, 'store'])->name('admin.content.post.store')->middleware('can:create-post');
+            Route::get('/edit/{post}', [PostController::class, 'edit'])->name('admin.content.post.edit')->middleware('can:update-post');
+            Route::put('/update/{post}', [PostController::class, 'update'])->name('admin.content.post.update')->middleware('can:update-post');
+            Route::delete('/destroy/{post}', [PostController::class, 'destroy'])->name('admin.content.post.destroy')->middleware('can:delete-post');
+            Route::get('/status/{post}', [PostController::class, 'status'])->name('admin.content.post.status')->middleware('can:update-post');
+            Route::get('/commentable/{post}', [PostController::class, 'commentable'])->name('admin.content.post.commentable')->middleware('can:update-post');
         });
 
         //tags
         Route::prefix('tag')->group(function () {
-            Route::get('/', [TagController::class, 'index'])->name('admin.content.tag.index');
-            Route::get('/create', [TagController::class, 'create'])->name('admin.content.tag.create');
-            Route::post('/store', [TagController::class, 'store'])->name('admin.content.tag.store');
-            Route::get('/edit/{tag}', [TagController::class, 'edit'])->name('admin.content.tag.edit');
-            Route::put('/update/{tag}', [TagController::class, 'update'])->name('admin.content.tag.update');
-            Route::delete('/destroy/{tag}', [TagController::class, 'destroy'])->name('admin.content.tag.destroy');
+            Route::get('/', [TagController::class, 'index'])->name('admin.content.tag.index')->middleware('can:view-tag');
+            Route::get('/create', [TagController::class, 'create'])->name('admin.content.tag.create')->middleware('can:create-tag');
+            Route::post('/store', [TagController::class, 'store'])->name('admin.content.tag.store')->middleware('can:create-tag');
+            Route::get('/edit/{tag}', [TagController::class, 'edit'])->name('admin.content.tag.edit')->middleware('can:update-tag');
+            Route::put('/update/{tag}', [TagController::class, 'update'])->name('admin.content.tag.update')->middleware('can:update-tag');
+            Route::delete('/destroy/{tag}', [TagController::class, 'destroy'])->name('admin.content.tag.destroy')->middleware('can:delete-tag');
         });
 
 
         //menu
         Route::prefix('menu')->group(function () {
-            Route::get('/', [MenuController::class, 'index'])->name('admin.content.menu.index');
-            Route::get('/create', [MenuController::class, 'create'])->name('admin.content.menu.create');
-            Route::post('/store', [MenuController::class, 'store'])->name('admin.content.menu.store');
-            Route::get('/edit/{menu}', [MenuController::class, 'edit'])->name('admin.content.menu.edit');
-            Route::put('/update/{menu}', [MenuController::class, 'update'])->name('admin.content.menu.update');
-            Route::delete('/destroy/{menu}', [MenuController::class, 'destroy'])->name('admin.content.menu.destroy');
-            Route::get('/status/{menu}', [MenuController::class, 'status'])->name('admin.content.menu.status');
+            Route::get('/', [MenuController::class, 'index'])->name('admin.content.menu.index')->middleware('can:view-menu');
+            Route::get('/create', [MenuController::class, 'create'])->name('admin.content.menu.create')->middleware('can:create-menu');
+            Route::post('/store', [MenuController::class, 'store'])->name('admin.content.menu.store')->middleware('can:create-menu');
+            Route::get('/edit/{menu}', [MenuController::class, 'edit'])->name('admin.content.menu.edit')->middleware('can:update-menu');
+            Route::put('/update/{menu}', [MenuController::class, 'update'])->name('admin.content.menu.update')->middleware('can:update-menu');
+            Route::delete('/destroy/{menu}', [MenuController::class, 'destroy'])->name('admin.content.menu.destroy')->middleware('can:delete-menu');
+            Route::get('/status/{menu}', [MenuController::class, 'status'])->name('admin.content.menu.status')->middleware('can:update-menu');
         });
 
         //faqs
         Route::prefix('faq')->group(function () {
-            Route::get('/', [FAQController::class, 'index'])->name('admin.content.faq.index');
-            Route::get('/create', [FAQController::class, 'create'])->name('admin.content.faq.create');
-            Route::post('/store', [FAQController::class, 'store'])->name('admin.content.faq.store');
-            Route::get('/edit/{faq}', [FAQController::class, 'edit'])->name('admin.content.faq.edit');
-            Route::put('/update/{faq}', [FAQController::class, 'update'])->name('admin.content.faq.update');
-            Route::delete('/destroy/{faq}', [FAQController::class, 'destroy'])->name('admin.content.faq.destroy');
-            Route::get('/status/{faq}', [FAQController::class, 'status'])->name('admin.content.faq.status');
+            Route::get('/', [FAQController::class, 'index'])->name('admin.content.faq.index')->middleware('can:view-faq');
+            Route::get('/create', [FAQController::class, 'create'])->name('admin.content.faq.create')->middleware('can:create-faq');
+            Route::post('/store', [FAQController::class, 'store'])->name('admin.content.faq.store')->middleware('can:create-faq');
+            Route::get('/edit/{faq}', [FAQController::class, 'edit'])->name('admin.content.faq.edit')->middleware('can:update-faq');
+            Route::put('/update/{faq}', [FAQController::class, 'update'])->name('admin.content.faq.update')->middleware('can:update-faq');
+            Route::delete('/destroy/{faq}', [FAQController::class, 'destroy'])->name('admin.content.faq.destroy')->middleware('can:delete-faq');
+            Route::get('/status/{faq}', [FAQController::class, 'status'])->name('admin.content.faq.status')->middleware('can:update-faq');
         });
 
         //comments
-        Route::prefix('comment')->group(function () {
+        Route::prefix('comment')->middleware('can:manage-post-comments')->group(function () {
             Route::get('/', [ContentCommentController::class, 'index'])->name('admin.content.comment.index');
             Route::get('/show/{comment}', [ContentCommentController::class, 'show'])->name('admin.content.comment.show');
             Route::delete('/destroy/{comment}', [ContentCommentController::class, 'destroy'])->name('admin.content.comment.destroy');
@@ -415,18 +419,18 @@ Route::prefix('admin')->middleware('auth')->group(function () {
         });
         // banner
         Route::prefix('banner')->group(function () {
-            Route::get('/', [BannerController::class, 'index'])->name('admin.content.banner.index');
-            Route::get('/create', [BannerController::class, 'create'])->name('admin.content.banner.create');
-            Route::post('/store', [BannerController::class, 'store'])->name('admin.content.banner.store');
-            Route::get('/edit/{banner}', [BannerController::class, 'edit'])->name('admin.content.banner.edit');
-            Route::put('/update/{banner}', [BannerController::class, 'update'])->name('admin.content.banner.update');
-            Route::delete('/destroy/{banner}', [BannerController::class, 'destroy'])->name('admin.content.banner.destroy');
-            Route::get('/status/{banner}', [BannerController::class, 'status'])->name('admin.content.banner.status');
+            Route::get('/', [BannerController::class, 'index'])->name('admin.content.banner.index')->middleware('can:view-banner');
+            Route::get('/create', [BannerController::class, 'create'])->name('admin.content.banner.create')->middleware('can:create-banner');
+            Route::post('/store', [BannerController::class, 'store'])->name('admin.content.banner.store')->middleware('can:create-banner');
+            Route::get('/edit/{banner}', [BannerController::class, 'edit'])->name('admin.content.banner.edit')->middleware('can:update-banner');
+            Route::put('/update/{banner}', [BannerController::class, 'update'])->name('admin.content.banner.update')->middleware('can:update-banner');
+            Route::delete('/destroy/{banner}', [BannerController::class, 'destroy'])->name('admin.content.banner.destroy')->middleware('can:delete-banner');
+            Route::get('/status/{banner}', [BannerController::class, 'status'])->name('admin.content.banner.status')->middleware('can:update-banner');
         });
     });
 
     // settings
-    Route::prefix('settings')->group(function () {
+    Route::prefix('settings')->middleware('owner')->group(function () {
         Route::get('/', [SettingController::class, 'index'])->name('admin.setting.index');
         Route::get('/edit/{setting}', [SettingController::class, 'edit'])->name('admin.setting.edit');
         Route::put('/update/{setting}', [SettingController::class, 'update'])->name('admin.setting.update');
@@ -434,18 +438,7 @@ Route::prefix('admin')->middleware('auth')->group(function () {
     });
 });
 
-// Route::get('/dashboard', function () {
-//     return view('dashboard');
-// })->middleware(['auth', 'verified'])->name('dashboard');
-
-Route::middleware('auth')->group(function () {
-    Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
-    Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
-    Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
-});
-
 require __DIR__ . '/auth.php';
-
 
 
 // -------------------------------------------------------------------------
@@ -463,7 +456,7 @@ Route::prefix('/product')->group(function () {
 // sales process
 Route::namespace('SalesProcess')->group(function () {
     Route::middleware('auth')->group(function () {
-        
+
         //cart
         Route::get('/shoping-cart', [CartController::class, 'shopingCart'])->name('customer.sales-process.shoping-cart');
         Route::post('/add-to-cart', [CartController::class, 'addToCart'])->name('customer.sales-process.add-to-cart')->middleware('throttle:cart');

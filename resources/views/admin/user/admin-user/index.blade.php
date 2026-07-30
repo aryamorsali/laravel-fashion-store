@@ -93,9 +93,12 @@
                                     @elseif($permissions->isEmpty())
                                         <span class="text-danger">No permissions found.</span>
                                     @else
-                                        @foreach ($permissions as $index => $permission)
+                                        @foreach ($permissions->take(5) as $index => $permission)
                                             {{ $index + 1 }} - {{ $permission->name }}<br>
                                         @endforeach
+                                        @if ($permissions->count() > 5)
+                                            <span class="text-muted">…</span>
+                                        @endif
                                     @endif
                                 </td>
                                 <td>
@@ -148,6 +151,12 @@
                                                     <a href="{{ route('admin.user.admin.permission', $admin) }}"
                                                         class="dropdown-item text-right">
                                                         <i class="fa-solid fa-key"></i> Permissions
+                                                    </a>
+                                                </li>
+                                                <li>
+                                                    <a href="{{ route('admin.user.admin.add.permission', $admin) }}"
+                                                        class="dropdown-item text-right">
+                                                        <i class="fa-solid fa-user-shield"></i> Add Permission
                                                     </a>
                                                 </li>
                                                 <li>
