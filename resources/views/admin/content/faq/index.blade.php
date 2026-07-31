@@ -25,8 +25,11 @@
                 <div class="me-auto" style="max-width: 16rem;">
                     <input type="text" class="form-control form-control-sm form-text" placeholder="search..">
                 </div>
-                <a href="{{ route('admin.content.faq.create') }}" class="btn btn-dark btn-sm my-btn ">Create new
-                    faq</a>
+                @can('create-faq')
+                    <a href="{{ route('admin.content.faq.create') }}" class="btn btn-dark btn-sm my-btn ">Create new
+                        faq</a>
+                @endcan
+
             </section>
 
 
@@ -39,7 +42,9 @@
                             <th scope="col">Answer</th>
                             <th scope="col">Tags</th>
                             <th scope="col">Status</th>
-                            <th class="max-width-16-rem text-center"><i class="fa fa-cogs"></i> Setting</th>
+                            @canany(['update-faq', 'delete-faq'])
+                                <th class="max-width-16-rem text-center"><i class="fa fa-cogs"></i> Setting</th>
+                            @endcanany
                         </tr>
                     </thead>
                     <tbody>
@@ -62,23 +67,33 @@
                                 <td>
                                     <label>
                                         <input id="{{ $faq->id }}" onchange="changeStatus({{ $faq->id }})"
+                                            @cannot('update-faq') disabled @endcannot
                                             data-url="{{ route('admin.content.faq.status', $faq->id) }}" type="checkbox"
                                             @if ($faq->status === 1) checked @endif>
                                     </label>
                                 </td>
 
-                                <td class="width-16-rem text-center">
-                                    <a href="{{ route('admin.content.faq.edit', $faq->id) }}"
-                                        class="btn btn-primary btn-sm width-6-rem mi"><i class="fa fa-edit"></i>
-                                        Edit</a>
-                                    <form class="d-inline" action="{{ route('admin.content.faq.destroy', $faq->id) }}"
-                                        method="post">
-                                        @csrf
-                                        @method('delete')
-                                        <button class="btn btn-danger btn-sm width-6-rem mi delete" type="submit"><i
-                                                class="fa fa-trash-alt"></i> Delete</button>
-                                    </form>
-                                </td>
+                                @canany(['update-faq', 'delete-faq'])
+                                    <td class="width-16-rem text-center">
+                                        @can('update-faq')
+                                            <a href="{{ route('admin.content.faq.edit', $faq->id) }}"
+                                                class="btn btn-primary btn-sm width-6-rem mi"><i class="fa fa-edit"></i>
+                                                Edit</a>
+                                        @endcan
+
+                                        @can('delete-faq')
+                                            <form class="d-inline" action="{{ route('admin.content.faq.destroy', $faq->id) }}"
+                                                method="post">
+                                                @csrf
+                                                @method('delete')
+                                                <button class="btn btn-danger btn-sm width-6-rem mi delete" type="submit"><i
+                                                        class="fa fa-trash-alt"></i> Delete</button>
+                                            </form>
+                                        @endcan
+
+                                    </td>
+                                @endcanany
+
                             </tr>
                         @endforeach
 

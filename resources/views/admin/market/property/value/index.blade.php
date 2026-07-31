@@ -25,11 +25,15 @@
                 <div class="me-auto" style="max-width: 16rem;">
                     <input type="text" class="form-control form-control-sm form-text" placeholder="search..">
                 </div>
-                <a href="{{ route('admin.market.property.index', $productAttribute) }}" class="btn btn-info btn-sm me-1 my-btn">Back</a>
+                <a href="{{ route('admin.market.property.index', $productAttribute) }}"
+                    class="btn btn-info btn-sm me-1 my-btn">Back</a>
 
-                <a href="{{ route('admin.market.value.create', $productAttribute) }}"
-                    class="btn btn-dark btn-sm my-btn ">Create product
-                    attribute value</a>
+                @can('create-product-attribute-value')
+                    <a href="{{ route('admin.market.value.create', $productAttribute) }}"
+                        class="btn btn-dark btn-sm my-btn ">Create product
+                        attribute value</a>
+                @endcan
+
             </section>
 
 
@@ -41,7 +45,10 @@
                             <th scope="col">Product</th>
                             <th scope="col">Attribute name</th>
                             <th scope="col">Value</th>
-                            <th class="max-width-16-rem text-center"><i class="fa fa-cogs"></i> Actions</th>
+                            @canany(['update-product-attribute-value', 'delete-product-attribute-value'])
+                                <th class="max-width-16-rem text-center"><i class="fa fa-cogs"></i> Actions</th>
+                            @endcanany
+
                         </tr>
                     </thead>
                     <tbody>
@@ -54,19 +61,28 @@
                                 <td>{{ $productAttribute->name }}</td>
                                 <td>{{ $value->value }}</td>
 
-                                <td class="width-20-rem text-center">
-                                    <a href="{{ route('admin.market.value.edit', ['productAttribute' => $productAttribute, 'value' => $value]) }}"
-                                        class="btn btn-primary btn-sm width-6-rem mi"><i class="fa fa-edit"></i>
-                                        Edit</a>
-                                    <form class="d-inline"
-                                        action="{{ route('admin.market.value.destroy', ['productAttribute' => $productAttribute, 'value' => $value]) }}"
-                                        method="post">
-                                        @csrf
-                                        @method('delete')
-                                        <button class="btn btn-danger btn-sm width-6-rem mi delete" type="submit"><i
-                                                class="fa fa-trash-alt"></i> Delete</button>
-                                    </form>
-                                </td>
+                                @canany(['update-product-attribute-value', 'delete-product-attribute-value'])
+                                    <td class="width-20-rem text-center">
+                                        @can('update-product-attribute-value')
+                                            <a href="{{ route('admin.market.value.edit', ['productAttribute' => $productAttribute, 'value' => $value]) }}"
+                                                class="btn btn-primary btn-sm width-6-rem mi"><i class="fa fa-edit"></i>
+                                                Edit</a>
+                                        @endcan
+
+                                        @can('delete-product-attribute-value')
+                                            <form class="d-inline"
+                                                action="{{ route('admin.market.value.destroy', ['productAttribute' => $productAttribute, 'value' => $value]) }}"
+                                                method="post">
+                                                @csrf
+                                                @method('delete')
+                                                <button class="btn btn-danger btn-sm width-6-rem mi delete" type="submit"><i
+                                                        class="fa fa-trash-alt"></i> Delete</button>
+                                            </form>
+                                        @endcan
+
+                                    </td>
+                                @endcanany
+
                             </tr>
                         @endforeach
 

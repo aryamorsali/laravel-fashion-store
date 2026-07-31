@@ -25,8 +25,11 @@
                 <div class="me-auto" style="max-width: 16rem;">
                     <input type="text" class="form-control form-control-sm form-text" placeholder="search..">
                 </div>
-                <a href="{{ route('admin.market.discount.amazingSale.create') }}" class="btn btn-dark btn-sm my-btn ">Add
-                    Product to Amazing Sale List</a>
+                @can('create-amazing-sale')
+                    <a href="{{ route('admin.market.discount.amazingSale.create') }}" class="btn btn-dark btn-sm my-btn ">Add
+                        Product to Amazing Sale List</a>
+                @endcan
+
             </section>
 
 
@@ -40,7 +43,10 @@
                             <th scope="col">Start date</th>
                             <th scope="col">End date</th>
                             <th scope="col">Status</th>
-                            <th class="max-width-16-rem text-center"><i class="fa fa-cogs"></i> Action</th>
+                            @canany(['update-amazing-sale', 'delete-amazing-sale'])
+                                <th class="max-width-16-rem text-center"><i class="fa fa-cogs"></i> Action</th>
+                            @endcanany
+
                         </tr>
                     </thead>
                     <tbody>
@@ -59,7 +65,8 @@
                                             <span class="text-danger">no size</span>
                                         @endif
                                         ,
-                                        Price: ${{ rtrim(rtrim(number_format($amazingSale->productVariant?->price, 2), '0'), '.') }},
+                                        Price:
+                                        ${{ rtrim(rtrim(number_format($amazingSale->productVariant?->price, 2), '0'), '.') }},
                                         Stock: {{ $amazingSale->productVariant?->availableStock() ?? '—' }},
                                     </div>
                                 </td>
@@ -79,20 +86,27 @@
                                     @endswitch
                                 </td>
 
+                                @canany(['update-amazing-sale', 'delete-amazing-sale'])
+                                    <td class="width-16-rem text-center">
+                                        @can('update-amazing-sale')
+                                            <a href="{{ route('admin.market.discount.amazingSale.edit', $amazingSale->id) }}"
+                                                class="btn btn-primary btn-sm width-6-rem mi"><i class="fa fa-edit"></i>
+                                                Edit</a>
+                                        @endcan
+                                        @can('delete-amazing-sale')
+                                            <form class="d-inline"
+                                                action="{{ route('admin.market.discount.amazingSale.destroy', $amazingSale->id) }}"
+                                                method="post">
+                                                @csrf
+                                                @method('delete')
+                                                <button class="btn btn-danger btn-sm width-6-rem mi delete" type="submit"><i
+                                                        class="fa fa-trash-alt"></i> Delete</button>
+                                            </form>
+                                        @endcan
 
-                                <td class="width-16-rem text-center">
-                                    <a href="{{ route('admin.market.discount.amazingSale.edit', $amazingSale->id) }}"
-                                        class="btn btn-primary btn-sm width-6-rem mi"><i class="fa fa-edit"></i>
-                                        Edit</a>
-                                    <form class="d-inline"
-                                        action="{{ route('admin.market.discount.amazingSale.destroy', $amazingSale->id) }}"
-                                        method="post">
-                                        @csrf
-                                        @method('delete')
-                                        <button class="btn btn-danger btn-sm width-6-rem mi delete" type="submit"><i
-                                                class="fa fa-trash-alt"></i> Delete</button>
-                                    </form>
-                                </td>
+                                    </td>
+                                @endcanany
+
                             </tr>
                         @endforeach
 

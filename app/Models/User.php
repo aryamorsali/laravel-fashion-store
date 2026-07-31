@@ -131,19 +131,21 @@ class User extends Authenticatable
 
     public function hasPermissionTo(string $permissionName): bool
     {
-        // چک کردن پرمیشن‌ های مستقیم کاربر
-        if ($this->permissions->contains(fn($p) => $p->name === $permissionName && $p->status == 1)) {
-            return true;
-        }
-
-        foreach ($this->roles as $role) {
-            if ($role->status == 0) {
-                continue;    //  این نقش رو رد کن بقیه رو چک کن
-            }
-            // چک کردن پرمیشن‌ هایی که کاربر از طریق نقش‌ هایش دارد
-
-            if ($role->permissions->contains(fn($p) => $p->name === $permissionName && $p->status == 1)) {
+        if ($this->activation == 1) {
+            // چک کردن پرمیشن‌ های مستقیم کاربر
+            if ($this->permissions->contains(fn($p) => $p->name === $permissionName && $p->status == 1)) {
                 return true;
+            }
+
+            foreach ($this->roles as $role) {
+                if ($role->status == 0) {
+                    continue;    //  این نقش رو رد کن بقیه رو چک کن
+                }
+
+                // چک کردن پرمیشن‌ هایی که کاربر از طریق نقش‌ هایش دارد
+                if ($role->permissions->contains(fn($p) => $p->name === $permissionName && $p->status == 1)) {
+                    return true;
+                }
             }
         }
 

@@ -25,8 +25,11 @@
                 <div class="me-auto" style="max-width: 16rem;">
                     <input type="text" class="form-control form-control-sm form-text" placeholder="search..">
                 </div>
-                <a href="{{ route('admin.content.banner.create') }}" class="btn btn-dark btn-sm my-btn ">Create new
-                    banner</a>
+                @can('create-banner')
+                    <a href="{{ route('admin.content.banner.create') }}" class="btn btn-dark btn-sm my-btn ">Create new
+                        banner</a>
+                @endcan
+
             </section>
 
 
@@ -41,7 +44,9 @@
                             <th scope="col">Button url</th>
                             <th scope="col">Image</th>
                             <th scope="col">Status</th>
-                            <th class="max-width-16-rem text-center"><i class="fa fa-cogs"></i> Action</th>
+                            @canany(['update-banner', 'delete-banner'])
+                                <th class="max-width-16-rem text-center"><i class="fa fa-cogs"></i> Setting</th>
+                            @endcanany
                         </tr>
                     </thead>
                     <tbody>
@@ -49,34 +54,43 @@
                         @foreach ($banners as $banner)
                             <tr>
                                 <th scope="row">{{ $loop->iteration }}</th>
-                                <td>{{ Str::limit($banner->title, 20)  ?? '-'}}</td>
-                                <td>{{ Str::limit($banner->subtitle, 20)  ?? '-'}}</td>
-                                <td>{{ $banner->button_text  ?? '-'}}</td>
+                                <td>{{ Str::limit($banner->title, 20) ?? '-' }}</td>
+                                <td>{{ Str::limit($banner->subtitle, 20) ?? '-' }}</td>
+                                <td>{{ $banner->button_text ?? '-' }}</td>
                                 <td>{{ $banner->button_url ?? '-' }}</td>
                                 <td>
-                                    <img class="rounded"
-                                        src="{{ asset($banner->image) }}"
-                                        alt="" width="90" height="70">
+                                    <img class="rounded" src="{{ asset($banner->image) }}" alt="" width="90"
+                                        height="70">
                                 </td>
                                 <td>
                                     <label>
                                         <input id="{{ $banner->id }}" onchange="changeStatus({{ $banner->id }})"
+                                            @cannot('update-banner') disabled @endcannot
                                             data-url="{{ route('admin.content.banner.status', $banner) }}" type="checkbox"
                                             @if ($banner->status === 1) checked @endif>
                                     </label>
                                 </td>
-                                <td class="width-16-rem text-center">
-                                    <a href="{{ route('admin.content.banner.edit', $banner->id) }}"
-                                        class="btn btn-primary btn-sm width-6-rem mi"><i class="fa fa-edit"></i>
-                                        Edit</a>
-                                    <form class="d-inline"
-                                        action="{{ route('admin.content.banner.destroy', $banner->id) }}" method="post">
-                                        @csrf
-                                        @method('delete')
-                                        <button class="btn btn-danger btn-sm width-6-rem mi delete" type="submit"><i
-                                                class="fa fa-trash-alt"></i> Delete</button>
-                                    </form>
-                                </td>
+                                @canany(['update-banner', 'delete-banner'])
+                                    <td class="width-16-rem text-center">
+                                        @can('update-banner')
+                                            <a href="{{ route('admin.content.banner.edit', $banner->id) }}"
+                                                class="btn btn-primary btn-sm width-6-rem mi"><i class="fa fa-edit"></i>
+                                                Edit</a>
+                                        @endcan
+
+                                        @can('delete-banner')
+                                            <form class="d-inline"
+                                                action="{{ route('admin.content.banner.destroy', $banner->id) }}" method="post">
+                                                @csrf
+                                                @method('delete')
+                                                <button class="btn btn-danger btn-sm width-6-rem mi delete" type="submit"><i
+                                                        class="fa fa-trash-alt"></i> Delete</button>
+                                            </form>
+                                        @endcan
+
+                                    </td>
+                                @endcanany
+
                             </tr>
                         @endforeach
 

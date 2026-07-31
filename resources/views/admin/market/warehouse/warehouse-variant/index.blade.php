@@ -26,8 +26,11 @@
                     <input type="text" class="form-control form-control-sm form-text" placeholder="search..">
                 </div>
                 <a href="{{ route('admin.market.warehouse.index') }}" class="btn btn-info btn-sm me-1 my-btn">Back</a>
-                <a href="{{ route('admin.market.warehouse.variant.create', $warehouse) }}"
-                    class="btn btn-dark btn-sm my-btn ">Add new stock</a>
+                @can('create-inventory')
+                    <a href="{{ route('admin.market.warehouse.variant.create', $warehouse) }}"
+                        class="btn btn-dark btn-sm my-btn ">Add new stock</a>
+                @endcan
+
             </section>
 
 
@@ -43,8 +46,10 @@
                             <th scope="col">Quantity</th>
                             <th scope="col">Reserved</th>
                             <th scope="col">Sold</th>
+                            @can('update-inventory')
+                                <th class="max-width-16-rem text-center"><i class="fa fa-cogs"></i> Setting</th>
+                            @endcan
 
-                            <th class="max-width-16-rem text-center"><i class="fa fa-cogs"></i> Setting</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -69,12 +74,14 @@
                                 <td>{{ $variant->stock }}</td>
                                 <td>{{ $variant->reserved ?? 0 }}</td>
                                 <td>{{ $variant->sold ?? 0 }}</td>
+                                @can('update-inventory')
+                                    <td class="width-16-rem text-center">
+                                        <a href="{{ route('admin.market.warehouse.variant.edit', ['warehouse' => $warehouse, 'warehouseVariant' => $variant]) }}"
+                                            class="btn btn-primary btn-sm width-6-rem mi"><i class="fa fa-edit"></i>
+                                            Edit</a>
+                                    </td>
+                                @endcan
 
-                                <td class="width-16-rem text-center">
-                                    <a href="{{ route('admin.market.warehouse.variant.edit', ['warehouse' => $warehouse, 'warehouseVariant' => $variant]) }}"
-                                        class="btn btn-primary btn-sm width-6-rem mi"><i class="fa fa-edit"></i>
-                                        Edit</a>
-                                </td>
                             </tr>
                         @endforeach
 

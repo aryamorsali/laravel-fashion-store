@@ -24,24 +24,6 @@
             @include('admin.alerts.alert-section.success')
             @include('admin.alerts.alert-section.error')
 
-            <section class="d-flex align-items-center mt-4 mb-3 border-bottom pb-2">
-                <div class="me-auto" style="max-width: 16rem;">
-                    {{-- // search --}}
-                    <form class="d-flex align-items-center" action="{{ route('admin.user.permission.index') }}"
-                        method="GET">
-
-                        <input type="text" name="search" value="{{ request('search') }}"
-                            class="form-control form-control-sm" style="margin-right: 5px" placeholder="search..">
-
-                        <button type="submit" class="btn btn-sm btn-secondary">
-                            <i class="fa fa-search"></i>
-                        </button>
-
-                    </form>
-
-                </div>
-            </section>
-
             <section class="col-12">
                 <section class="row mt-1 py-2">
 

@@ -29,16 +29,21 @@
                 <section class="d-flex align-items-center mt-3 mb-3 pb-2 gap-2">
                     <a href="{{ route('admin.market.product.index') }}" class="btn btn-dark btn-sm">Cancel</a>
 
-                    @if ($product->variants->isNotEmpty())
-                        <form class="d-inline" action="{{ route('admin.market.variant.destroyAllVariants', $product) }}"
-                            method="post">
-                            @csrf
-                            @method('delete')
-                            <button class="btn btn-warning btn-sm delete" type="submit">Delete all variants</button>
-                        </form>
-                    @endif
-                    <a href="{{ route('admin.market.variant.create', $product) }}" class="btn btn-dark btn-sm my_btn">Add
-                        new variant</a>
+                    @can('delete-product-variant')
+                        @if ($product->variants->isNotEmpty())
+                            <form class="d-inline" action="{{ route('admin.market.variant.destroyAllVariants', $product) }}"
+                                method="post">
+                                @csrf
+                                @method('delete')
+                                <button class="btn btn-warning btn-sm delete" type="submit">Delete all variants</button>
+                            </form>
+                        @endif
+                    @endcan
+                    @can('update-product-variant')
+                        <a href="{{ route('admin.market.variant.create', $product) }}" class="btn btn-dark btn-sm my_btn">Add
+                            new variant</a>
+                    @endcan
+
                 </section>
             </section>
 
@@ -52,7 +57,10 @@
                             <th scope="col">Color</th>
                             <th scope="col">Size</th>
                             <th scope="col">Price</th>
-                            <th class="max-width-16-rem text-center"><i class="fa fa-cogs"></i> Setting</th>
+                            @canany(['update-product-variant', 'delete-product-variant'])
+                                <th class="max-width-16-rem text-center"><i class="fa fa-cogs"></i> Setting</th>
+                            @endcanany
+
                         </tr>
                     </thead>
                     <tbody>
@@ -74,19 +82,28 @@
                                 <td>{{ $variant->size->name ?? '-' }}</td>
                                 <td>${{ rtrim(rtrim(number_format($variant->price, 2), '0'), '.') }}</td>
 
-                                <td class="width-16-rem text-center">
-                                    <a href="{{ route('admin.market.variant.edit', ['product' => $product, 'variant' => $variant]) }}"
-                                        class="btn btn-primary btn-sm width-6-rem mi"><i class="fa fa-edit"></i>
-                                        Edit</a>
-                                    <form class="d-inline"
-                                        action="{{ route('admin.market.variant.destroy', ['product' => $product, 'variant' => $variant]) }}"
-                                        method="post">
-                                        @csrf
-                                        @method('delete')
-                                        <button class="btn btn-danger btn-sm width-6-rem mi delete" type="submit"><i
-                                                class="fa fa-trash-alt"></i> Delete</button>
-                                    </form>
-                                </td>
+                                @canany(['update-product-variant', 'delete-product-variant'])
+                                    <td class="width-16-rem text-center">
+                                        @can('update-product-variant')
+                                            <a href="{{ route('admin.market.variant.edit', ['product' => $product, 'variant' => $variant]) }}"
+                                                class="btn btn-primary btn-sm width-6-rem mi"><i class="fa fa-edit"></i>
+                                                Edit</a>
+                                        @endcan
+
+                                        @can('delete-product-variant')
+                                            <form class="d-inline"
+                                                action="{{ route('admin.market.variant.destroy', ['product' => $product, 'variant' => $variant]) }}"
+                                                method="post">
+                                                @csrf
+                                                @method('delete')
+                                                <button class="btn btn-danger btn-sm width-6-rem mi delete" type="submit"><i
+                                                        class="fa fa-trash-alt"></i> Delete</button>
+                                            </form>
+                                        @endcan
+
+                                    </td>
+                                @endcanany
+
                             </tr>
                         @endforeach
 

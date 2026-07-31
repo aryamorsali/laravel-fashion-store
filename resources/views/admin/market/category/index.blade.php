@@ -25,8 +25,11 @@
                 <div class="me-auto" style="max-width: 16rem;">
                     <input type="text" class="form-control form-control-sm form-text" placeholder="search..">
                 </div>
-                <a href="{{ route('admin.market.category.create') }}" class="btn btn-dark btn-sm my-btn ">Create new
-                    category</a>
+                @can('create-product-category')
+                    <a href="{{ route('admin.market.category.create') }}" class="btn btn-dark btn-sm my-btn ">Create new
+                        category</a>
+                @endcan
+
             </section>
 
 
@@ -39,8 +42,13 @@
                             <th scope="col">Parent</th>
                             <th scope="col">Image</th>
                             <th scope="col">Tag</th>
+
                             <th scope="col">Status</th>
-                            <th class="max-width-16-rem text-center"><i class="fa fa-cogs"></i> Setting</th>
+
+                            @canany(['update-product-category', 'delete-product-category'])
+                                <th class="max-width-16-rem text-center"><i class="fa fa-cogs"></i> Setting</th>
+                            @endcanany
+
                         </tr>
                     </thead>
                     <tbody>
@@ -73,25 +81,35 @@
                                 <td>
                                     <label>
                                         <input id="{{ $productCategory->id }}"
+                                            @cannot('update-product-category') disabled @endcannot
                                             onchange="changeStatus({{ $productCategory->id }})"
                                             data-url="{{ route('admin.market.category.status', $productCategory->id) }}"
                                             type="checkbox" @if ($productCategory->status === 1) checked @endif>
                                     </label>
                                 </td>
 
-                                <td class="width-16-rem text-center">
-                                    <a href="{{ route('admin.market.category.edit', $productCategory->id) }}"
-                                        class="btn btn-primary btn-sm width-6-rem mi"><i class="fa fa-edit"></i>
-                                        Edit</a>
-                                    <form class="d-inline"
-                                        action="{{ route('admin.market.category.destroy', $productCategory->id) }}"
-                                        method="post">
-                                        @csrf
-                                        @method('delete')
-                                        <button class="btn btn-danger btn-sm width-6-rem mi delete" type="submit"><i
-                                                class="fa fa-trash-alt"></i> Delete</button>
-                                    </form>
-                                </td>
+                                @canany(['update-product-category', 'delete-product-category'])
+                                    <td class="width-16-rem text-center">
+                                        @can('update-product-category')
+                                            <a href="{{ route('admin.market.category.edit', $productCategory->id) }}"
+                                                class="btn btn-primary btn-sm width-6-rem mi"><i class="fa fa-edit"></i>
+                                                Edit</a>
+                                        @endcan
+
+                                        @can('delete-product-category')
+                                            <form class="d-inline"
+                                                action="{{ route('admin.market.category.destroy', $productCategory->id) }}"
+                                                method="post">
+                                                @csrf
+                                                @method('delete')
+                                                <button class="btn btn-danger btn-sm width-6-rem mi delete" type="submit"><i
+                                                        class="fa fa-trash-alt"></i> Delete</button>
+                                            </form>
+                                        @endcan
+
+                                    </td>
+                                @endcanany
+
                             </tr>
                         @endforeach
 

@@ -25,8 +25,11 @@
                 <div class="me-auto" style="max-width: 16rem;">
                     <input type="text" class="form-control form-control-sm form-text" placeholder="search..">
                 </div>
-                <a href="{{ route('admin.market.delivery.create') }}" class="btn btn-dark btn-sm my-btn ">Create new
-                    delivery</a>
+                @can('create-delivery')
+                    <a href="{{ route('admin.market.delivery.create') }}" class="btn btn-dark btn-sm my-btn ">Create new
+                        delivery</a>
+                @endcan
+
             </section>
 
 
@@ -39,7 +42,10 @@
                             <th>Delivery Cost</th>
                             <th>Delivery Time</th>
                             <th>Status</th>
-                            <th class="max-width-16-rem text-center"><i class="fa fa-cogs"></i> Action</th>
+                            @canany(['update-delivery', 'delete-delivery'])
+                                <th class="max-width-16-rem text-center"><i class="fa fa-cogs"></i> Action</th>
+                            @endcanany
+
                         </tr>
                     </thead>
                     <tbody>
@@ -59,22 +65,32 @@
                                 <td>
                                     <label>
                                         <input id="{{ $delivery->id }}" onchange="changeStatus({{ $delivery->id }})"
+                                            @cannot('update-delivery') disabled @endcannot
                                             data-url="{{ route('admin.market.delivery.status', $delivery->id) }}"
                                             type="checkbox" @if ($delivery->status === 1) checked @endif>
                                     </label>
                                 </td>
-                                <td class="width-16-rem text-center">
-                                    <a href="{{ route('admin.market.delivery.edit', $delivery->id) }}"
-                                        class="btn btn-primary btn-sm width-6-rem mi"><i class="fa fa-edit"></i>
-                                        Edit</a>
-                                    <form class="d-inline"
-                                        action="{{ route('admin.market.delivery.destroy', $delivery->id) }}" method="post">
-                                        @csrf
-                                        @method('delete')
-                                        <button class="btn btn-danger btn-sm width-6-rem mi delete" type="submit"><i
-                                                class="fa fa-trash-alt"></i> Delete</button>
-                                    </form>
-                                </td>
+                                @canany(['update-delivery', 'delete-delivery'])
+                                    <td class="width-16-rem text-center">
+                                        @can('update-delivery')
+                                            <a href="{{ route('admin.market.delivery.edit', $delivery->id) }}"
+                                                class="btn btn-primary btn-sm width-6-rem mi"><i class="fa fa-edit"></i>
+                                                Edit</a>
+                                        @endcan
+
+                                        @can('delete-delivery')
+                                            <form class="d-inline"
+                                                action="{{ route('admin.market.delivery.destroy', $delivery->id) }}" method="post">
+                                                @csrf
+                                                @method('delete')
+                                                <button class="btn btn-danger btn-sm width-6-rem mi delete" type="submit"><i
+                                                        class="fa fa-trash-alt"></i> Delete</button>
+                                            </form>
+                                        @endcan
+
+                                    </td>
+                                @endcanany
+
                             </tr>
                         @endforeach
 

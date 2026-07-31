@@ -103,7 +103,17 @@
                                 </td>
                                 <td>
                                     @if ($admin->is_owner)
-                                        <span class="text-success">Active</span>
+                                        @switch($admin->activation)
+                                            @case(1)
+                                                <span class="text-success">Active</span>
+                                            @break
+
+                                            @case(0)
+                                                <span class="text-danger">Disabled</span>
+                                            @break
+
+                                            @default
+                                        @endswitch
                                     @else
                                         <label>
                                             <input id="{{ $admin->id }}" onchange="changeStatus({{ $admin->id }})"

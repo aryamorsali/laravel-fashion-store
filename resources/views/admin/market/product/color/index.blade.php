@@ -25,10 +25,12 @@
                 <div class="me-auto" style="max-width: 16rem;">
                     <input type="text" class="form-control form-control-sm form-text" placeholder="search..">
                 </div>
-                <section class="d-flex justify-content-between align-items-center mt-3 mb-3 pb-2">
-                    <a href="{{ route('admin.market.color.create') }}" class="btn btn-dark btn-sm mx-1 my_btn">Create
-                        new color</a>
-                </section>
+                @can('create-color')
+                    <section class="d-flex justify-content-between align-items-center mt-3 mb-3 pb-2">
+                        <a href="{{ route('admin.market.color.create') }}" class="btn btn-dark btn-sm mx-1 my_btn">Create
+                            new color</a>
+                    </section>
+                @endcan
             </section>
 
 
@@ -40,7 +42,9 @@
                             <th scope="col">Color Name</th>
                             <th scope="col">Color</th>
                             <th scope="col">Hex Code</th>
-                            <th class="max-width-16-rem text-center"><i class="fa fa-cogs"></i> Setting</th>
+                            @canany(['delete-color'])
+                                <th class="max-width-16-rem text-center"><i class="fa fa-cogs"></i> Setting</th>
+                            @endcanany
                         </tr>
                     </thead>
                     <tbody>
@@ -56,16 +60,18 @@
                                 </td>
                                 <td>{{ $color->hex_code }}</td>
 
-                                <td class="width-16-rem text-center">
-                                    <form class="d-inline"
-                                        action="{{ route('admin.market.color.destroy', $color) }}"
-                                        method="post">
-                                        @csrf
-                                        @method('delete')
-                                        <button class="btn btn-danger btn-sm width-6-rem mi delete" type="submit"><i
-                                                class="fa fa-trash-alt"></i> Delete</button>
-                                    </form>
-                                </td>
+                                @can('delete-color')
+                                    <td class="width-16-rem text-center">
+                                        <form class="d-inline" action="{{ route('admin.market.color.destroy', $color) }}"
+                                            method="post">
+                                            @csrf
+                                            @method('delete')
+                                            <button class="btn btn-danger btn-sm width-6-rem mi delete" type="submit"><i
+                                                    class="fa fa-trash-alt"></i> Delete</button>
+                                        </form>
+                                    </td>
+                                @endcan
+
                             </tr>
                         @endforeach
 

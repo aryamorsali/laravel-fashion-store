@@ -25,8 +25,11 @@
                 <div class="me-auto" style="max-width: 16rem;">
                     <input type="text" class="form-control form-control-sm form-text" placeholder="search..">
                 </div>
-                <a href="{{ route('admin.content.menu.create') }}" class="btn btn-dark btn-sm my-btn ">Create new
-                    menu</a>
+                @can('create-menu')
+                    <a href="{{ route('admin.content.menu.create') }}" class="btn btn-dark btn-sm my-btn ">Create new
+                        menu</a>
+                @endcan
+
             </section>
 
 
@@ -39,7 +42,9 @@
                             <th scope="col">Parent Menu</th>
                             <th scope="col">url</th>
                             <th scope="col">Status</th>
-                            <th class="max-width-16-rem text-center"><i class="fa fa-cogs"></i> Setting</th>
+                            @canany(['update-menu', 'delete-menu'])
+                                <th class="max-width-16-rem text-center"><i class="fa fa-cogs"></i> Setting</th>
+                            @endcanany
                         </tr>
                     </thead>
                     <tbody>
@@ -53,23 +58,33 @@
                                 <td>
                                     <label>
                                         <input id="{{ $menu->id }}" onchange="changeStatus({{ $menu->id }})"
+                                            @cannot('update-menu') disabled @endcannot
                                             data-url="{{ route('admin.content.menu.status', $menu->id) }}" type="checkbox"
                                             @if ($menu->status === 1) checked @endif>
                                     </label>
                                 </td>
-    
-                                <td class="width-16-rem text-center">
-                                    <a href="{{ route('admin.content.menu.edit', $menu->id) }}"
-                                        class="btn btn-primary btn-sm width-6-rem mi"><i class="fa fa-edit"></i>
-                                        Edit</a>
-                                    <form class="d-inline" action="{{ route('admin.content.menu.destroy', $menu->id) }}"
-                                        method="post">
-                                        @csrf
-                                        @method('delete')
-                                        <button class="btn btn-danger btn-sm width-6-rem mi delete" type="submit"><i
-                                                class="fa fa-trash-alt"></i> Delete</button>
-                                    </form>
-                                </td>
+
+                                @canany(['update-menu', 'delete-menu'])
+                                    <td class="width-16-rem text-center">
+                                        @can('update-menu')
+                                            <a href="{{ route('admin.content.menu.edit', $menu->id) }}"
+                                                class="btn btn-primary btn-sm width-6-rem mi"><i class="fa fa-edit"></i>
+                                                Edit</a>
+                                        @endcan
+
+                                        @can('delete-menu')
+                                            <form class="d-inline" action="{{ route('admin.content.menu.destroy', $menu->id) }}"
+                                                method="post">
+                                                @csrf
+                                                @method('delete')
+                                                <button class="btn btn-danger btn-sm width-6-rem mi delete" type="submit"><i
+                                                        class="fa fa-trash-alt"></i> Delete</button>
+                                            </form>
+                                        @endcan
+
+                                    </td>
+                                @endcanany
+
                             </tr>
                         @endforeach
 
