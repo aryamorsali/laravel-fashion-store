@@ -25,8 +25,11 @@
                 <div class="me-auto" style="max-width: 16rem;">
                     <input type="text" class="form-control form-control-sm form-text" placeholder="search..">
                 </div>
-                <a href="{{ route('admin.content.tag.create') }}" class="btn btn-dark btn-sm my-btn ">Create new
-                    tag</a>
+                @can('create-tag')
+                    <a href="{{ route('admin.content.tag.create') }}" class="btn btn-dark btn-sm my-btn ">Create new
+                        tag</a>
+                @endcan
+
             </section>
 
 
@@ -36,7 +39,9 @@
                         <tr>
                             <th scope="col">#</th>
                             <th scope="col">Tag name</th>
-                            <th class="max-width-16-rem text-center"><i class="fa fa-cogs"></i> Setting</th>
+                            @canany(['update-tag', 'delete-tag'])
+                                <th class="max-width-16-rem text-center"><i class="fa fa-cogs"></i> Setting</th>
+                            @endcanany
                         </tr>
                     </thead>
                     <tbody>
@@ -45,19 +50,27 @@
                             <tr>
                                 <th scope="row">{{ $loop->iteration }}</th>
                                 <td>{{ $tag->name }}</td>
-    
-                                <td class="width-16-rem text-center">
-                                    <a href="{{ route('admin.content.tag.edit', $tag->id) }}"
-                                        class="btn btn-primary btn-sm width-6-rem mi"><i class="fa fa-edit"></i>
-                                        Edit</a>
-                                    <form class="d-inline" action="{{ route('admin.content.tag.destroy', $tag->id) }}"
-                                        method="post">
-                                        @csrf
-                                        @method('delete')
-                                        <button class="btn btn-danger btn-sm width-6-rem mi delete" type="submit"><i
-                                                class="fa fa-trash-alt"></i> Delete</button>
-                                    </form>
-                                </td>
+                                @canany(['update-tag', 'delete-tag'])
+                                    <td class="width-16-rem text-center">
+                                        @can('update-tag')
+                                            <a href="{{ route('admin.content.tag.edit', $tag->id) }}"
+                                                class="btn btn-primary btn-sm width-6-rem mi"><i class="fa fa-edit"></i>
+                                                Edit</a>
+                                        @endcan
+
+                                        @can('delete-tag')
+                                            <form class="d-inline" action="{{ route('admin.content.tag.destroy', $tag->id) }}"
+                                                method="post">
+                                                @csrf
+                                                @method('delete')
+                                                <button class="btn btn-danger btn-sm width-6-rem mi delete" type="submit"><i
+                                                        class="fa fa-trash-alt"></i> Delete</button>
+                                            </form>
+                                        @endcan
+
+                                    </td>
+                                @endcanany
+
                             </tr>
                         @endforeach
 
@@ -70,6 +83,5 @@
 @endsection
 
 @section('script')
-
     @include('admin.alerts.sweetalert.delete-confirm', ['className' => 'delete'])
 @endsection

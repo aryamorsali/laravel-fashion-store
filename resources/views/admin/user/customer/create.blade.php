@@ -9,7 +9,6 @@
         <nav style="background-color: #eee; height: 2.25rem" class="my-4 rounded ps-2" aria-label="breadcrumb">
             <ol class="breadcrumb p-1 ">
                 <li class="breadcrumb-item"><a href="#" style="text-decoration: none">Dashboard</a></li>
-                <li class="breadcrumb-item"><a href="#" style="text-decoration: none">content</a></li>
                 <li class="breadcrumb-item"><a href="#" style="text-decoration: none">Users</a></li>
                 <li class="breadcrumb-item active">Create User</li>
             </ol>

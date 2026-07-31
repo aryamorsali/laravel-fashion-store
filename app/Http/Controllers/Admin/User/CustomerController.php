@@ -7,7 +7,9 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\User\CustomerRequest;
 use App\Http\Services\Image\ImageService;
 use App\Models\User;
+use App\Models\User\Role;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 
 class CustomerController extends Controller
@@ -15,9 +17,29 @@ class CustomerController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
-        $users = User::where('user_type', 0)->orderBy('id', 'desc')->paginate(20);
+        $validated = $request->validate([
+            'search' => 'nullable|string|max:100',
+        ]);
+
+        $search = $validated['search'] ?? null;
+
+        $query = User::whereHas('roles', function ($r) {
+            $r->where('name', 'user');
+        });
+
+        if ($request->filled('search')) {
+
+            $query->where(function ($q) use ($search) {
+                $q->where('first_name', 'LIKE', '%' . $search . '%')
+                    ->orWhere('last_name', 'LIKE', '%' . $search . '%')
+                    ->orWhere('email', 'LIKE', '%' . $search . '%')
+                    ->orWhere('mobile', 'LIKE', '%' . $search . '%');
+            });
+        }
+
+        $users = $query->orderBy('created_at', 'desc')->paginate(15)->appends(request()->query());
         return view('admin.user.customer.index', compact('users'));
     }
 
@@ -36,7 +58,6 @@ class CustomerController extends Controller
     {
         $inputs = $request->validated();
         $inputs['password'] = Hash::make($request->password);
-        $inputs['user_type'] = 0;
         if ($request->hasFile('profile_photo_path')) {
             $imageService->setExclusiveDirectory('images' . DIRECTORY_SEPARATOR . 'users');
             $result = $imageService->save($request->file('profile_photo_path'));
@@ -50,7 +71,14 @@ class CustomerController extends Controller
             $inputs['profile_photo_path'] = $result;
         }
 
-        $user = User::create($inputs);
+        DB::transaction(function () use ($inputs) {
+
+            $role =  Role::where('name', 'user')->firstOrFail();
+            $user = User::create($inputs);
+
+            $user->roles()->sync($role->id);
+        });
+
         return redirect()->route('admin.user.customer.index')->with(
             'alert-section-success',
             'New user successfully registered.'
@@ -112,11 +140,14 @@ class CustomerController extends Controller
      */
     public function destroy(User $customer)
     {
+        if ($customer->is_owner) {
+            return back()->with('alert-section-error', 'This user cannot be deleted.');
+        }
+
         $customer->delete();
-        return redirect(route('admin.user.customer.index'))->with(
-            'alert-section-success',
-            'User successfully deleted.'
-        );
+        return redirect()
+            ->route('admin.user.customer.index')
+            ->with('alert-section-success', 'User successfully deleted.');
     }
 
     public function activation(User $customer)

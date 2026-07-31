@@ -25,11 +25,12 @@
                 <div class="me-auto" style="max-width: 16rem;">
                     <input type="text" class="form-control form-control-sm form-text" placeholder="search..">
                 </div>
-                @if ($boxes->count() < 5)
-                    <a href="{{ route('admin.market.home-box.create') }}" class="btn btn-dark btn-sm my-btn ">Create new
-                        box</a>
-                @endif
-
+                @can('create-home-box')
+                    @if ($boxes->count() < 5)
+                        <a href="{{ route('admin.market.home-box.create') }}" class="btn btn-dark btn-sm my-btn ">Create new
+                            box</a>
+                    @endif
+                @endcan
             </section>
 
 
@@ -44,7 +45,9 @@
                             <th scope="col">Image</th>
                             <th scope="col">Position</th>
                             <th scope="col">Status</th>
-                            <th class="max-width-16-rem text-center"><i class="fa fa-cogs"></i> Action</th>
+                            @canany(['update-home-box', 'delete-home-box'])
+                                <th class="max-width-16-rem text-center"><i class="fa fa-cogs"></i> Actions</th>
+                            @endcanany
                         </tr>
                     </thead>
                     <tbody>
@@ -69,22 +72,31 @@
                                 <td>
                                     <label>
                                         <input id="{{ $box->id }}" onchange="changeStatus({{ $box->id }})"
+                                            @cannot('update-home-box') disabled @endcannot
                                             data-url="{{ route('admin.market.home-box.status', $box) }}" type="checkbox"
                                             @if ($box->status === 1) checked @endif>
                                     </label>
                                 </td>
-                                <td class="width-16-rem text-center">
-                                    <a href="{{ route('admin.market.home-box.edit', $box->id) }}"
-                                        class="btn btn-primary btn-sm width-6-rem mi"><i class="fa fa-edit"></i>
-                                        Edit</a>
-                                    <form class="d-inline" action="{{ route('admin.market.home-box.destroy', $box->id) }}"
-                                        method="post">
-                                        @csrf
-                                        @method('delete')
-                                        <button class="btn btn-danger btn-sm width-6-rem mi delete" type="submit"><i
-                                                class="fa fa-trash-alt"></i> Delete</button>
-                                    </form>
-                                </td>
+                                @canany(['update-home-box', 'delete-home-box'])
+                                    <td class="width-16-rem text-center">
+                                        @can('update-home-box')
+                                            <a href="{{ route('admin.market.home-box.edit', $box->id) }}"
+                                                class="btn btn-primary btn-sm width-6-rem mi"><i class="fa fa-edit"></i>
+                                                Edit</a>
+                                        @endcan
+                                        @can('delete-home-box')
+                                            <form class="d-inline" action="{{ route('admin.market.home-box.destroy', $box->id) }}"
+                                                method="post">
+                                                @csrf
+                                                @method('delete')
+                                                <button class="btn btn-danger btn-sm width-6-rem mi delete" type="submit"><i
+                                                        class="fa fa-trash-alt"></i> Delete</button>
+                                            </form>
+                                        @endcan
+
+                                    </td>
+                                @endcanany
+
                             </tr>
                         @endforeach
 

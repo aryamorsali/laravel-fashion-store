@@ -25,9 +25,12 @@
                 <div class="me-auto" style="max-width: 16rem;">
                     <input type="text" class="form-control form-control-sm form-text" placeholder="search..">
                 </div>
-                <a href="{{ route('admin.market.discount.common_discount.create') }}"
-                    class="btn btn-dark btn-sm my-btn ">Create new
-                    common discount</a>
+                @can('create-common-discount')
+                    <a href="{{ route('admin.market.discount.common_discount.create') }}"
+                        class="btn btn-dark btn-sm my-btn ">Create new
+                        common discount</a>
+                @endcan
+
             </section>
 
 
@@ -43,7 +46,10 @@
                             <th scope="col">Start date</th>
                             <th scope="col">End date</th>
                             <th scope="col">Status</th>
-                            <th class="max-width-14-rem text-center"><i class="fa fa-cogs"></i> Action</th>
+                            @canany(['update-common-discount', 'delete-common-discount'])
+                                <th class="max-width-14-rem text-center"><i class="fa fa-cogs"></i> Action</th>
+                            @endcanany
+
                         </tr>
                     </thead>
                     <tbody>
@@ -91,20 +97,27 @@
                                     @endswitch
                                 </td>
 
+                                @canany(['update-common-discount', 'delete-common-discount'])
+                                    <td class="width-14-rem text-center">
+                                        @can('update-common-discount')
+                                            <a href="{{ route('admin.market.discount.common_discount.edit', $common_discount->id) }}"
+                                                class="btn btn-primary btn-sm width-6-rem mi"><i class="fa fa-edit"></i>
+                                                Edit</a>
+                                        @endcan
+                                        @can('delete-common-discount')
+                                            <form class="d-inline"
+                                                action="{{ route('admin.market.discount.common_discount.destroy', $common_discount->id) }}"
+                                                method="post">
+                                                @csrf
+                                                @method('delete')
+                                                <button class="btn btn-danger btn-sm width-6-rem mi delete" type="submit"><i
+                                                        class="fa fa-trash-alt"></i> Delete</button>
+                                            </form>
+                                        @endcan
 
-                                <td class="width-14-rem text-center">
-                                    <a href="{{ route('admin.market.discount.common_discount.edit', $common_discount->id) }}"
-                                        class="btn btn-primary btn-sm width-6-rem mi"><i class="fa fa-edit"></i>
-                                        Edit</a>
-                                    <form class="d-inline"
-                                        action="{{ route('admin.market.discount.common_discount.destroy', $common_discount->id) }}"
-                                        method="post">
-                                        @csrf
-                                        @method('delete')
-                                        <button class="btn btn-danger btn-sm width-6-rem mi delete" type="submit"><i
-                                                class="fa fa-trash-alt"></i> Delete</button>
-                                    </form>
-                                </td>
+                                    </td>
+                                @endcanany
+
                             </tr>
                         @endforeach
 

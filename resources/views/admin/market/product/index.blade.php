@@ -25,8 +25,11 @@
                 <div class="me-auto" style="max-width: 16rem;">
                     <input type="text" class="form-control form-control-sm form-text" placeholder="search..">
                 </div>
-                <a href="{{ route('admin.market.product.create') }}" class="btn btn-dark btn-sm my-btn ">Create new
-                    product</a>
+                @can('create-product-category')
+                    <a href="{{ route('admin.market.product.create') }}" class="btn btn-dark btn-sm my-btn ">Create new
+                        product</a>
+                @endcan
+
             </section>
 
 
@@ -40,7 +43,10 @@
                             <th scope="col">Price</th>
                             <th scope="col">Category</th>
                             <th scope="col">Status</th>
-                            <th class="max-width-16-rem text-center"><i class="fa fa-cogs"></i> Setting</th>
+                            @canany(['manage-product-gallery', 'view-product-variant', 'delete-product', 'update-product'])
+                                <th class="max-width-16-rem text-center"><i class="fa fa-cogs"></i> Setting</th>
+                            @endcanany
+
                         </tr>
                     </thead>
                     <tbody>
@@ -72,46 +78,61 @@
                                     @endswitch
                                 </td>
 
-                                <td class="width-13-rem text-left">
-                                    <div class="dropdown">
-                                        <a href="#" class="btn btn-success btn-sm btn-block dropdown-toggle"
-                                            role="button" id="dropdownMenuLink" data-bs-toggle="dropdown"
-                                            aria-expanded="false">
-                                            <i class="fa fa-tools"></i> Operation
-                                        </a>
+                                @canany(['manage-product-gallery', 'view-product-variant', 'delete-product',
+                                    'update-product'])
+                                    <td class="width-13-rem text-left">
+                                        <div class="dropdown">
+                                            <a href="#" class="btn btn-success btn-sm btn-block dropdown-toggle"
+                                                role="button" id="dropdownMenuLink" data-bs-toggle="dropdown"
+                                                aria-expanded="false">
+                                                <i class="fa fa-tools"></i> Operation
+                                            </a>
 
-                                        <ul class="dropdown-menu" aria-labelledby="dropdownMenuLink">
-                                            <li>
-                                                <a href="{{ route('admin.market.gallery.index', $product) }}"
-                                                    class="dropdown-item text-right"><i class="fa fa-images"></i>
-                                                    Gallery</a>
-                                            </li>
-                                            <li>
-                                                <a href="{{ route('admin.market.variant.index', $product) }}"
-                                                    class="dropdown-item text-right">
-                                                    <i class="fa fa-edit"></i> Product Vriant
-                                                </a>
-                                            </li>
-                                            <li>
-                                                <a href="{{ route('admin.market.product.edit', $product) }}"
-                                                    class="dropdown-item text-right">
-                                                    <i class="fa fa-edit"></i> Edit
-                                                </a>
-                                            </li>
-                                            <li>
-                                                <form class="d-inline"
-                                                    action="{{ route('admin.market.product.destroy', $product) }}"
-                                                    method="post">
-                                                    @csrf
-                                                    @method('delete')
-                                                    <button type="submit" class="dropdown-item text-right delete">
-                                                        <i class="fa fa-window-close"></i> Delete
-                                                    </button>
-                                                </form>
-                                            </li>
-                                        </ul>
-                                    </div>
-                                </td>
+                                            <ul class="dropdown-menu" aria-labelledby="dropdownMenuLink">
+                                                @can('manage-product-gallery')
+                                                    <li>
+                                                        <a href="{{ route('admin.market.gallery.index', $product) }}"
+                                                            class="dropdown-item text-right"><i class="fa fa-images"></i>
+                                                            Gallery</a>
+                                                    </li>
+                                                @endcan
+
+                                                @can('view-product-variant')
+                                                    <li>
+                                                        <a href="{{ route('admin.market.variant.index', $product) }}"
+                                                            class="dropdown-item text-right">
+                                                            <i class="fa fa-edit"></i> Product Vriant
+                                                        </a>
+                                                    </li>
+                                                @endcan
+
+                                                @can('update-product')
+                                                    <li>
+                                                        <a href="{{ route('admin.market.product.edit', $product) }}"
+                                                            class="dropdown-item text-right">
+                                                            <i class="fa fa-edit"></i> Edit
+                                                        </a>
+                                                    </li>
+                                                @endcan
+
+                                                @can('delete-product')
+                                                    <li>
+                                                        <form class="d-inline"
+                                                            action="{{ route('admin.market.product.destroy', $product) }}"
+                                                            method="post">
+                                                            @csrf
+                                                            @method('delete')
+                                                            <button type="submit" class="dropdown-item text-right delete">
+                                                                <i class="fa fa-window-close"></i> Delete
+                                                            </button>
+                                                        </form>
+                                                    </li>
+                                                @endcan
+
+                                            </ul>
+                                        </div>
+                                    </td>
+                                @endcanany
 
                             </tr>
                         @endforeach

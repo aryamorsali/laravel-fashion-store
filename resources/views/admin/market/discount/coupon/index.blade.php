@@ -25,8 +25,11 @@
                 <div class="me-auto" style="max-width: 16rem;">
                     <input type="text" class="form-control form-control-sm form-text" placeholder="search..">
                 </div>
-                <a href="{{ route('admin.market.discount.coupon.create') }}" class="btn btn-dark btn-sm my-btn ">Create new
-                    coupon</a>
+                @can('create-coupon')
+                    <a href="{{ route('admin.market.discount.coupon.create') }}" class="btn btn-dark btn-sm my-btn ">Create new
+                        coupon</a>
+                @endcan
+
             </section>
 
 
@@ -44,7 +47,10 @@
                             <th scope="col">End</th>
                             <th scope="col">Status</th>
 
-                            <th class="max-width-14-rem text-center"><i class="fa fa-cogs"></i> Action</th>
+                            @canany(['update-coupon', 'delete-coupon'])
+                                <th class="max-width-14-rem text-center"><i class="fa fa-cogs"></i> Action</th>
+                            @endcanany
+
                         </tr>
                     </thead>
                     <tbody>
@@ -82,19 +88,28 @@
                                         @break
                                     @endswitch
                                 </td>
-                                <td class="width-14-rem text-center">
-                                    <a href="{{ route('admin.market.discount.coupon.edit', $coupon->id) }}"
-                                        class="btn btn-primary btn-sm width-4-rem mi"><i class="fa fa-edit"></i>
-                                        Edit</a>
-                                    <form class="d-inline"
-                                        action="{{ route('admin.market.discount.coupon.destroy', $coupon->id) }}"
-                                        method="post">
-                                        @csrf
-                                        @method('delete')
-                                        <button class="btn btn-danger btn-sm width-4-rem mi delete" type="submit"><i
-                                                class="fa fa-trash-alt"></i> Delete</button>
-                                    </form>
-                                </td>
+                                @canany(['update-coupon', 'delete-coupon'])
+                                    <td class="width-14-rem text-center">
+                                        @can('update-coupon')
+                                            <a href="{{ route('admin.market.discount.coupon.edit', $coupon->id) }}"
+                                                class="btn btn-primary btn-sm width-4-rem mi"><i class="fa fa-edit"></i>
+                                                Edit</a>
+                                        @endcan
+
+                                        @can('delete-coupon')
+                                            <form class="d-inline"
+                                                action="{{ route('admin.market.discount.coupon.destroy', $coupon->id) }}"
+                                                method="post">
+                                                @csrf
+                                                @method('delete')
+                                                <button class="btn btn-danger btn-sm width-4-rem mi delete" type="submit"><i
+                                                        class="fa fa-trash-alt"></i> Delete</button>
+                                            </form>
+                                        @endcan
+
+                                    </td>
+                                @endcanany
+
                             </tr>
                         @endforeach
 

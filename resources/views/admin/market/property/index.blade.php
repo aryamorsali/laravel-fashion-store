@@ -25,8 +25,11 @@
                 <div class="me-auto" style="max-width: 16rem;">
                     <input type="text" class="form-control form-control-sm form-text" placeholder="search..">
                 </div>
-                <a href="{{ route('admin.market.property.create') }}" class="btn btn-dark btn-sm my-btn ">Create new
-                    attribute</a>
+                @can('create-product-attribute')
+                    <a href="{{ route('admin.market.property.create') }}" class="btn btn-dark btn-sm my-btn ">Create new
+                        attribute</a>
+                @endcan
+
             </section>
 
 
@@ -38,7 +41,10 @@
                             <th scope="col">Attribute</th>
                             <th scope="col">Unit</th>
                             <th scope="col">Category</th>
-                            <th class="max-width-16-rem text-center"><i class="fa fa-cogs"></i> Actions</th>
+                            @canany(['update-product-attribute', 'delete-product-attribute',
+                                'view-product-attribute-value'])
+                                <th class="max-width-16-rem text-center"><i class="fa fa-cogs"></i> Actions</th>
+                            @endcanany
                         </tr>
                     </thead>
                     <tbody>
@@ -52,23 +58,33 @@
                                     {{ $productAttribute->category->name ?? ($productAttribute->is_global ? 'Active for all categories' : '-') }}
                                 </td>
 
+                                @canany(['update-product-attribute', 'delete-product-attribute',
+                                    'view-product-attribute-value'])
+                                    <td class="width-20-rem text-center">
+                                        @can('view-product-attribute-value')
+                                            <a href="{{ route('admin.market.value.index', $productAttribute) }}"
+                                                class="btn btn-warning btn-sm width-6-rem mi"><i class="fa fa-edit"></i>
+                                                Values</a>
+                                        @endcan
+                                        @can('update-product-attribute')
+                                            <a href="{{ route('admin.market.property.edit', $productAttribute) }}"
+                                                class="btn btn-primary btn-sm width-6-rem mi"><i class="fa fa-edit"></i>
+                                                Edit</a>
+                                        @endcan
+                                        @can('delete-product-attribute')
+                                            <form class="d-inline"
+                                                action="{{ route('admin.market.property.destroy', $productAttribute) }}"
+                                                method="post">
+                                                @csrf
+                                                @method('delete')
+                                                <button class="btn btn-danger btn-sm width-6-rem mi delete" type="submit"><i
+                                                        class="fa fa-trash-alt"></i> Delete</button>
+                                            </form>
+                                        @endcan
 
-                                <td class="width-20-rem text-center">
-                                    <a href="{{ route('admin.market.value.index', $productAttribute) }}" class="btn btn-warning btn-sm width-6-rem mi"><i
-                                            class="fa fa-edit"></i>
-                                        Values</a>
-                                    <a href="{{ route('admin.market.property.edit', $productAttribute) }}"
-                                        class="btn btn-primary btn-sm width-6-rem mi"><i class="fa fa-edit"></i>
-                                        Edit</a>
-                                    <form class="d-inline"
-                                        action="{{ route('admin.market.property.destroy', $productAttribute) }}"
-                                        method="post">
-                                        @csrf
-                                        @method('delete')
-                                        <button class="btn btn-danger btn-sm width-6-rem mi delete" type="submit"><i
-                                                class="fa fa-trash-alt"></i> Delete</button>
-                                    </form>
-                                </td>
+                                    </td>
+                                @endcanany
+
                             </tr>
                         @endforeach
 

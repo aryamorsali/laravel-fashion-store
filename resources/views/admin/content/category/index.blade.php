@@ -25,8 +25,11 @@
                 <div class="me-auto" style="max-width: 16rem;">
                     <input type="text" class="form-control form-control-sm form-text" placeholder="search..">
                 </div>
-                <a href="{{ route('admin.content.category.create') }}" class="btn btn-dark btn-sm my-btn ">Create new
-                    category</a>
+                @can('create-post-category')
+                    <a href="{{ route('admin.content.category.create') }}" class="btn btn-dark btn-sm my-btn ">Create new
+                        category</a>
+                @endcan
+
             </section>
 
 
@@ -41,7 +44,10 @@
                             <th scope="col">Image</th>
                             <th scope="col">Tag</th>
                             <th scope="col">Status</th>
-                            <th class="max-width-16-rem text-center"><i class="fa fa-cogs"></i> Setting</th>
+                            @canany(['update-post-category', 'delete-post-category'])
+                                <th class="max-width-16-rem text-center"><i class="fa fa-cogs"></i> Setting</th>
+                            @endcanany
+
                         </tr>
                     </thead>
                     <tbody>
@@ -64,23 +70,33 @@
                                 <td>
                                     <label>
                                         <input id="{{ $postCategory->id }}" onchange="changeStatus({{ $postCategory->id }})"
+                                            @cannot('update-post-category') disabled @endcannot
                                             data-url="{{ route('admin.content.category.status', $postCategory->id) }}"
                                             type="checkbox" @if ($postCategory->status === 1) checked @endif>
                                     </label>
                                 </td>
-                                <td class="width-16-rem text-center">
-                                    <a href="{{ route('admin.content.category.edit', $postCategory->id) }}"
-                                        class="btn btn-primary btn-sm width-6-rem mi"><i class="fa fa-edit"></i>
-                                        Edit</a>
-                                    <form class="d-inline"
-                                        action="{{ route('admin.content.category.destroy', $postCategory->id) }}"
-                                        method="post">
-                                        @csrf
-                                        @method('delete')
-                                        <button class="btn btn-danger btn-sm width-6-rem mi delete" type="submit"><i
-                                                class="fa fa-trash-alt"></i> Delete</button>
-                                    </form>
-                                </td>
+                                @canany(['update-post-category', 'delete-post-category'])
+                                    <td class="width-16-rem text-center">
+                                        @can('update-post-category')
+                                            <a href="{{ route('admin.content.category.edit', $postCategory->id) }}"
+                                                class="btn btn-primary btn-sm width-6-rem mi"><i class="fa fa-edit"></i>
+                                                Edit</a>
+                                        @endcan
+
+                                        @can('delete-post-category')
+                                            <form class="d-inline"
+                                                action="{{ route('admin.content.category.destroy', $postCategory->id) }}"
+                                                method="post">
+                                                @csrf
+                                                @method('delete')
+                                                <button class="btn btn-danger btn-sm width-6-rem mi delete" type="submit"><i
+                                                        class="fa fa-trash-alt"></i> Delete</button>
+                                            </form>
+                                        @endcan
+
+                                    </td>
+                                @endcanany
+
                             </tr>
                         @endforeach
 

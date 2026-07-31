@@ -25,8 +25,11 @@
                 <div class="me-auto" style="max-width: 16rem;">
                     <input type="text" class="form-control form-control-sm form-text" placeholder="search..">
                 </div>
-                <a href="{{ route('admin.market.warehouse.create') }}" class="btn btn-dark btn-sm my-btn ">Create new
-                    warehouse</a>
+                @can('create-warehouse')
+                    <a href="{{ route('admin.market.warehouse.create') }}" class="btn btn-dark btn-sm my-btn ">Create new
+                        warehouse</a>
+                @endcan
+
             </section>
 
 
@@ -37,7 +40,9 @@
                             <th scope="col">#</th>
                             <th scope="col">Name</th>
                             <th scope="col">Address</th>
-                            <th class="max-width-16-rem text-center"><i class="fa fa-cogs"></i> Setting</th>
+                            @canany(['update-warehouse', 'view-inventory', 'delete-warehouse'])
+                                <th class="max-width-16-rem text-center"><i class="fa fa-cogs"></i> Setting</th>
+                            @endcanany
                         </tr>
                     </thead>
                     <tbody>
@@ -47,21 +52,32 @@
                                 <th scope="row">{{ $loop->iteration }}</th>
                                 <td>{{ $warehouse->name }}</td>
                                 <td>{{ $warehouse->address ?? '-' }}</td>
-                                <td class="width-20-rem text-center">
-                                    <a href="{{ route('admin.market.warehouse.variant.index', $warehouse) }}"
-                                        class="btn btn-warning btn-sm width-6-rem mi"><i class="fa fa-edit"></i>
-                                        Inventory</a>
-                                    <a href="{{ route('admin.market.warehouse.edit', $warehouse) }}"
-                                        class="btn btn-primary btn-sm width-6-rem mi"><i class="fa fa-edit"></i>
-                                        Edit</a>
-                                    <form class="d-inline"
-                                        action="{{ route('admin.market.warehouse.destroy', $warehouse) }}" method="post">
-                                        @csrf
-                                        @method('delete')
-                                        <button class="btn btn-danger btn-sm width-6-rem mi delete" type="submit"><i
-                                                class="fa fa-trash-alt"></i> Delete</button>
-                                    </form>
-                                </td>
+                                @canany(['update-warehouse', 'view-inventory', 'delete-warehouse'])
+                                    <td class="width-20-rem text-center">
+                                        @can('view-inventory')
+                                            <a href="{{ route('admin.market.warehouse.variant.index', $warehouse) }}"
+                                                class="btn btn-warning btn-sm width-6-rem mi"><i class="fa fa-edit"></i>
+                                                Inventory</a>
+                                        @endcan
+                                        @can('update-warehouse')
+                                            <a href="{{ route('admin.market.warehouse.edit', $warehouse) }}"
+                                                class="btn btn-primary btn-sm width-6-rem mi"><i class="fa fa-edit"></i>
+                                                Edit</a>
+                                        @endcan
+
+                                        @can('delete-warehouse')
+                                            <form class="d-inline"
+                                                action="{{ route('admin.market.warehouse.destroy', $warehouse) }}" method="post">
+                                                @csrf
+                                                @method('delete')
+                                                <button class="btn btn-danger btn-sm width-6-rem mi delete" type="submit"><i
+                                                        class="fa fa-trash-alt"></i> Delete</button>
+                                            </form>
+                                        @endcan
+
+                                    </td>
+                                @endcanany
+
                             </tr>
                         @endforeach
 

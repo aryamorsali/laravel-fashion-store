@@ -26,8 +26,11 @@
                 <div class="me-auto" style="max-width: 16rem;">
                     <input type="text" class="form-control form-control-sm form-text" placeholder="search..">
                 </div>
-                <a href="{{ route('admin.content.post.create') }}" class="btn btn-dark btn-sm my-btn ">Create new
-                    post</a>
+                @can('create-post')
+                    <a href="{{ route('admin.content.post.create') }}" class="btn btn-dark btn-sm my-btn ">Create new
+                        post</a>
+                @endcan
+
             </section>
 
 
@@ -42,7 +45,10 @@
                             <th scope="col">Tag</th>
                             <th scope="col">Status</th>
                             <th scope="col">Commentable</th>
-                            <th class="max-width-16-rem text-center"><i class="fa fa-cogs"></i> Setting</th>
+                            @canany(['update-post', 'delete-post'])
+                                <th class="max-width-16-rem text-center"><i class="fa fa-cogs"></i> Setting</th>
+                            @endcanany
+
                         </tr>
                     </thead>
                     <tbody>
@@ -65,38 +71,43 @@
                                     @endif
                                 </td>
 
-
-
                                 <td>
                                     <label>
                                         <input id="{{ $post->id }}" onchange="changeStatus({{ $post->id }})"
+                                            @cannot('update-post') disabled @endcannot
                                             data-url="{{ route('admin.content.post.status', $post->id) }}" type="checkbox"
                                             @if ($post->status === 1) checked @endif>
                                     </label>
                                 </td>
                                 <td>
                                     <label>
-                                        <input id="{{ $post->id }}-commentable"
+                                        <input id="{{ $post->id }}-commentable" @can('update-post') disabled @endcan
                                             onchange="commentable({{ $post->id }})"
                                             data-url="{{ route('admin.content.post.commentable', $post->id) }}"
                                             type="checkbox" @if ($post->commentable === 1) checked @endif>
                                     </label>
                                 </td>
-                                <td class="width-16-rem text-center">
-                                    <a href="{{ route('admin.content.post.edit', $post->id) }}"
-                                        class="btn btn-primary btn-sm width-6-rem mi"><i class="fa fa-edit"></i>
-                                        Edit</a>
-                                    <form class="d-inline" action="{{ route('admin.content.post.destroy', $post->id) }}"
-                                        method="post">
-                                        @csrf
-                                        @method('delete')
-                                        <button class="btn btn-danger btn-sm width-6-rem mi delete" type="submit"><i
-                                                class="fa fa-trash-alt"></i> Delete</button>
-                                    </form>
-                                </td>
+                                @canany(['update-post', 'delete-post'])
+                                    <td class="width-16-rem text-center">
+                                        @can('update-post')
+                                            <a href="{{ route('admin.content.post.edit', $post->id) }}"
+                                                class="btn btn-primary btn-sm width-6-rem mi"><i class="fa fa-edit"></i>
+                                                Edit</a>
+                                        @endcan
+
+                                        @can('delete-post')
+                                            <form class="d-inline" action="{{ route('admin.content.post.destroy', $post->id) }}"
+                                                method="post">
+                                                @csrf
+                                                @method('delete')
+                                                <button class="btn btn-danger btn-sm width-6-rem mi delete" type="submit"><i
+                                                        class="fa fa-trash-alt"></i> Delete</button>
+                                            </form>
+                                        @endcan
+                                    </td>
+                                @endcanany
                             </tr>
                         @endforeach
-
                     </tbody>
                 </table>
             </section>

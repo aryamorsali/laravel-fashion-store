@@ -23,7 +23,17 @@
 
             <section class="d-flex align-items-center mt-4 mb-3 border-bottom pb-2">
                 <div class="me-auto" style="max-width: 16rem;">
-                    <input type="text" class="form-control form-control-sm form-text" placeholder="search..">
+                    {{-- // search --}}
+                    <form class="d-flex align-items-center" action="{{ route('admin.user.customer.index') }}" method="GET">
+
+                        <input type="text" name="search" value="{{ request('search') }}"
+                            class="form-control form-control-sm" style="margin-right: 5px" placeholder="search..">
+
+                        <button type="submit" class="btn btn-sm btn-secondary">
+                            <i class="fa fa-search"></i>
+                        </button>
+
+                    </form>
                 </div>
                 <a href="{{ route('admin.user.customer.create') }}" class="btn btn-dark btn-sm my-btn ">Create new
                     customer</a>
@@ -55,10 +65,10 @@
                                 <td>
                                     <label>
                                         <input id="{{ $user->id }}" onchange="changeStatus({{ $user->id }})"
-                                            data-url="{{ route('admin.user.customer.activation', $user->id) }}" type="checkbox"
-                                            @if ($user->activation === 1) checked @endif>
+                                            data-url="{{ route('admin.user.customer.activation', $user->id) }}"
+                                            type="checkbox" @if ($user->activation === 1) checked @endif>
                                     </label>
-                                </td>
+
                                 <td class="width-16-rem text-center">
                                     <a href="{{ route('admin.user.customer.edit', $user->id) }}"
                                         class="btn btn-primary btn-sm width-6-rem mi"><i class="fa fa-edit"></i>
@@ -76,6 +86,9 @@
 
                     </tbody>
                 </table>
+                <div class="d-flex justify-content-center mt-4">
+                    {{ $users->onEachSide(1)->links('vendor.pagination.custom') }}
+                </div>
             </section>
         </section>
 
