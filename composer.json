@@ -8,8 +8,10 @@
     "require": {
         "php": "^8.2",
         "cviebrock/eloquent-sluggable": "^11.0",
+        "darkaonline/l5-swagger": "^11.1",
         "intervention/image": "2.7",
         "laravel/framework": "^11.31",
+        "laravel/sanctum": "^4.0",
         "laravel/tinker": "^2.9",
         "shetabit/multipay": "v2.4.0",
         "shetabit/payment": "^6.4"
