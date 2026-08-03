@@ -1,0 +1,353 @@
+{
+    "openapi": "3.0.0",
+    "info": {
+        "title": "Coza Store API Documentation",
+        "description": "Coza Store API Documentation",
+        "version": "1.0.0"
+    },
+    "paths": {
+        "/api/login-register": {
+            "post": {
+                "tags": [
+                    "Authentication"
+                ],
+                "summary": "Request OTP code",
+                "description": "Send OTP to email or Iranian mobile number. Creates user if not exists.",
+                "operationId": "3fc4e8bfb5b344eca6c1368bd4ad641d",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "multipart/form-data": {
+                            "schema": {
+                                "required": [
+                                    "id"
+                                ],
+                                "properties": {
+                                    "id": {
+                                        "description": "Email address or Iranian mobile number (+98/98/09XXXXXXXXX)",
+                                        "type": "string",
+                                        "example": "09123456789 || arya@gmail.com"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "OTP sent successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Verification code sent successfully."
+                                        },
+                                        "data": {
+                                            "properties": {
+                                                "otp_token": {
+                                                    "type": "string",
+                                                    "example": "abc123xyz..."
+                                                },
+                                                "created_at": {
+                                                    "type": "string",
+                                                    "format": "date-time"
+                                                },
+                                                "expires_at": {
+                                                    "type": "string",
+                                                    "format": "date-time"
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Your login ID is neither a mobile number nor an email."
+                                        },
+                                        "errors": {
+                                            "properties": {
+                                                "id": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "type": "string"
+                                                    },
+                                                    "example": [
+                                                        "Your login ID is neither a mobile number nor an email."
+                                                    ]
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "429": {
+                        "description": "Too many requests (throttled)"
+                    }
+                }
+            }
+        },
+        "/api/login-confirm/{token}": {
+            "post": {
+                "tags": [
+                    "Authentication"
+                ],
+                "summary": "Verify OTP and login",
+                "description": "Confirm OTP code. Enter Otp Token And Otp Code. Returns Sanctum Bearer token on success. OTP expires in 5 minutes.",
+                "operationId": "6594632c9efc5bfb5e9b868ea2b14417",
+                "parameters": [
+                    {
+                        "name": "token",
+                        "in": "path",
+                        "description": "OTP session token received from /login-register",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "example": "abc123xyz..."
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "multipart/form-data": {
+                            "schema": {
+                                "required": [
+                                    "otp"
+                                ],
+                                "properties": {
+                                    "otp": {
+                                        "description": "6-digit OTP code",
+                                        "type": "string",
+                                        "example": "482910"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Login successful",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "user successfuly logined"
+                                        },
+                                        "data": {
+                                            "properties": {
+                                                "token_type": {
+                                                    "type": "string",
+                                                    "example": "Bearer"
+                                                },
+                                                "access_token": {
+                                                    "type": "string",
+                                                    "example": "1|abc123..."
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Invalid or expired OTP",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "The verification code is expired or invalid."
+                                        },
+                                        "errors": {
+                                            "properties": {
+                                                "id": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "type": "string"
+                                                    },
+                                                    "example": [
+                                                        "The verification code is expired or invalid."
+                                                    ]
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "429": {
+                        "description": "Too many requests (throttled)"
+                    }
+                }
+            }
+        },
+        "/api/login-resend-otp/{token}": {
+            "get": {
+                "tags": [
+                    "Authentication"
+                ],
+                "summary": "Resend OTP code",
+                "description": "Resend a new OTP using the existing session token. Original token must still be within 5-minute window.",
+                "operationId": "1b18135bc28edc6c2a2ad6dc5aedcca8",
+                "parameters": [
+                    {
+                        "name": "token",
+                        "in": "path",
+                        "description": "OTP session token from /login-register",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "example": "abc123xyz..."
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OTP resent successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "OTP code successfully resent."
+                                        },
+                                        "data": {
+                                            "properties": {
+                                                "otp_token": {
+                                                    "type": "string",
+                                                    "example": "newtoken123..."
+                                                },
+                                                "created_at": {
+                                                    "type": "string",
+                                                    "format": "date-time"
+                                                },
+                                                "expires_at": {
+                                                    "type": "string",
+                                                    "format": "date-time"
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Token expired or invalid",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "The address is not valid"
+                                        },
+                                        "errors": {
+                                            "properties": {
+                                                "id": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "type": "string"
+                                                    },
+                                                    "example": [
+                                                        "The address is not valid"
+                                                    ]
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "429": {
+                        "description": "Too many requests (throttled)"
+                    }
+                }
+            }
+        },
+        "/api/logout": {
+            "get": {
+                "tags": [
+                    "Authentication"
+                ],
+                "summary": "Logout User",
+                "description": "Logout User And Delete Access Token",
+                "operationId": "2459af9bdd60df0846bf2c102f1dd6ca",
+                "responses": {
+                    "200": {
+                        "description": "User Logout Successfuly",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "user  logged out  successfuly"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        }
+    },
+    "tags": [
+        {
+            "name": "Authentication",
+            "description": "OTP-based login and registration"
+        }
+    ],
+    "components": {
+        "securitySchemes": {
+            "sanctum": {
+                "type": "apiKey",
+                "description": "Enter token in format (Bearer <token>)",
+                "name": "Authorization",
+                "in": "header"
+            }
+        }
+    }
+}
