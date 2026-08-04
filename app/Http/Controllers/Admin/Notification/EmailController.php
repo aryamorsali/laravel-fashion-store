@@ -4,6 +4,9 @@ namespace App\Http\Controllers\Admin\Notification;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\Notification\EmailRequest;
+use App\Http\Services\Message\Email\EmailService;
+use App\Http\Services\Message\MessageService;
+use App\Jobs\SendEmailToUsers;
 use App\Models\Notification\Email;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
@@ -127,9 +130,24 @@ class EmailController extends Controller
     }
     public function send(Email $email)
     {
+
+        if (in_array($email->status, ['sent', 'scheduled'])) {
+            return redirect(route('admin.notification.email.index'))->with(
+                'alert-section-error',
+                'This email notification has already been sent.'
+            );
+        }
+
+        SendEmailToUsers::dispatch($email);
+
+        // تغییر وضعیت به زمان‌ بندی شده برای ارسال
+        $email->update([
+            'status' => 'scheduled',
+        ]);
+
         return redirect(route('admin.notification.email.index'))->with(
             'alert-section-success',
-            'Email notification successfully deleted.'
+            'Email notification was successfully sent to all users.'
         );
     }
 }
