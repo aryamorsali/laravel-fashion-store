@@ -45,6 +45,9 @@ class PermissionSeeder extends Seeder
             'faq' => ['view', 'create', 'update', 'delete'],
             'banner' => ['view', 'create', 'update', 'delete'],
 
+            'email-notification' => ['view', 'create', 'update', 'delete', 'send'],
+            'sms-notification' => ['view', 'create', 'update', 'delete', 'send'],
+
         ];
 
         foreach ($resources as $resource => $actions) {
@@ -91,6 +94,11 @@ class PermissionSeeder extends Seeder
             [
                 'name' => 'manage-tickets',
                 'description' => 'Ticket Management',
+                'status' => 1,
+            ],
+            [
+                'name' => 'manage-email-notification-file',
+                'description' => 'Manage email notification file',
                 'status' => 1,
             ],
         ];

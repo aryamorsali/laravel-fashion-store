@@ -13,9 +13,23 @@ class SMSController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
-        $sms = SMS::all();
+        $validated = $request->validate([
+            'search' => 'nullable|string|max:100',
+        ]);
+
+        $search = $validated['search'] ?? null;
+
+        $query = SMS::query();
+
+        if ($request->filled('search')) {
+
+            $query->where('title', 'LIKE', '%' . $search . '%')->orWhere('body', 'LIKE', '%' . $search . '%');
+        }
+
+        $sms = $query->orderBy('created_at', 'desc')->paginate(15)->appends(request()->query());
+
         return view('admin.notification.sms.index', compact('sms'));
     }
 

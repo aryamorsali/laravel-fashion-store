@@ -202,17 +202,31 @@
                                    Banners
                                </a>
                            @endcan
-                       <div class="sb-sidenav-menu-heading">notification</div>
-                       <a class="nav-link" href="{{ route('admin.notification.email.index') }}">
-                           <div class="sb-nav-link-icon"><i class="fas fa-envelope"></i></div>
-                           Email notification
-                       </a>
-                       <a class="nav-link" href="{{ route('admin.notification.sms.index') }}">
-                           <div class="sb-nav-link-icon"><i class="fas fa-sms"></i></div>
-                           SMS notification
-                       </a>
 
                        @endcanany
+
+                       
+                       @canany(['view-email-notification', 'view-sms-notification'])
+
+                           <div class="sb-sidenav-menu-heading">notification</div>
+
+                           @can('view-email-notification')
+                               <a class="nav-link" href="{{ route('admin.notification.email.index') }}">
+                                   <div class="sb-nav-link-icon"><i class="fas fa-envelope"></i></div>
+                                   Email notification
+                               </a>
+                           @endcan
+                           
+                           @can('view-sms-notification')
+                               <a class="nav-link" href="{{ route('admin.notification.sms.index') }}">
+                                   <div class="sb-nav-link-icon"><i class="fas fa-sms"></i></div>
+                                   SMS notification
+                               </a>
+                           @endcan
+
+                       @endcanany
+
+
 
                        @if (auth()->user()?->is_owner)
                            <div class="sb-sidenav-menu-heading">User</div>

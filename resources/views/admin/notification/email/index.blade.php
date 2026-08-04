@@ -23,10 +23,23 @@
 
             <section class="d-flex align-items-center mt-4 mb-3 border-bottom pb-2">
                 <div class="me-auto" style="max-width: 16rem;">
-                    <input type="text" class="form-control form-control-sm form-text" placeholder="search..">
+                    {{-- // search --}}
+                    <form class="d-flex align-items-center" action="{{ route('admin.notification.email.index') }}"
+                        method="GET">
+
+                        <input type="text" name="search" value="{{ request('search') }}"
+                            class="form-control form-control-sm" style="margin-right: 5px" placeholder="search..">
+
+                        <button type="submit" class="btn btn-sm btn-secondary">
+                            <i class="fa fa-search"></i>
+                        </button>
+                    </form>
                 </div>
-                <a href="{{ route('admin.notification.email.create') }}" class="btn btn-dark btn-sm my-btn ">Create Email
-                    notification</a>
+                @can('create-email-notification')
+                    <a href="{{ route('admin.notification.email.create') }}" class="btn btn-dark btn-sm my-btn ">Create Email
+                        notification</a>
+                @endcan
+
             </section>
 
 
@@ -39,7 +52,10 @@
                             <th scope="col">Email text</th>
                             <th scope="col">Date of posting</th>
                             <th scope="col">Status</th>
-                            <th class=" text-right"><i class="fa fa-cogs"></i> Action</th>
+                            @canany(['update-email-notification', 'delete-email-notification', 'send-email-notification',
+                                'manage-email-notification-file'])
+                                <th class="max-width-16-rem text-center"><i class="fa fa-cogs"></i> Action</th>
+                            @endcanany
                         </tr>
                     </thead>
                     <tbody>
@@ -53,64 +69,83 @@
                                 <td>{{ $email->published_at ?? '-' }}</td>
                                 <td>{{ $email->status }}</td>
 
-                                <td class="width-13-rem text-left">
-                                    <div class="dropdown">
-                                        <a href="#" class="btn btn-success btn-sm btn-block dropdown-toggle"
-                                            role="button" id="dropdownMenuLink" data-bs-toggle="dropdown"
-                                            aria-expanded="false">
-                                            <i class="fa fa-tools"></i> Operation
-                                        </a>
+                                @canany(['update-email-notification', 'delete-email-notification',
+                                    'send-email-notification', 'manage-email-notification-file'])
+                                    <td class="width-13-rem text-left">
+                                        <div class="dropdown">
+                                            <a href="#" class="btn btn-success btn-sm btn-block dropdown-toggle"
+                                                role="button" id="dropdownMenuLink" data-bs-toggle="dropdown"
+                                                aria-expanded="false">
+                                                <i class="fa fa-tools"></i> Operation
+                                            </a>
 
-                                        <ul class="dropdown-menu" aria-labelledby="dropdownMenuLink">
+                                            <ul class="dropdown-menu" aria-labelledby="dropdownMenuLink">
 
-                                            <!-- Attached files -->
-                                            <li>
-                                                <a href="{{ route('admin.notification.email.file.index', $email->id) }}"
-                                                    class="dropdown-item text-right">
-                                                    <i class="fa fa-paperclip"></i> Attached files
-                                                </a>
-                                            </li>
+                                                <!-- Attached files -->
+                                                @can('manage-email-notification-file')
+                                                    <li>
+                                                        <a href="{{ route('admin.notification.email.file.index', $email->id) }}"
+                                                            class="dropdown-item text-right">
+                                                            <i class="fa fa-paperclip"></i> Attached files
+                                                        </a>
+                                                    </li>
+                                                @endcan
 
-                                            <!-- Edit -->
-                                            <li>
-                                                <a href="{{ route('admin.notification.email.edit', $email->id) }}"
-                                                    class="dropdown-item text-right">
-                                                    <i class="fa fa-edit"></i> Edit
-                                                </a>
-                                            </li>
 
-                                            <!-- Delete -->
-                                            <li>
-                                                <form class="d-inline"
-                                                    action="{{ route('admin.notification.email.destroy', $email->id) }}"
-                                                    method="post">
-                                                    @csrf
-                                                    @method('delete')
-                                                    <button class="dropdown-item text-right delete" type="submit">
-                                                        <i class="fa fa-trash"></i> Delete
-                                                    </button>
-                                                </form>
-                                            </li>
+                                                @can('update-email-notification')
+                                                    <!-- Edit -->
+                                                    <li>
+                                                        <a href="{{ route('admin.notification.email.edit', $email->id) }}"
+                                                            class="dropdown-item text-right">
+                                                            <i class="fa fa-edit"></i> Edit
+                                                        </a>
+                                                    </li>
+                                                @endcan
 
-                                            <!-- Send now -->
-                                            @if ($email->status !== 'sent')
-                                                <li>
-                                                    <a href="{{ route('admin.notification.email.send', $email->id) }}"
-                                                        class="dropdown-item text-right">
-                                                        <i class="fa fa-paper-plane"></i> Send now
-                                                    </a>
-                                                </li>
-                                            @endif
 
-                                        </ul>
-                                    </div>
-                                </td>
+                                                @can('delete-email-notification')
+                                                    <!-- Delete -->
+                                                    <li>
+                                                        <form class="d-inline"
+                                                            action="{{ route('admin.notification.email.destroy', $email->id) }}"
+                                                            method="post">
+                                                            @csrf
+                                                            @method('delete')
+                                                            <button class="dropdown-item text-right delete" type="submit">
+                                                                <i class="fa fa-trash"></i> Delete
+                                                            </button>
+                                                        </form>
+                                                    </li>
+                                                @endcan
+
+
+                                                @can('send-email-notification')
+                                                    <!-- Send now -->
+                                                    @if ($email->status !== 'sent')
+                                                        <li>
+                                                            <a href="{{ route('admin.notification.email.send', $email->id) }}"
+                                                                class="dropdown-item text-right">
+                                                                <i class="fa fa-paper-plane"></i> Send now
+                                                            </a>
+                                                        </li>
+                                                    @endif
+                                                @endcan
+
+
+                                            </ul>
+                                        </div>
+                                    </td>
+                                @endcanany
+
                             </tr>
                         @endforeach
 
                     </tbody>
                 </table>
             </section>
+            <div class="d-flex justify-content-center mt-4">
+                {{ $emails->onEachSide(1)->links('vendor.pagination.custom') }}
+            </div>
         </section>
 
     </section>
