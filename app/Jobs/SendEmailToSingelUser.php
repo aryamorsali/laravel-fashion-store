@@ -8,10 +8,10 @@ use App\Models\Notification\Email;
 use App\Models\User;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Queue\Queueable;
-
+use Illuminate\Bus\Batchable;
 class SendEmailToSingelUser implements ShouldQueue
 {
-    use Queueable;
+    use Queueable, Batchable;
 
     public $email;
     public $user;

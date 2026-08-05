@@ -128,26 +128,28 @@ class EmailController extends Controller
             'Email notification successfully deleted.'
         );
     }
+
+
+
+
     public function send(Email $email)
     {
 
-        if (in_array($email->status, ['sent', 'scheduled'])) {
+        if (in_array($email->status, ['sent', 'queued', 'sending'])) {
             return redirect(route('admin.notification.email.index'))->with(
                 'alert-section-error',
-                'This email notification has already been sent.'
+                'This email notification cannot be sent in its current status.'
             );
         }
 
-        SendEmailToUsers::dispatch($email);
-
-        // تغییر وضعیت به زمان‌ بندی شده برای ارسال
         $email->update([
-            'status' => 'scheduled',
+            'status' => 'queued',
         ]);
+        SendEmailToUsers::dispatch($email);
 
         return redirect(route('admin.notification.email.index'))->with(
             'alert-section-success',
-            'Email notification was successfully sent to all users.'
+            'Email notification has been queued for sending.'
         );
     }
 }
