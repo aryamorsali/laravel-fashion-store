@@ -29,6 +29,9 @@ use App\Http\Controllers\Admin\Market\WarehouseController;
 use App\Http\Controllers\Admin\Market\WarehouseTransactionController;
 use App\Http\Controllers\Admin\Market\WarehouseVariantController;
 use App\Http\Controllers\Admin\Setting\SettingController;
+use App\Http\Controllers\Admin\Notification\EmailController;
+use App\Http\Controllers\Admin\Notification\EmailFileController;
+use App\Http\Controllers\Admin\Notification\SMSController;
 use App\Http\Controllers\Admin\Ticket\AdminTicketController;
 use App\Http\Controllers\Admin\Ticket\TicketCategoryController;
 use App\Http\Controllers\Admin\Ticket\TicketController;
@@ -305,6 +308,42 @@ Route::prefix('admin')->middleware(['auth', 'can:access-admin-panel'])->group(fu
             Route::get('/status/{role}', [RoleController::class, 'status'])->name('admin.user.role.status');
             Route::get('/{role}/permission-form', [RoleController::class, 'permissionForm'])->name('admin.user.role.permission-form');
             Route::post('/{role}/permission/update', [RoleController::class, 'permissionUpdate'])->name('admin.user.role.permission.update');
+        });
+    });
+
+    // notification 
+    Route::prefix('notification')->group(function () {
+        // email
+        Route::prefix('email')->group(function () {
+
+            Route::get('/', [EmailController::class, 'index'])->name('admin.notification.email.index')->middleware('can:view-email-notification');
+            Route::get('/create', [EmailController::class, 'create'])->name('admin.notification.email.create')->middleware('can:create-email-notification');
+            Route::post('/store', [EmailController::class, 'store'])->name('admin.notification.email.store')->middleware('can:create-email-notification');
+            Route::get('/{email}/edit', [EmailController::class, 'edit'])->name('admin.notification.email.edit')->middleware('can:update-email-notification');
+            Route::put('/{email}/update', [EmailController::class, 'update'])->name('admin.notification.email.update')->middleware('can:update-email-notification');
+            Route::delete('/{email}/destroy', [EmailController::class, 'destroy'])->name('admin.notification.email.destroy')->middleware('can:delete-email-notification');
+            Route::get('/{email}/send', [EmailController::class, 'send'])->name('admin.notification.email.send')->middleware('can:send-email-notification');
+
+            // email files
+            Route::prefix('{email}/file')->middleware('can:manage-email-notification-file')->group(function () {
+                Route::get('/', [EmailFileController::class, 'index'])->name('admin.notification.email.file.index');
+                Route::get('/create', [EmailFileController::class, 'create'])->name('admin.notification.email.file.create');
+                Route::post('/store', [EmailFileController::class, 'store'])->name('admin.notification.email.file.store');
+                Route::get('/{file}/edit', [EmailFileController::class, 'edit'])->name('admin.notification.email.file.edit');
+                Route::put('/{file}/update', [EmailFileController::class, 'update'])->name('admin.notification.email.file.update');
+                Route::delete('/{file}/destroy', [EmailFileController::class, 'destroy'])->name('admin.notification.email.file.destroy');
+            });
+        });
+        // sms
+        Route::prefix('sms')->group(function () {
+
+            Route::get('/', [SMSController::class, 'index'])->name('admin.notification.sms.index')->middleware('can:view-sms-notification');
+            Route::get('/create', [SMSController::class, 'create'])->name('admin.notification.sms.create')->middleware('can:create-sms-notification');
+            Route::post('/store', [SMSController::class, 'store'])->name('admin.notification.sms.store')->middleware('can:create-sms-notification');
+            Route::get('/{sms}/edit', [SMSController::class, 'edit'])->name('admin.notification.sms.edit')->middleware('can:update-sms-notification');
+            Route::put('/{sms}/update', [SMSController::class, 'update'])->name('admin.notification.sms.update')->middleware('can:update-sms-notification');
+            Route::delete('/{sms}/destroy', [SMSController::class, 'destroy'])->name('admin.notification.sms.destroy')->middleware('can:delete-sms-notification');
+            Route::get('/{sms}/send', [SMSController::class, 'send'])->name('admin.notification.sms.send')->middleware('can:send-sms-notification');
         });
     });
 
