@@ -9,6 +9,7 @@ use App\Models\User;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Queue\Queueable;
 use Illuminate\Bus\Batchable;
+
 class SendEmailToSingelUser implements ShouldQueue
 {
     use Queueable, Batchable;
@@ -35,10 +36,17 @@ class SendEmailToSingelUser implements ShouldQueue
             'title' => $this->email->subject,
             'body' => $this->email->body
         ];
+        $files = $this->email?->files;
+        $filePaths = [];
+        foreach ($files as $file) {
+            array_push($filePaths, $file->file_path);
+        }
         $emailService->setDetails($details);
         $emailService->setFrom('noreply@shop.com', 'CozaShop');
         $emailService->setSubject($this->email->subject);
         $emailService->setTo($this->user->email);
+        $emailService->setEmailFiles($filePaths);
+
 
         $messagesService = new MessageService($emailService);
         $messagesService->send();

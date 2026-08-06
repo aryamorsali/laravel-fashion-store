@@ -98,15 +98,12 @@ class EmailController extends Controller
             if ($publishedAt <= Carbon::now()) {
                 return back()->with('alert-section-error', 'Your email notification time has already passed.');
             }
-            if ($email->status !== 'sent') {
-                $inputs['status'] = 'scheduled';
-            }
+
+            $inputs['status'] = 'scheduled';
 
             $inputs['published_at'] = $publishedAt;
         } else {
-            if ($email->status !== 'sent') {
-                $inputs['status'] = 'draft';
-            }
+            $inputs['status'] = 'draft';
             $inputs['published_at'] = null;
         }
 
@@ -145,6 +142,7 @@ class EmailController extends Controller
         $email->update([
             'status' => 'queued',
         ]);
+      
         SendEmailToUsers::dispatch($email);
 
         return redirect(route('admin.notification.email.index'))->with(

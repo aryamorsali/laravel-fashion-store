@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin\Notification;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\Notification\SMSRequest;
+use App\Jobs\SendSmsToUsers;
 use App\Models\Notification\SMS;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
@@ -92,15 +93,11 @@ class SMSController extends Controller
             if ($publishedAt <= Carbon::now()) {
                 return back()->with('alert-section-error', 'Your sms notification time has already passed.');
             }
-            if ($sms->status !== 'sent') {
-                $inputs['status'] = 'scheduled';
-            }
+            $inputs['status'] = 'scheduled';
 
             $inputs['published_at'] = $publishedAt;
         } else {
-            if ($sms->status !== 'sent') {
-                $inputs['status'] = 'draft';
-            }
+            $inputs['status'] = 'draft';
             $inputs['published_at'] = null;
         }
 
@@ -122,11 +119,27 @@ class SMSController extends Controller
             'sms notification successfully deleted.'
         );
     }
+
+
     public function send(SMS $sms)
     {
+        if (in_array($sms->status, ['sent', 'queued', 'sending'])) {
+            return redirect(route('admin.notification.sms.index'))->with(
+                'alert-section-error',
+                'This sms notification cannot be sent in its current status.'
+            );
+        }
+
+        $sms->update([
+            'status' => 'queued',
+        ]);
+
+        SendSmsToUsers::dispatch($sms);
+
         return redirect(route('admin.notification.sms.index'))->with(
             'alert-section-success',
-            'sms notification successfully deleted.'
+            'SMS notification has been queued for sending.'
         );
     }
 }
+
