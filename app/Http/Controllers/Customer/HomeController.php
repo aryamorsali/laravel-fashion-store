@@ -56,7 +56,7 @@ class HomeController extends Controller
                     ->filter()
                     ->max() ?? 0;
             })
-            ->take(2);
+            ->take(1);
 
 
         $topProducts = Product::bestSellers(30)

@@ -45,6 +45,58 @@
             z-index: 2;
         }
     </style>
+
+    <style>
+        .custom-toast {
+            position: fixed;
+            top: 110px;
+            right: 20px;
+            background: linear-gradient(135deg, #22c55e, #16a34a);
+            color: #fff;
+            padding: 14px 18px;
+            border-radius: 12px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 14px;
+            z-index: 9999;
+            animation: toastIn .4s ease;
+        }
+
+        .custom-toast .close-btn {
+            margin-left: 10px;
+            cursor: pointer;
+            font-size: 18px;
+            opacity: .8;
+        }
+
+        .custom-toast .close-btn:hover {
+            opacity: 1;
+        }
+
+        @keyframes toastIn {
+            from {
+                transform: translateX(40px);
+                opacity: 0;
+            }
+
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        .toast-link {
+            color: #fff;
+            font-weight: 600;
+            text-decoration: underline;
+        }
+
+        .toast-link:hover {
+            color: #d1fae5;
+        }
+    </style>
 @endsection
 
 @section('content')
@@ -98,7 +150,7 @@
                         <div class="block1 wrap-pic-w">
                             <img src="{{ asset($boxes['top-left']->image) }}" alt="IMG-BANNER">
 
-                            <a href="product.html"
+                            <a href="{{ route('customer.market.shop', ['category' => $boxes['top-left']->category->slug]) }}"
                                 class="block1-txt ab-t-l s-full flex-col-l-sb p-lr-38 p-tb-34 trans-03 respon3">
                                 <div class="block1-txt-child1 flex-col-l">
                                     <span class="block1-name ltext-102 trans-04 p-b-8">
@@ -126,7 +178,7 @@
                         <div class="block1 wrap-pic-w">
                             <img src="{{ asset($boxes['top-right']->image) }}" alt="IMG-BANNER">
 
-                            <a href="product.html"
+                            <a href="{{ route('customer.market.shop', ['category' => $boxes['top-right']->category->slug]) }}"
                                 class="block1-txt ab-t-l s-full flex-col-l-sb p-lr-38 p-tb-34 trans-03 respon3">
                                 <div class="block1-txt-child1 flex-col-l">
                                     <span class="block1-name ltext-102 trans-04 p-b-8">
@@ -154,7 +206,7 @@
                         <div class="block1 wrap-pic-w">
                             <img src="{{ asset($boxes['center']->image) }}" alt="IMG-BANNER">
 
-                            <a href="product.html"
+                            <a href="{{ route('customer.market.shop', ['category' => $boxes['center']->category->slug]) }}"
                                 class="block1-txt ab-t-l s-full flex-col-l-sb p-lr-38 p-tb-34 trans-03 respon3">
                                 <div class="block1-txt-child1 flex-col-l">
                                     <span class="block1-name ltext-102 trans-04 p-b-8">
@@ -182,7 +234,7 @@
                         <div class="block1 wrap-pic-w">
                             <img src="{{ asset($boxes['bottom-left']->image) }}" alt="IMG-BANNER">
 
-                            <a href="product.html"
+                            <a href="{{ route('customer.market.shop', ['category' => $boxes['bottom-left']->category->slug]) }}"
                                 class="block1-txt ab-t-l s-full flex-col-l-sb p-lr-38 p-tb-34 trans-03 respon3">
                                 <div class="block1-txt-child1 flex-col-l">
                                     <span class="block1-name ltext-102 trans-04 p-b-8">
@@ -210,7 +262,7 @@
                         <div class="block1 wrap-pic-w">
                             <img src="{{ asset($boxes['bottom-right']->image) }}" alt="IMG-BANNER">
 
-                            <a href="product.html"
+                            <a href="{{ route('customer.market.shop', ['category' => $boxes['bottom-right']->category->slug]) }}"
                                 class="block1-txt ab-t-l s-full flex-col-l-sb p-lr-38 p-tb-34 trans-03 respon3">
                                 <div class="block1-txt-child1 flex-col-l">
                                     <span class="block1-name ltext-102 trans-04 p-b-8">
@@ -243,7 +295,7 @@
             <div class="container">
                 <div class="p-b-32">
                     <h3 class="ltext-103 cl5">
-                        🔥 Limited Time Deals
+                        Limited Time Deals
                     </h3>
                 </div>
 
@@ -261,20 +313,6 @@
                                             <!-- Block2 -->
                                             <div class="block2">
                                                 <div class="block2-pic hov-img0">
-
-                                                    {{-- @php
-                                                        $activeAmazingSale = $product->variants
-                                                            ->pluck('amazingSale')
-                                                            ->filter(
-                                                                fn($sale) => $sale &&
-                                                                    $sale->is_active &&
-                                                                    $sale->start_date <= now() &&
-                                                                    $sale->end_date >= now(),
-                                                            )
-                                                            ->sortByDesc('percentage')
-                                                            ->first();
-                                                    @endphp --}}
-
 
                                                     @php
                                                         $activeAmazingSale = $product->variants
@@ -296,7 +334,6 @@
                                                             ->sortByDesc('percentage')
                                                             ->first();
                                                     @endphp
-
 
 
                                                     @if ($activeAmazingSale)
@@ -326,22 +363,6 @@
                                                             {{ $product->name }}
                                                         </a>
 
-                                                        {{-- @php
-                                                            $variant = $product->variants->firstWhere(
-                                                                'id',
-                                                                $activeAmazingSale?->product_variant_id,
-                                                            );
-
-                                                            $price = $variant?->price ?? $product->base_price;
-
-                                                            $discount = $activeAmazingSale?->percentage ?? 0;
-
-                                                            $finalPrice = $discount
-                                                                ? $price - ($price * $discount) / 100
-                                                                : $price;
-                                                        @endphp --}}
-
-
                                                         @php
                                                             $variant = $product->variants->firstWhere(
                                                                 'id',
@@ -357,9 +378,6 @@
                                                                 : $price;
                                                         @endphp
 
-
-
-
                                                         <span class="stext-105 cl3">
                                                             @if ($discount)
                                                                 <del
@@ -373,13 +391,13 @@
                                                     </div>
 
                                                     <div class="block2-txt-child2 flex-r p-t-3">
-                                                        <a href="#"
-                                                            class="btn-addwish-b2 dis-block pos-relative js-addwish-b2">
-                                                            <img class="icon-heart1 dis-block trans-04"
-                                                                src="images/icons/icon-heart-01.png" alt="ICON">
-                                                            <img class="icon-heart2 dis-block trans-04 ab-t-l"
-                                                                src="images/icons/icon-heart-02.png" alt="ICON">
-                                                        </a>
+                                                        <button
+                                                            class="like-btn fs-14 cl3 lh-10 hov-cl1 trans-04 p-lr-5 p-tb-2"
+                                                            data-id="{{ $product->id }}" data-type="product"
+                                                            title="{{ $product->isLikedByUser() ? 'Remove from favorites' : 'Add to Favorites' }}">
+                                                            <i class="zmdi zmdi-favorite"
+                                                                @if ($product->isLikedByUser()) style="color: rgb(113, 127, 224)" @endif></i>
+                                                        </button>
                                                     </div>
                                                 </div>
                                             </div>
@@ -394,7 +412,7 @@
             </div>
             @if ($amazingProducts->count() >= 8)
                 <div style="padding-right: 10rem" class="text-right pt-20">
-                    <a href="#" style="color: white"
+                    <a href="{{ route('customer.market.shop', ['on_sale' => 1]) }}" style="color: white"
                         class="btn bg-dark stext-103 cl2 size-102 bg0 bor2 hov-btn1 p-lr-15 ">View
                         All Products</a>
                 </div>
@@ -410,7 +428,7 @@
                     {{-- <div class="d-flex justify-content-between align-items-center"> --}}
 
                     <h3 class="ltext-103 cl5">
-                        🔥 Best Sellers
+                        Best Sellers
                     </h3>
 
                 </div>
@@ -449,17 +467,13 @@
                                                         $discount = null;
                                                         $activeAmazingSale = null;
 
-                                                        $hasAmazingSale =
-                                                            $variant &&
-                                                            $variant->amazingSale &&
-                                                            $variant->amazingSale->is_active &&
-                                                            $variant->amazingSale->start_date <= now() &&
-                                                            $variant->amazingSale->end_date >= now();
+                                                        $activeAmazingSale = $variant->has_amazing_sale
+                                                            ? $variant->amazingSale
+                                                            : null;
 
-                                                        if ($hasAmazingSale) {
-                                                            $activeAmazingSale = $variant->amazingSale;
-                                                            $discount = $variant->amazingSale->percentage;
-                                                            $finalPrice = $price - ($price * $discount) / 100;
+                                                        if ($activeAmazingSale) {
+                                                            $discount = $variant->discount_percentage;
+                                                            $finalPrice = $variant->final_price;
                                                         }
                                                     @endphp
 
@@ -503,13 +517,13 @@
                                                     </div>
 
                                                     <div class="block2-txt-child2 flex-r p-t-3">
-                                                        <a href="#"
-                                                            class="btn-addwish-b2 dis-block pos-relative js-addwish-b2">
-                                                            <img class="icon-heart1 dis-block trans-04"
-                                                                src="images/icons/icon-heart-01.png" alt="ICON">
-                                                            <img class="icon-heart2 dis-block trans-04 ab-t-l"
-                                                                src="images/icons/icon-heart-02.png" alt="ICON">
-                                                        </a>
+                                                        <button
+                                                            class="like-btn fs-14 cl3 lh-10 hov-cl1 trans-04 p-lr-5 p-tb-2"
+                                                            data-id="{{ $product->id }}" data-type="product"
+                                                            title="{{ $product->isLikedByUser() ? 'Remove from favorites' : 'Add to Favorites' }}">
+                                                            <i class="zmdi zmdi-favorite"
+                                                                @if ($product->isLikedByUser()) style="color: rgb(113, 127, 224)" @endif></i>
+                                                        </button>
                                                     </div>
                                                 </div>
                                             </div>
@@ -525,18 +539,11 @@
                 </div>
             </div>
             @if ($topProducts->count() >= 8)
-                {{-- <!-- دکمه مشاهده همه -->
-                <div class="text-center p-t-20">
-                    <a href="#" class="btn stext-103 cl2 size-102 bg0 bor2 hov-btn1 p-lr-15 trans-04 border">View All Products</a>
-                </div> --}}
                 <div style="padding-right: 10rem" class="text-right pt-20">
-                    <a href="#" style="color: white"
+                    <a href="{{ route('customer.market.shop', ['sort' => 'best_selling']) }}" style="color: white"
                         class="btn bg-dark stext-103 cl2 size-102 bg0 bor2 hov-btn1 p-lr-15 ">View
                         All Products</a>
                 </div>
-                {{-- <div class="p-t-30">
-                    <a href="#" class="btn btn-primary btn-block">View All Products</a>
-                </div> --}}
             @endif
 
         </section>
@@ -567,24 +574,32 @@
                                             <!-- Block2 -->
                                             <div class="block2">
                                                 <div class="block2-pic hov-img0">
-
                                                     @php
-                                                        $activeAmazingSale = $product->variants
-                                                            ->filter(
-                                                                fn($v) => $v->warehouseVariants->sum('stock') >
-                                                                    $v->warehouseVariants->sum('reserved'),
-                                                            )
-                                                            ->pluck('amazingSale')
-                                                            ->flatten()
-                                                            ->filter(
-                                                                fn($sale) => $sale &&
-                                                                    $sale->is_active &&
-                                                                    $sale->start_date <= now() &&
-                                                                    $sale->end_date >= now(),
-                                                            )
-                                                            ->sortByDesc('percentage')
+                                                        // $variant
+                                                        $variant = $product->variants
+                                                            ->filter(function ($variant) {
+                                                                return $variant->warehouseVariants->sum('stock') >
+                                                                    $variant->warehouseVariants->sum('reserved');
+                                                            })
+                                                            ->sortByDesc(function ($variant) {
+                                                                return $variant->orderItems->sum('quantity');
+                                                            })
                                                             ->first();
+
+                                                        $price = $variant?->price;
+                                                        $finalPrice = $price;
+                                                        $discount = null;
+
+                                                        $activeAmazingSale = $variant->has_amazing_sale
+                                                            ? $variant->amazingSale
+                                                            : null;
+
+                                                        if ($activeAmazingSale) {
+                                                            $discount = $variant->discount_percentage;
+                                                            $finalPrice = $variant->final_price;
+                                                        }
                                                     @endphp
+
 
                                                     @if ($activeAmazingSale)
                                                         <span class="badge-amazing">
@@ -612,28 +627,6 @@
                                                             {{ $product->name }}
                                                         </a>
 
-                                                        @php
-                                                            $variant =
-                                                                $product->variants
-                                                                    ->filter(
-                                                                        fn($v) => $v->warehouseVariants->sum('stock') >
-                                                                            $v->warehouseVariants->sum('reserved'),
-                                                                    )
-                                                                    ->firstWhere(
-                                                                        'id',
-                                                                        optional($activeAmazingSale)
-                                                                            ->product_variant_id,
-                                                                    ) ?? $product->variants->first();
-
-                                                            $price = $variant->price;
-                                                            $discount = $activeAmazingSale->percentage ?? 0;
-
-                                                            $finalPrice = $discount
-                                                                ? $price - ($price * $discount) / 100
-                                                                : $price;
-                                                        @endphp
-
-
                                                         <span class="stext-105 cl3">
                                                             @if ($discount)
                                                                 <del
@@ -647,13 +640,14 @@
                                                     </div>
 
                                                     <div class="block2-txt-child2 flex-r p-t-3">
-                                                        <a href="#"
-                                                            class="btn-addwish-b2 dis-block pos-relative js-addwish-b2">
-                                                            <img class="icon-heart1 dis-block trans-04"
-                                                                src="images/icons/icon-heart-01.png" alt="ICON">
-                                                            <img class="icon-heart2 dis-block trans-04 ab-t-l"
-                                                                src="images/icons/icon-heart-02.png" alt="ICON">
-                                                        </a>
+
+                                                        <button
+                                                            class="like-btn fs-14 cl3 lh-10 hov-cl1 trans-04 p-lr-5 p-tb-2"
+                                                            data-id="{{ $product->id }}" data-type="product"
+                                                            title="{{ $product->isLikedByUser() ? 'Remove from favorites' : 'Add to Favorites' }}">
+                                                            <i class="zmdi zmdi-favorite"
+                                                                @if ($product->isLikedByUser()) style="color: rgb(113, 127, 224)" @endif></i>
+                                                        </button>
                                                     </div>
                                                 </div>
                                             </div>
@@ -668,7 +662,7 @@
             </div>
             @if ($latestProducts->count() >= 8)
                 <div style="padding-right: 10rem" class="text-right pt-20">
-                    <a href="#" style="color: white"
+                    <a href="{{ route('customer.market.shop', ['sort' => 'newness']) }}" style="color: white"
                         class="btn bg-dark stext-103 cl2 size-102 bg0 bor2 hov-btn1 p-lr-15 ">View
                         All Products</a>
                 </div>
@@ -868,5 +862,74 @@
 
             }, 1000);
         });
+    </script>
+
+
+    <script>
+        document.querySelectorAll('.like-btn').forEach(btn => {
+            btn.addEventListener('click', async function(e) {
+                e.preventDefault();
+
+                const {
+                    id,
+                    type
+                } = this.dataset;
+                const icon = this.querySelector('i');
+
+                try {
+                    const res = await fetch(`/like/${type}/${id}`, {
+                        method: 'POST',
+                        headers: {
+                            'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                            'Accept': 'application/json'
+                        }
+                    });
+
+                    const data = await res.json();
+
+                    if (data.login_required) {
+                        showToast(data.message);
+                        return;
+                    }
+
+                    // تغییر آیکون و رنگ
+                    if (data.liked) {
+                        icon.className = 'zmdi zmdi-favorite';
+                        icon.style.color = 'rgb(113, 127, 224)';
+                        this.setAttribute('title', 'Remove from favorites');
+                        showToast('Product added to wishlist', 'success');
+
+                    } else {
+                        icon.className = 'zmdi zmdi-favorite';
+                        icon.style.color = '';
+                        this.setAttribute('title', 'Add to Favorites');
+                        showToast('Product remove from wishlist', 'success');
+
+                    }
+
+                } catch (error) {
+                    console.error('Like error:', error);
+                    showToast('An error occurred. Please try again.', 'error');
+                }
+            });
+        });
+
+        function showToast(message) {
+
+            document.querySelectorAll('.custom-toast').forEach(t => t.remove());
+
+            const toast = document.createElement('div');
+            toast.className = `custom-toast`;
+            toast.innerHTML = `
+            <span>${message}</span>
+            <span class="close-btn" onclick="this.parentElement.remove()">×</span>`;
+
+            document.body.appendChild(toast);
+
+            // حذف خودکار
+            setTimeout(() => {
+                if (toast) toast.remove();
+            }, 6000);
+        }
     </script>
 @endsection

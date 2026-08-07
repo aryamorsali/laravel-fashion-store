@@ -861,16 +861,13 @@
                                                         $discount = null;
 
                                                         $activeAmazingSale =
-                                                            $variant->amazingSale &&
-                                                            $variant->amazingSale->is_active &&
-                                                            $variant->amazingSale->start_date <= now() &&
-                                                            $variant->amazingSale->end_date >= now()
+                                                            $variant->has_amazing_sale
                                                                 ? $variant->amazingSale
                                                                 : null;
 
                                                         if ($activeAmazingSale) {
-                                                            $discount = $variant->amazingSale->percentage;
-                                                            $finalPrice = $price - ($price * $discount) / 100;
+                                                            $discount = $variant->discount_percentage;
+                                                            $finalPrice = $variant->final_price;
                                                         }
                                                     @endphp
 
