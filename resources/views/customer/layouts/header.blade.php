@@ -27,7 +27,7 @@
 
                  <!-- Logo desktop -->
                  <a href="{{ route('customer.home') }}" class="logo">
-                     <img src="{{ asset('customer-assets/images/icons/logo-01.png') }}" alt="IMG-LOGO">
+                     <img src="{{ asset($settings['site_logo'] ?? 'customer-assets/images/icons/logo-01.png') }}" alt="IMG-LOGO">
                  </a>
 
                  <!-- Menu desktop -->

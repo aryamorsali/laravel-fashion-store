@@ -8,12 +8,13 @@
                  </h4>
 
                  <ul>
-                     <li class="p-b-10">
-                         <a href="#" class="stext-107 cl7 hov-cl1 trans-04">
-                             Women
-                         </a>
-                     </li>
-
+                     @foreach ($categories as $category)
+                         <li class="p-b-10">
+                             <a href="{{route('customer.market.shop', $category->slug)}}" class="stext-107 cl7 hov-cl1 trans-04">
+                                {{$category->name}}
+                             </a>
+                         </li>
+                     @endforeach
                  </ul>
              </div>
 
@@ -55,20 +56,20 @@
                  </h4>
 
                  <p class="stext-107 cl7 size-201">
-                     Any questions? Let us know in store at 8th floor, 379 Hudson St, New York, NY 10018 or call us on
-                     (+1) 96 716 6879
+                     Any questions? Let us know in store at  {{$settings['site_address'] ?? '-'}}  or call us on
+                      {{$settings['site_phone'] ?? '-'}}
                  </p>
 
                  <div class="p-t-27">
-                     <a href="#" class="fs-18 cl7 hov-cl1 trans-04 m-r-16">
+                     <a href="{{$settings['facebook_link'] ?? '#'}}" class="fs-18 cl7 hov-cl1 trans-04 m-r-16">
                          <i class="fa fa-facebook"></i>
                      </a>
 
-                     <a href="#" class="fs-18 cl7 hov-cl1 trans-04 m-r-16">
+                     <a href="{{$settings['instagram_link'] ?? '#'}}" class="fs-18 cl7 hov-cl1 trans-04 m-r-16">
                          <i class="fa fa-instagram"></i>
                      </a>
 
-                     <a href="#" class="fs-18 cl7 hov-cl1 trans-04 m-r-16">
+                     <a href="{{$settings['twitter_link'] ?? '#'}}" class="fs-18 cl7 hov-cl1 trans-04 m-r-16">
                          <i class="fa fa-pinterest-p"></i>
                      </a>
                  </div>

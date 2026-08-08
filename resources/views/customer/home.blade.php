@@ -1,7 +1,7 @@
 @extends('customer.layouts.app')
 
 @section('head-tag')
-    <title>Home</title>
+    <title>{{ $settings['site_name'] ?? 'CozaShop' }} | Home</title>
     <link rel="stylesheet" type="text/css" href="{{ asset('customer-assets/vendor/daterangepicker/daterangepicker.css') }}">
     <link rel="stylesheet" type="text/css" href="{{ asset('customer-assets/vendor/slick/slick.css') }}">
     <link rel="stylesheet" type="text/css" href="{{ asset('customer-assets/vendor/MagnificPopup/magnific-popup.css') }}">

@@ -8,6 +8,7 @@ use App\Models\Content\Post;
 use App\Models\Market\HomeBox;
 use App\Models\Market\Product;
 use App\Models\Market\ProductCategory;
+use App\Models\Setting\Setting;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 

@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Middleware\CheckMaintenanceMode;
 use App\Http\Middleware\EnsureUserIsOwner;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
@@ -18,7 +19,8 @@ return Application::configure(basePath: dirname(__DIR__))
         );
 
        $middleware->alias([
-        'owner' => EnsureUserIsOwner::class
+        'owner' => EnsureUserIsOwner::class,
+        'CheckMaintenanceMode' => CheckMaintenanceMode::class,
        ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {

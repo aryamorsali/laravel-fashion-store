@@ -42,55 +42,62 @@
                 </div>
 
                 <div class="size-210 bor10 flex-w flex-col-m p-lr-93 p-tb-30 p-lr-15-lg w-full-md">
-                    <div class="flex-w w-full p-b-42">
-                        <span class="fs-19 cl5 txt-center size-211">
-                            <i class="fa fa-map-marker"></i>
-                        </span>
-
-                        <div class="size-212 p-t-2">
-                            <span class="mtext-110 cl2">
-                                Address
+                    @if (isset($settings['site_address']))
+                        <div class="flex-w w-full p-b-42">
+                            <span class="fs-19 cl5 txt-center size-211">
+                                <i class="fa fa-map-marker"></i>
                             </span>
 
-                            <p class="stext-115 cl6 size-213 p-t-18">
-                                Coza Store Center 8th floor, 379 Hudson St, New York, NY 10018 US
-                            </p>
+                            <div class="size-212 p-t-2">
+                                <span class="mtext-110 cl2">
+                                    Address
+                                </span>
+
+                                <p class="stext-115 cl6 size-213 p-t-18">
+                                    {{ $settings['site_address'] }}
+                                </p>
+                            </div>
                         </div>
-                    </div>
+                    @endif
 
-                    <div class="flex-w w-full p-b-42">
-                        <span class="fs-20 cl5 txt-center size-211">
-                            <i class="fa fa-phone"></i>
+                    @if (isset($settings['site_phone']))
+                        <div class="flex-w w-full p-b-42">
+                            <span class="fs-20 cl5 txt-center size-211">
+                                <i class="fa fa-phone"></i>
 
-                        </span>
-
-                        <div class="size-212 p-t-2">
-                            <span class="mtext-110 cl2">
-                                Lets Talk
                             </span>
 
-                            <p class="stext-115 cl1 size-213 p-t-18">
-                                +1 800 1236879
-                            </p>
+                            <div class="size-212 p-t-2">
+                                <span class="mtext-110 cl2">
+                                    Lets Talk
+                                </span>
+
+                                <p class="stext-115 cl1 size-213 p-t-18">
+                                    {{ $settings['site_phone'] }}
+                                </p>
+                            </div>
                         </div>
-                    </div>
+                    @endif
 
-                    <div class="flex-w w-full">
-                        <span class="fs-16 cl5 txt-center size-211">
-                            <i class="fa fa-envelope"></i>
+                    @if (isset($settings['site_email']))
+                        <div class="flex-w w-full">
+                            <span class="fs-16 cl5 txt-center size-211">
+                                <i class="fa fa-envelope"></i>
 
-                        </span>
-
-                        <div class="size-212 p-t-2">
-                            <span class="mtext-110 cl2">
-                                Sale Support
                             </span>
 
-                            <p class="stext-115 cl1 size-213 p-t-18">
-                                contact@example.com
-                            </p>
+                            <div class="size-212 p-t-2">
+                                <span class="mtext-110 cl2">
+                                    Sale Support
+                                </span>
+
+                                <p class="stext-115 cl1 size-213 p-t-18">
+                                    {{ $settings['site_email'] }}
+                                </p>
+                            </div>
                         </div>
-                    </div>
+                    @endif
+
                 </div>
             </div>
         </div>
