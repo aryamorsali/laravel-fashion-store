@@ -12,12 +12,21 @@ use App\Models\Market\ProductVariant;
 use App\Models\Market\WarehouseVariant;
 use App\Services\CartCalculator;
 use App\Services\CartInventoryAllocator;
+use App\Services\CartManager;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
 class CartController extends Controller
 {
+
+    protected $cartManager;
+
+    public function __construct(CartManager $cartManager)
+    {
+        $this->cartManager = $cartManager;
+    }
+
     public function shopingCart(CartCalculator $cartCalculator)
     {
         $cartItems = CartItem::with([
@@ -56,31 +65,52 @@ class CartController extends Controller
     }
 
 
-    public function addToCart(AddToCartRequest $request, CartInventoryAllocator $cartInventoryAllocator)
+    // public function addToCart(AddToCartRequest $request, CartInventoryAllocator $cartInventoryAllocator)
+    // {
+    //     $data = $request->validated();
+    //     try {
+    //         DB::transaction(function () use ($data, $cartInventoryAllocator) {
+    //             // چک کردن موجودی واریانت
+    //             $variant = ProductVariant::lockForUpdate()->findOrFail($data['variant_id']);
+
+
+    //             if ($data['quantity'] > $variant->availableStock()) {
+    //                 throw new \Exception();
+    //             }
+
+    //             $cartItem = CartItem::updateOrCreate(
+    //                 [
+    //                     'user_id' => Auth::id(),
+    //                     'product_variant_id' => $variant->id,
+    //                 ],
+    //                 [
+    //                     'quantity' => 0,       //  بعدا در سرویس مقدارشو تغییر میدهیم
+    //                 ]
+    //             );
+
+    //             $cartInventoryAllocator->reallocate($cartItem, $data['quantity']);
+    //         });
+    //     } catch (\Exception $e) {
+    //         return back()->with(
+    //             'toast-error',
+    //             'Sorry, there isn’t enough stock for this item.'
+    //         );
+    //     }
+    //     return redirect()->back()->with(
+    //         'toast-success',
+    //         'Product successfully added to your cart !'
+    //     );
+    // }
+
+
+
+    public function addToCart(AddToCartRequest $request)
     {
         $data = $request->validated();
         try {
-            DB::transaction(function () use ($data, $cartInventoryAllocator) {
-                // چک کردن موجودی واریانت
-                $variant = ProductVariant::lockForUpdate()->findOrFail($data['variant_id']);
+            
+            $this->cartManager->addToCart($data);
 
-
-                if ($data['quantity'] > $variant->availableStock()) {
-                    throw new \Exception();
-                }
-
-                $cartItem = CartItem::updateOrCreate(
-                    [
-                        'user_id' => Auth::id(),
-                        'product_variant_id' => $variant->id,
-                    ],
-                    [
-                        'quantity' => 0,       //  بعدا در سرویس مقدارشو تغییر میدهیم
-                    ]
-                );
-
-                $cartInventoryAllocator->reallocate($cartItem, $data['quantity']);
-            });
         } catch (\Exception $e) {
             return back()->with(
                 'toast-error',
@@ -117,7 +147,7 @@ class CartController extends Controller
 
                     $warehouseVariant->save();
                 }
-                
+
                 $cartItem->allocations()->delete();
 
                 $cartItem->delete();

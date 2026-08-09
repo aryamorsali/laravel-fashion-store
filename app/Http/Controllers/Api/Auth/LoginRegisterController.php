@@ -28,19 +28,16 @@ class LoginRegisterController extends Controller
         requestBody: new OA\RequestBody(
             required: true,
 
-            content: new OA\MediaType(
-                mediaType: "multipart/form-data",
-                schema: new OA\Schema(
-                    required: ["id",],
-                    properties: [
-                        new OA\Property(
-                            property: "id",
-                            type: "string",
-                            description: 'Email address or Iranian mobile number (+98/98/09XXXXXXXXX)',
-                            example: "09123456789 || arya@gmail.com"
-                        ),
-                    ]
-                )
+            content: new OA\JsonContent(
+                required: ['id'],
+                properties: [
+                    new OA\Property(
+                        property: 'id',
+                        type: 'string',
+                        description: 'Email address or Iranian mobile number (+98/98/09XXXXXXXXX)',
+                        example: '09123456789 || arya@gmail.com'
+                    ),
+                ]
             )
         ),
         responses: [
@@ -49,6 +46,7 @@ class LoginRegisterController extends Controller
                 description: 'OTP sent successfully',
                 content: new OA\JsonContent(
                     properties: [
+                        new OA\Property(property: 'status', type: 'string', example: 'success'),
                         new OA\Property(property: 'message', type: 'string', example: 'Verification code sent successfully.'),
                         new OA\Property(
                             property: 'data',
@@ -67,6 +65,7 @@ class LoginRegisterController extends Controller
                 description: 'Validation error',
                 content: new OA\JsonContent(
                     properties: [
+                        new OA\Property(property: 'status', type: 'string', example: 'error'),
                         new OA\Property(property: 'message', type: 'string', example: 'Your login ID is neither a mobile number nor an email.'),
                         new OA\Property(
                             property: 'errors',
@@ -94,6 +93,7 @@ class LoginRegisterController extends Controller
         $result = $this->authentication->loginRegisterStore($data);
 
         return response()->json([
+            'status' => 'success',
             'message' => "Verification code sent successfully.",
             'data' => [
                 'otp_token' => $result['token'],
@@ -120,15 +120,17 @@ class LoginRegisterController extends Controller
         ],
         requestBody: new OA\RequestBody(
             required: true,
-            content: new OA\MediaType(
-                mediaType: "multipart/form-data",
-                schema: new OA\Schema(
-                    required: ["otp",],
-                    properties: [
-                        new OA\Property(property: 'otp', type: 'string', example: '482910', description: '6-digit OTP code')
-                    ]
-                )
 
+            content: new OA\JsonContent(
+                required: ['otp'],
+                properties: [
+                    new OA\Property(
+                        property: 'otp',
+                        type: 'string',
+                        description: '6-digit OTP code',
+                        example: '482910'
+                    ),
+                ]
             )
         ),
         responses: [
@@ -137,6 +139,7 @@ class LoginRegisterController extends Controller
                 description: 'Login successful',
                 content: new OA\JsonContent(
                     properties: [
+                        new OA\Property(property: 'status', type: 'string', example: 'success'),
                         new OA\Property(property: 'message', type: 'string', example: 'user successfuly logined'),
                         new OA\Property(
                             property: 'data',
@@ -154,6 +157,7 @@ class LoginRegisterController extends Controller
                 description: 'Invalid or expired OTP',
                 content: new OA\JsonContent(
                     properties: [
+                        new OA\Property(property: 'status', type: 'string', example: 'error'),
                         new OA\Property(property: 'message', type: 'string', example: 'The verification code is expired or invalid.'),
                         new OA\Property(
                             property: 'errors',
@@ -184,6 +188,7 @@ class LoginRegisterController extends Controller
 
 
         return response()->json([
+            'status' => 'success',
             'message' => 'user successfuly logined',
             'data' => [
                 'token_type' => 'Bearer',
@@ -213,6 +218,7 @@ class LoginRegisterController extends Controller
                 description: 'OTP resent successfully',
                 content: new OA\JsonContent(
                     properties: [
+                        new OA\Property(property: 'status', type: 'string', example: 'success'),
                         new OA\Property(property: 'message', type: 'string', example: 'OTP code successfully resent.'),
                         new OA\Property(
                             property: 'data',
@@ -231,6 +237,7 @@ class LoginRegisterController extends Controller
                 description: 'Token expired or invalid',
                 content: new OA\JsonContent(
                     properties: [
+                        new OA\Property(property: 'status', type: 'string', example: 'error'),
                         new OA\Property(property: 'message', type: 'string', example: 'The address is not valid'),
                         new OA\Property(
                             property: 'errors',
@@ -257,6 +264,7 @@ class LoginRegisterController extends Controller
         $result = $this->authentication->resendOtp($token);
 
         return response()->json([
+            'status' => 'success',
             'message' => 'OTP code successfully resent.',
             'data' => [
                 'otp_token' => $result['token'],
@@ -279,6 +287,7 @@ class LoginRegisterController extends Controller
                 description: 'User Logout Successfuly',
                 content: new OA\JsonContent(
                     properties: [
+                        new OA\Property(property: 'status', type: 'string', example: 'success'),
                         new OA\Property(property: 'message', type: 'string', example: 'user  logged out  successfuly'),
                     ]
                 )
@@ -291,6 +300,7 @@ class LoginRegisterController extends Controller
         Auth::user()->currentAccessToken()->delete();
 
         return response()->json([
+            'status' => 'success',
             'message' => 'user  logged out  successfuly',
         ]);
     }

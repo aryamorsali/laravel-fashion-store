@@ -1,11 +1,11 @@
 <?php
 
-namespace App\Http\Requests\Api\Auth;
+namespace App\Http\Requests\Api\Cart;
 
 use App\Http\Requests\Api\BaseApiFormRequest;
 use Illuminate\Foundation\Http\FormRequest;
 
-class LoginRegisterStoreRequest extends BaseApiFormRequest
+class AddToCartRequest extends BaseApiFormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -23,14 +23,8 @@ class LoginRegisterStoreRequest extends BaseApiFormRequest
     public function rules(): array
     {
         return [
-            'id' => 'required|min:11|max:64|regex:/^[a-zA-Z0-9_.@\+]*$/',
-        ];
-    }
-
-    public function attributes()
-    {
-        return [
-            'id' => 'Email or mobile number',
+            'variant_id' => 'required|integer|exists:product_variants,id',
+            'quantity' => 'required|integer|min:1|between:1,10'
         ];
     }
 }

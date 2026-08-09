@@ -17,7 +17,7 @@
                 "requestBody": {
                     "required": true,
                     "content": {
-                        "multipart/form-data": {
+                        "application/json": {
                             "schema": {
                                 "required": [
                                     "id"
@@ -41,6 +41,10 @@
                             "application/json": {
                                 "schema": {
                                     "properties": {
+                                        "status": {
+                                            "type": "string",
+                                            "example": "success"
+                                        },
                                         "message": {
                                             "type": "string",
                                             "example": "Verification code sent successfully."
@@ -74,6 +78,10 @@
                             "application/json": {
                                 "schema": {
                                     "properties": {
+                                        "status": {
+                                            "type": "string",
+                                            "example": "error"
+                                        },
                                         "message": {
                                             "type": "string",
                                             "example": "Your login ID is neither a mobile number nor an email."
@@ -127,7 +135,7 @@
                 "requestBody": {
                     "required": true,
                     "content": {
-                        "multipart/form-data": {
+                        "application/json": {
                             "schema": {
                                 "required": [
                                     "otp"
@@ -151,6 +159,10 @@
                             "application/json": {
                                 "schema": {
                                     "properties": {
+                                        "status": {
+                                            "type": "string",
+                                            "example": "success"
+                                        },
                                         "message": {
                                             "type": "string",
                                             "example": "user successfuly logined"
@@ -180,6 +192,10 @@
                             "application/json": {
                                 "schema": {
                                     "properties": {
+                                        "status": {
+                                            "type": "string",
+                                            "example": "error"
+                                        },
                                         "message": {
                                             "type": "string",
                                             "example": "The verification code is expired or invalid."
@@ -237,6 +253,10 @@
                             "application/json": {
                                 "schema": {
                                     "properties": {
+                                        "status": {
+                                            "type": "string",
+                                            "example": "success"
+                                        },
                                         "message": {
                                             "type": "string",
                                             "example": "OTP code successfully resent."
@@ -270,6 +290,10 @@
                             "application/json": {
                                 "schema": {
                                     "properties": {
+                                        "status": {
+                                            "type": "string",
+                                            "example": "error"
+                                        },
                                         "message": {
                                             "type": "string",
                                             "example": "The address is not valid"
@@ -315,6 +339,10 @@
                             "application/json": {
                                 "schema": {
                                     "properties": {
+                                        "status": {
+                                            "type": "string",
+                                            "example": "success"
+                                        },
                                         "message": {
                                             "type": "string",
                                             "example": "user  logged out  successfuly"
@@ -332,12 +360,132 @@
                     }
                 ]
             }
+        },
+        "/api/add-to-cart": {
+            "post": {
+                "tags": [
+                    "Cart"
+                ],
+                "summary": "Add to cart",
+                "description": "Add a product variant to the authenticated user's shopping cart",
+                "operationId": "8c627680034bc70ddc3fad2f805afef6",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "variant_id",
+                                    "quantity"
+                                ],
+                                "properties": {
+                                    "variant_id": {
+                                        "description": "The ID of the product variant",
+                                        "type": "integer",
+                                        "example": 116
+                                    },
+                                    "quantity": {
+                                        "description": "The number of items to add. Must be between 1 and 10.",
+                                        "type": "integer",
+                                        "example": 7
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Product successfully added to cart",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status": {
+                                            "type": "string",
+                                            "example": "success"
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Product successfully added to your cart!"
+                                        },
+                                        "data": {
+                                            "properties": {
+                                                "cart_item_id": {
+                                                    "type": "integer",
+                                                    "example": 89
+                                                },
+                                                "quantity": {
+                                                    "type": "integer",
+                                                    "example": 7
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation error or Out of stock",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status": {
+                                            "type": "string",
+                                            "example": "error"
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "The given data was invalid. / Sorry, there isn’t enough stock for this item."
+                                        },
+                                        "errors": {
+                                            "description": "Dictionary of field errors",
+                                            "properties": {
+                                                "variant_id": {
+                                                    "type": "string",
+                                                    "example": "The selected variant id is invalid."
+                                                },
+                                                "quantity": {
+                                                    "type": "string",
+                                                    "example": "The quantity field is required."
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthenticated"
+                    },
+                    "429": {
+                        "description": "Too many requests (throttled)"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
         }
     },
     "tags": [
         {
             "name": "Authentication",
             "description": "OTP-based login and registration"
+        },
+        {
+            "name": "Cart",
+            "description": "Operations attributed to the users shopping cart"
         }
     ],
     "components": {

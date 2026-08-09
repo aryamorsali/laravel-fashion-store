@@ -2,9 +2,10 @@
 
 namespace App\Http\Requests\Api\Auth;
 
+use App\Http\Requests\Api\BaseApiFormRequest;
 use Illuminate\Foundation\Http\FormRequest;
 
-class LoginConfirmStoreRequest extends FormRequest
+class LoginConfirmStoreRequest extends BaseApiFormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
