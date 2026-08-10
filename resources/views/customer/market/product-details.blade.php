@@ -1589,8 +1589,6 @@
                 var url = window.location.pathname + '?page=' + page;
                 fetch(url)
                     .then(function(response) {
-                        console.log(response.text());
-
                         return response.text();
 
                     })

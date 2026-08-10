@@ -40,6 +40,7 @@ use App\Http\Controllers\Admin\User\AdminUserController;
 use App\Http\Controllers\Admin\User\CustomerController;
 use App\Http\Controllers\Admin\User\PermissionController;
 use App\Http\Controllers\Admin\User\RoleController;
+use App\Http\Controllers\Customer\Content\ContentController;
 use App\Http\Controllers\Customer\HomeController;
 use App\Http\Controllers\Customer\Market\ProductController as MarketProductController;
 use App\Http\Controllers\Customer\Market\ShopController;
@@ -524,7 +525,11 @@ Route::namespace('customer')->middleware('CheckMaintenanceMode')->group(function
     Route::post('/like/{type}/{id}', [LikeController::class, 'toggle'])->name('like.toggle')->middleware(['auth', 'throttle:like',]);
 
     // content
-    Route::view('/about', 'customer.pages.about')->name('customer.about');
-    Route::view('/contact', 'customer.pages.contact')->name('customer.contact');
-    Route::view('/blog', 'customer.pages.blog')->name('customer.blog');
+    Route::prefix('content')->group(function () {
+        Route::get('/about', [ContentController::class, 'about'])->name('customer.content.about');
+        Route::get('/contact', [ContentController::class, 'contact'])->name('customer.content.contact');
+        Route::get('/blogs/{category:slug?}', [ContentController::class, 'blogs'])->name('customer.content.blogs');
+        Route::get('/blog-detail/{post:slug}', [ContentController::class, 'blogDetail'])->name('customer.content.blog-detail');
+        Route::post('blog-detail/{post:slug}/add-comment', [ContentController::class, 'addComment'])->name('customer.content.blog-detail.add-comment')->middleware(['auth', 'throttle:add-comment']);
+    });
 });

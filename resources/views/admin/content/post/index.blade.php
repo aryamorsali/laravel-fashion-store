@@ -81,7 +81,7 @@
                                 </td>
                                 <td>
                                     <label>
-                                        <input id="{{ $post->id }}-commentable" @can('update-post') disabled @endcan
+                                        <input id="{{ $post->id }}-commentable" @cannot('update-post') disabled @endcannot
                                             onchange="commentable({{ $post->id }})"
                                             data-url="{{ route('admin.content.post.commentable', $post->id) }}"
                                             type="checkbox" @if ($post->commentable === 1) checked @endif>

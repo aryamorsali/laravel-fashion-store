@@ -333,6 +333,19 @@
                                                             })
                                                             ->sortByDesc('percentage')
                                                             ->first();
+
+                                                        $variant = $product->variants->firstWhere(
+                                                            'id',
+                                                            optional($activeAmazingSale)->product_variant_id,
+                                                        );
+
+                                                        $price = $variant?->price ?? $product->base_price;
+
+                                                        $discount = $activeAmazingSale->percentage ?? 0;
+
+                                                        $finalPrice = $discount
+                                                            ? $price - ($price * $discount) / 100
+                                                            : $price;
                                                     @endphp
 
 
@@ -350,7 +363,7 @@
                                                     <img src="{{ asset($product->image['indexArray']['main']) }}"
                                                         alt="{{ $product->name }}">
 
-                                                    <a href="{{ route('customer.market.product', $product) }}"
+                                                    <a href="{{ route('customer.market.product', [$product->slug, 'variant' => $variant->id]) }}"
                                                         class="block2-btn flex-c-m stext-103 cl2 size-102 bg0 bor2 hov-btn1 p-lr-15 trans-04">
                                                         Shop Now
                                                     </a>
@@ -363,20 +376,7 @@
                                                             {{ $product->name }}
                                                         </a>
 
-                                                        @php
-                                                            $variant = $product->variants->firstWhere(
-                                                                'id',
-                                                                optional($activeAmazingSale)->product_variant_id,
-                                                            );
 
-                                                            $price = $variant?->price ?? $product->base_price;
-
-                                                            $discount = $activeAmazingSale->percentage ?? 0;
-
-                                                            $finalPrice = $discount
-                                                                ? $price - ($price * $discount) / 100
-                                                                : $price;
-                                                        @endphp
 
                                                         <span class="stext-105 cl3">
                                                             @if ($discount)
@@ -391,12 +391,19 @@
                                                     </div>
 
                                                     <div class="block2-txt-child2 flex-r p-t-3">
-                                                        <button
-                                                            class="like-btn fs-14 cl3 lh-10 hov-cl1 trans-04 p-lr-5 p-tb-2"
-                                                            data-id="{{ $product->id }}" data-type="product"
-                                                            title="{{ $product->isLikedByUser() ? 'Remove from favorites' : 'Add to Favorites' }}">
-                                                            <i class="zmdi zmdi-favorite"
-                                                                @if ($product->isLikedByUser()) style="color: rgb(113, 127, 224)" @endif></i>
+
+                                                        <button class="like-btn" data-id="{{ $product->id }}"
+                                                            data-type="product">
+
+                                                            <img class="icon-heart1 dis-block trans-04"
+                                                                src="{{ asset('images/icons/icon-heart-01.png') }}"
+                                                                style="{{ $product->isLikedByUser() ? 'display:none' : '' }}"
+                                                                alt="ICON">
+
+                                                            <img class="icon-heart2 dis-block trans-04"
+                                                                src="{{ asset('images/icons/icon-heart-02.png') }}"
+                                                                style="{{ $product->isLikedByUser() ? '' : 'display:none' }}"
+                                                                alt="ICON">
                                                         </button>
                                                     </div>
                                                 </div>
@@ -490,7 +497,7 @@
                                                     <img src="{{ asset($product->image['indexArray']['main']) }}"
                                                         alt="{{ $product->name }}">
 
-                                                    <a href="{{ route('customer.market.product', $product) }}"
+                                                    <a href="{{ route('customer.market.product', [$product->slug, 'variant' => $variant->id]) }}"
                                                         class="block2-btn flex-c-m stext-103 cl2 size-102 bg0 bor2 hov-btn1 p-lr-15 trans-04">
                                                         Shop Now
                                                     </a>
@@ -517,12 +524,18 @@
                                                     </div>
 
                                                     <div class="block2-txt-child2 flex-r p-t-3">
-                                                        <button
-                                                            class="like-btn fs-14 cl3 lh-10 hov-cl1 trans-04 p-lr-5 p-tb-2"
-                                                            data-id="{{ $product->id }}" data-type="product"
-                                                            title="{{ $product->isLikedByUser() ? 'Remove from favorites' : 'Add to Favorites' }}">
-                                                            <i class="zmdi zmdi-favorite"
-                                                                @if ($product->isLikedByUser()) style="color: rgb(113, 127, 224)" @endif></i>
+                                                        <button class="like-btn" data-id="{{ $product->id }}"
+                                                            data-type="product">
+
+                                                            <img class="icon-heart1 dis-block trans-04"
+                                                                src="{{ asset('images/icons/icon-heart-01.png') }}"
+                                                                style="{{ $product->isLikedByUser() ? 'display:none' : '' }}"
+                                                                alt="ICON">
+
+                                                            <img class="icon-heart2 dis-block trans-04"
+                                                                src="{{ asset('images/icons/icon-heart-02.png') }}"
+                                                                style="{{ $product->isLikedByUser() ? '' : 'display:none' }}"
+                                                                alt="ICON">
                                                         </button>
                                                     </div>
                                                 </div>
@@ -614,7 +627,7 @@
                                                     <img src="{{ asset($product->image['indexArray']['main']) }}"
                                                         alt="{{ $product->name }}">
 
-                                                    <a href="{{ route('customer.market.product', $product) }}"
+                                                    <a href="{{ route('customer.market.product', [$product->slug, 'variant' => $variant->id]) }}"
                                                         class="block2-btn flex-c-m stext-103 cl2 size-102 bg0 bor2 hov-btn1 p-lr-15 trans-04">
                                                         Shop Now
                                                     </a>
@@ -641,12 +654,18 @@
 
                                                     <div class="block2-txt-child2 flex-r p-t-3">
 
-                                                        <button
-                                                            class="like-btn fs-14 cl3 lh-10 hov-cl1 trans-04 p-lr-5 p-tb-2"
-                                                            data-id="{{ $product->id }}" data-type="product"
-                                                            title="{{ $product->isLikedByUser() ? 'Remove from favorites' : 'Add to Favorites' }}">
-                                                            <i class="zmdi zmdi-favorite"
-                                                                @if ($product->isLikedByUser()) style="color: rgb(113, 127, 224)" @endif></i>
+                                                        <button class="like-btn" data-id="{{ $product->id }}"
+                                                            data-type="product">
+
+                                                            <img class="icon-heart1 dis-block trans-04"
+                                                                src="{{ asset('images/icons/icon-heart-01.png') }}"
+                                                                style="{{ $product->isLikedByUser() ? 'display:none' : '' }}"
+                                                                alt="ICON">
+
+                                                            <img class="icon-heart2 dis-block trans-04"
+                                                                src="{{ asset('images/icons/icon-heart-02.png') }}"
+                                                                style="{{ $product->isLikedByUser() ? '' : 'display:none' }}"
+                                                                alt="ICON">
                                                         </button>
                                                     </div>
                                                 </div>
@@ -686,7 +705,7 @@
                         <div class="col-sm-6 col-md-4 p-b-40">
                             <div class="blog-item">
                                 <div class="hov-img0">
-                                    <a href="blog-detail.html">
+                                    <a href="{{route('customer.content.blog-detail', ['post' => $blog->slug])}}">
 
                                         <img src="{{ asset($blog->image['blogArray'][$blog->image['currentImage']]) }}"
                                             alt="{{ $blog->title }}">
@@ -866,70 +885,70 @@
 
 
     <script>
+        // like product
         document.querySelectorAll('.like-btn').forEach(btn => {
-            btn.addEventListener('click', async function(e) {
-                e.preventDefault();
+            btn.addEventListener('click', async () => {
 
                 const {
                     id,
                     type
-                } = this.dataset;
-                const icon = this.querySelector('i');
+                } = btn.dataset;
 
-                try {
-                    const res = await fetch(`/like/${type}/${id}`, {
-                        method: 'POST',
-                        headers: {
-                            'X-CSRF-TOKEN': '{{ csrf_token() }}',
-                            'Accept': 'application/json'
-                        }
-                    });
-
-                    const data = await res.json();
-
-                    if (data.login_required) {
-                        showToast(data.message);
-                        return;
+                const res = await fetch(`/like/${type}/${id}`, {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                        'Accept': 'application/json'
                     }
+                });
 
-                    // تغییر آیکون و رنگ
-                    if (data.liked) {
-                        icon.className = 'zmdi zmdi-favorite';
-                        icon.style.color = 'rgb(113, 127, 224)';
-                        this.setAttribute('title', 'Remove from favorites');
-                        showToast('Product added to wishlist', 'success');
+                const data = await res.json();
 
-                    } else {
-                        icon.className = 'zmdi zmdi-favorite';
-                        icon.style.color = '';
-                        this.setAttribute('title', 'Add to Favorites');
-                        showToast('Product remove from wishlist', 'success');
-
-                    }
-
-                } catch (error) {
-                    console.error('Like error:', error);
-                    showToast('An error occurred. Please try again.', 'error');
+                if (data.login_required) {
+                    showToast(data.message);
+                    return;
                 }
+
+                const heart1 = btn.querySelector('.icon-heart1'); // قلب خالی
+                const heart2 = btn.querySelector('.icon-heart2'); // قلب قرمز
+
+                if (data.liked) {
+                    heart1.style.display = "none";
+                    heart2.style.display = "block";
+                    showToast('Product added to wishlist', 'success');
+                } else {
+                    heart1.style.display = "block";
+                    heart2.style.display = "none";
+                    showToast('Product remove from wishlist', 'success');
+                }
+
             });
         });
 
         function showToast(message) {
 
-            document.querySelectorAll('.custom-toast').forEach(t => t.remove());
+            const existingToast = document.querySelector('.custom-toast');
+            if (existingToast) {
+                existingToast.remove();
+            }
 
+            // ایجاد المان اصلی توست
             const toast = document.createElement('div');
-            toast.className = `custom-toast`;
+            toast.className = 'custom-toast';
+            toast.id = 'dynamic-toast';
+
             toast.innerHTML = `
             <span>${message}</span>
             <span class="close-btn" onclick="this.parentElement.remove()">×</span>`;
 
+
+            // اضافه کردن به صفحه
             document.body.appendChild(toast);
 
-            // حذف خودکار
+            // حذف خودکار بعد از ۸ ثانیه 
             setTimeout(() => {
                 if (toast) toast.remove();
-            }, 6000);
+            }, 8000);
         }
     </script>
 @endsection

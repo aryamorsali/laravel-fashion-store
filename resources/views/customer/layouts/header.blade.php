@@ -45,16 +45,16 @@
                              <a href="shoping-cart.html">Features</a>
                          </li> --}}
 
-                         <li class="{{ Route::is('customer.blog') ? 'active-menu' : '' }}">
-                             <a href="{{ route('customer.blog') }}">Blog</a>
+                         <li class="{{ Route::is('customer.content.blogs') ? 'active-menu' : '' }}">
+                             <a href="{{ route('customer.content.blogs') }}">Blog</a>
                          </li>
 
-                         <li class="{{ Route::is('customer.about') ? 'active-menu' : '' }}">
-                             <a href="{{ route('customer.about') }}">About</a>
+                         <li class="{{ Route::is('customer.content.about') ? 'active-menu' : '' }}">
+                             <a href="{{ route('customer.content.about') }}">About</a>
                          </li>
 
-                         <li class="{{ Route::is('customer.contact') ? 'active-menu' : '' }}">
-                             <a href="{{ route('customer.contact') }}">Contact</a>
+                         <li class="{{ Route::is('customer.content.contact') ? 'active-menu' : '' }}">
+                             <a href="{{ route('customer.content.contact') }}">Contact</a>
                          </li>
                      </ul>
                  </div>
