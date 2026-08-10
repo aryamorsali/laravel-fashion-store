@@ -27,80 +27,16 @@ class CartController extends Controller
         $this->cartManager = $cartManager;
     }
 
-    public function shopingCart(CartCalculator $cartCalculator)
+    public function shopingCart()
     {
-        $cartItems = CartItem::with([
-            'productVariant.product',
-            'productVariant.color',
-            'productVariant.size',
-            'productVariant.amazingSale',
-        ])->where('user_id', Auth::user()->id)->orderBy('created_at', 'desc')->get();
+        $result = $this->cartManager->shopingCart();
 
-        $commonDiscount = CommonDiscount::where('status', 1)->where('start_date', '<=', now())->where('end_date', '>=', now())->first();
 
-        $coupon = Coupon::where('code', session('applied_coupon'))
-            ->where('status', 1)
-            ->where('start_date', '<=', now())
-            ->where('end_date', '>=', now())
-            ->first();
-
-        // چک کردن عمومی یا خصوصی بودن کوپن
-        if ($coupon && $coupon->type == 1) {
-            if ($coupon->user_id != Auth::id()) {
-                session()->forget('applied_coupon');
-            }
-        }
-
-        // -------------------------
-        // محاسبه کل سبد خرید
-        // -------------------------
-
-        $totals = $cartCalculator->calculateCartTotals($cartItems, $commonDiscount, session('applied_coupon'));
-
-        return view('customer.sales-process.shoping-cart', compact(
-            'cartItems',
-            'commonDiscount',
-            'totals',
-        ));
+        $cartItems = $result['cartItems'];
+        $commonDiscount = $result['commonDiscount'];
+        $totals = $result['totals'];
+        return view('customer.sales-process.shoping-cart', compact('cartItems', 'commonDiscount', 'totals'));
     }
-
-
-    // public function addToCart(AddToCartRequest $request, CartInventoryAllocator $cartInventoryAllocator)
-    // {
-    //     $data = $request->validated();
-    //     try {
-    //         DB::transaction(function () use ($data, $cartInventoryAllocator) {
-    //             // چک کردن موجودی واریانت
-    //             $variant = ProductVariant::lockForUpdate()->findOrFail($data['variant_id']);
-
-
-    //             if ($data['quantity'] > $variant->availableStock()) {
-    //                 throw new \Exception();
-    //             }
-
-    //             $cartItem = CartItem::updateOrCreate(
-    //                 [
-    //                     'user_id' => Auth::id(),
-    //                     'product_variant_id' => $variant->id,
-    //                 ],
-    //                 [
-    //                     'quantity' => 0,       //  بعدا در سرویس مقدارشو تغییر میدهیم
-    //                 ]
-    //             );
-
-    //             $cartInventoryAllocator->reallocate($cartItem, $data['quantity']);
-    //         });
-    //     } catch (\Exception $e) {
-    //         return back()->with(
-    //             'toast-error',
-    //             'Sorry, there isn’t enough stock for this item.'
-    //         );
-    //     }
-    //     return redirect()->back()->with(
-    //         'toast-success',
-    //         'Product successfully added to your cart !'
-    //     );
-    // }
 
 
 
@@ -108,9 +44,8 @@ class CartController extends Controller
     {
         $data = $request->validated();
         try {
-            
-            $this->cartManager->addToCart($data);
 
+            $this->cartManager->addToCart($data);
         } catch (\Exception $e) {
             return back()->with(
                 'toast-error',

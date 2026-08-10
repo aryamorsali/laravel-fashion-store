@@ -367,7 +367,7 @@
                     "Cart"
                 ],
                 "summary": "Add to cart",
-                "description": "Add a product variant to the authenticated user's shopping cart",
+                "description": "Add a product variant to the authenticated user's shoping cart",
                 "operationId": "8c627680034bc70ddc3fad2f805afef6",
                 "requestBody": {
                     "required": true,
@@ -476,6 +476,340 @@
                     }
                 ]
             }
+        },
+        "/api/shoping-cart": {
+            "get": {
+                "tags": [
+                    "Cart"
+                ],
+                "summary": "Get user cart information",
+                "description": "This method returns the user's shopping cart information along with general discounts, coupons applied, and final price calculations.",
+                "operationId": "1e6e25fd8b7dd9157874bc1de2f397b1",
+                "parameters": [
+                    {
+                        "name": "coupon",
+                        "in": "query",
+                        "description": "Discount code (coupon) to apply to cart (optional)",
+                        "required": false,
+                        "example": "testy"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Shopping cart information successfully received",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status": {
+                                            "type": "string",
+                                            "example": "success"
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "users shoping cart"
+                                        },
+                                        "data": {
+                                            "properties": {
+                                                "cartItems": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "properties": {
+                                                            "id": {
+                                                                "type": "integer",
+                                                                "example": 87
+                                                            },
+                                                            "quantity": {
+                                                                "type": "integer",
+                                                                "example": 2
+                                                            },
+                                                            "product_variant": {
+                                                                "properties": {
+                                                                    "id": {
+                                                                        "type": "integer",
+                                                                        "example": 150
+                                                                    },
+                                                                    "price": {
+                                                                        "type": "string",
+                                                                        "example": "66"
+                                                                    },
+                                                                    "product": {
+                                                                        "properties": {
+                                                                            "id": {
+                                                                                "type": "integer",
+                                                                                "example": 40
+                                                                            },
+                                                                            "name": {
+                                                                                "type": "string",
+                                                                                "example": "product name"
+                                                                            },
+                                                                            "slug": {
+                                                                                "type": "string",
+                                                                                "example": "product slug"
+                                                                            },
+                                                                            "image": {
+                                                                                "type": "string",
+                                                                                "example": "images/product/2026/06/13/1781302840_main.jpg"
+                                                                            }
+                                                                        },
+                                                                        "type": "object"
+                                                                    },
+                                                                    "color": {
+                                                                        "properties": {
+                                                                            "id": {
+                                                                                "type": "integer",
+                                                                                "example": 6
+                                                                            },
+                                                                            "name": {
+                                                                                "type": "string",
+                                                                                "example": "gray"
+                                                                            },
+                                                                            "slug": {
+                                                                                "type": "string",
+                                                                                "example": "gray"
+                                                                            },
+                                                                            "hex_code": {
+                                                                                "type": "string",
+                                                                                "example": "#999999"
+                                                                            }
+                                                                        },
+                                                                        "type": "object",
+                                                                        "nullable": true
+                                                                    },
+                                                                    "size": {
+                                                                        "properties": {
+                                                                            "id": {
+                                                                                "type": "integer",
+                                                                                "example": 9
+                                                                            },
+                                                                            "name": {
+                                                                                "type": "string",
+                                                                                "example": "xl"
+                                                                            },
+                                                                            "slug": {
+                                                                                "type": "string",
+                                                                                "example": "xl"
+                                                                            },
+                                                                            "type": {
+                                                                                "type": "string",
+                                                                                "example": null,
+                                                                                "nullable": true
+                                                                            }
+                                                                        },
+                                                                        "type": "object",
+                                                                        "nullable": true
+                                                                    },
+                                                                    "amazing_sale": {
+                                                                        "properties": {
+                                                                            "id": {
+                                                                                "type": "integer",
+                                                                                "example": 9
+                                                                            },
+                                                                            "percentage": {
+                                                                                "type": "integer",
+                                                                                "example": 10
+                                                                            },
+                                                                            "start_date": {
+                                                                                "type": "string",
+                                                                                "example": "2026-08-07 12:00:00"
+                                                                            },
+                                                                            "end_date": {
+                                                                                "type": "string",
+                                                                                "example": "2026-08-26 12:00:00",
+                                                                                "nullable": true
+                                                                            },
+                                                                            "is_active": {
+                                                                                "type": "integer",
+                                                                                "example": 1,
+                                                                                "nullable": true
+                                                                            },
+                                                                            "product_variant_id": {
+                                                                                "type": "integer",
+                                                                                "example": 158,
+                                                                                "nullable": true
+                                                                            }
+                                                                        },
+                                                                        "type": "object",
+                                                                        "nullable": true
+                                                                    }
+                                                                },
+                                                                "type": "object"
+                                                            }
+                                                        },
+                                                        "type": "object"
+                                                    }
+                                                },
+                                                "commonDiscount": {
+                                                    "properties": {
+                                                        "id": {
+                                                            "type": "integer",
+                                                            "example": 2
+                                                        },
+                                                        "title": {
+                                                            "type": "string",
+                                                            "example": "روز کارگر"
+                                                        },
+                                                        "percentage": {
+                                                            "type": "integer",
+                                                            "example": 10
+                                                        },
+                                                        "discount_ceiling": {
+                                                            "type": "integer",
+                                                            "example": 15,
+                                                            "nullable": true
+                                                        },
+                                                        "minimal_order_amount": {
+                                                            "type": "integer",
+                                                            "example": 100
+                                                        },
+                                                        "start_date": {
+                                                            "type": "string",
+                                                            "example": "2025-11-02 16:00:00"
+                                                        },
+                                                        "end_date": {
+                                                            "type": "string",
+                                                            "example": "2026-08-31 14:00:00"
+                                                        }
+                                                    },
+                                                    "type": "object",
+                                                    "nullable": true
+                                                },
+                                                "coupon": {
+                                                    "properties": {
+                                                        "id": {
+                                                            "type": "integer",
+                                                            "example": 8
+                                                        },
+                                                        "code": {
+                                                            "type": "string",
+                                                            "example": "testy"
+                                                        },
+                                                        "amount": {
+                                                            "type": "string",
+                                                            "example": "10.00"
+                                                        },
+                                                        "discount_ceiling": {
+                                                            "type": "integer",
+                                                            "example": null,
+                                                            "nullable": true
+                                                        },
+                                                        "amount_type": {
+                                                            "description": "0 for percentage, 1 for flat value",
+                                                            "type": "integer",
+                                                            "example": 0
+                                                        },
+                                                        "start_date": {
+                                                            "type": "string",
+                                                            "example": "2026-08-09 12:00:00"
+                                                        },
+                                                        "end_date": {
+                                                            "type": "string",
+                                                            "example": "2026-08-26 12:00:00"
+                                                        }
+                                                    },
+                                                    "type": "object",
+                                                    "nullable": true
+                                                },
+                                                "totals": {
+                                                    "properties": {
+                                                        "totalCartPrice": {
+                                                            "type": "number",
+                                                            "format": "float",
+                                                            "example": 106.92
+                                                        },
+                                                        "productDiscounts": {
+                                                            "type": "number",
+                                                            "format": "float",
+                                                            "example": 0
+                                                        },
+                                                        "productPrices": {
+                                                            "type": "number",
+                                                            "format": "float",
+                                                            "example": 132
+                                                        },
+                                                        "commonDiscountAmount": {
+                                                            "type": "number",
+                                                            "format": "float",
+                                                            "example": 13.2
+                                                        },
+                                                        "couponDiscount": {
+                                                            "type": "number",
+                                                            "format": "float",
+                                                            "example": 11.88
+                                                        },
+                                                        "commonDiscountPercentage": {
+                                                            "type": "integer",
+                                                            "example": 10
+                                                        }
+                                                    },
+                                                    "type": "object"
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation error (such as invalid or expired discount coupon)",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status": {
+                                            "type": "string",
+                                            "example": "error"
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Validation failed."
+                                        },
+                                        "errors": {
+                                            "properties": {
+                                                "coupon": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "type": "string"
+                                                    },
+                                                    "example": [
+                                                        "The discount code entered is not valid or has expired."
+                                                    ]
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "User not authenticated",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Unauthenticated."
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
         }
     },
     "tags": [
@@ -485,17 +819,7 @@
         },
         {
             "name": "Cart",
-            "description": "Operations attributed to the users shopping cart"
+            "description": "Operations attributed to the users shoping cart"
         }
-    ],
-    "components": {
-        "securitySchemes": {
-            "sanctum": {
-                "type": "apiKey",
-                "description": "Enter token in format (Bearer <token>)",
-                "name": "Authorization",
-                "in": "header"
-            }
-        }
-    }
+    ]
 }
