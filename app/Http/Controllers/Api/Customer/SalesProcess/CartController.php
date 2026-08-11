@@ -8,6 +8,7 @@ use App\Http\Requests\Api\Cart\ShopingCartRequest;
 use App\Http\Resources\CartItemResource;
 use App\Http\Resources\CommonDiscountResource;
 use App\Http\Resources\CouponResource;
+use App\Models\Market\CartItem;
 use App\Services\CartManager;
 use Illuminate\Http\Request;
 use OpenApi\Attributes as OA;
@@ -200,15 +201,19 @@ class CartController extends Controller
                                                             new OA\Property(property: "type", type: "string", nullable: true, example: null)
                                                         ]
                                                     ),
-                                                    new OA\Property(property: "amazing_sale", type: "object", nullable: true,
-                                                    properties: [
+                                                    new OA\Property(
+                                                        property: "amazing_sale",
+                                                        type: "object",
+                                                        nullable: true,
+                                                        properties: [
                                                             new OA\Property(property: "id", type: "integer", example: 9),
                                                             new OA\Property(property: "percentage", type: "integer", example: 10),
                                                             new OA\Property(property: "start_date", type: "string", example: "2026-08-07 12:00:00"),
                                                             new OA\Property(property: "end_date", type: "string", nullable: true, example: "2026-08-26 12:00:00"),
                                                             new OA\Property(property: "is_active", type: "integer", nullable: true, example: 1),
                                                             new OA\Property(property: "product_variant_id", type: "integer", nullable: true, example: 158)
-                                                        ])
+                                                        ]
+                                                    )
                                                 ]
                                             )
                                         ]
@@ -286,13 +291,8 @@ class CartController extends Controller
             ),
             new OA\Response(
                 response: 401,
-                description: "User not authenticated",
-                content: new OA\JsonContent(
-                    properties: [
-                        new OA\Property(property: "message", type: "string", example: "Unauthenticated.")
-                    ]
-                )
-            )
+                description: 'Unauthenticated'
+            ),
         ]
     )]
 
@@ -313,5 +313,101 @@ class CartController extends Controller
                 'totals' => $result['totals']
             ]
         ], 200);
+    }
+
+
+
+    #[OA\Get(
+        path: '/api/remove-from-cart/{cartItem}',
+        summary: 'Remove an item from the shopping cart',
+        description: 'Deletes a cart item that belongs to the authenticated user.',
+        tags: ['Cart'],
+        security: [
+            ['sanctum' => []]
+        ],
+        parameters: [
+            new OA\Parameter(
+                name: 'cartItem',
+                description: 'The ID of the cart item to remove',
+                in: 'path',
+                required: true,
+                example: 15,
+                schema: new OA\Schema(
+                    type: 'integer',
+                    minimum: 1
+                )
+            )
+        ],
+        responses: [
+            new OA\Response(
+                response: 200,
+                description: 'Cart item deleted successfully',
+                content: new OA\JsonContent(
+                    type: 'object',
+                    properties: [
+                        new OA\Property(
+                            property: 'status',
+                            type: 'string',
+                            example: 'success'
+                        ),
+                        new OA\Property(
+                            property: 'message',
+                            type: 'string',
+                            example: 'Cart item deleted successfully'
+                        )
+                    ]
+                )
+            ),
+            new OA\Response(
+                response: 401,
+                description: 'Unauthenticated'
+            ),
+
+            new OA\Response(
+                response: 403,
+                description: 'User is not authorized to delete this cart item',
+            ),
+
+            new OA\Response(
+                response: 409,
+                description: 'Cart item cannot be deleted because it is locked or involved in a payment process',
+                content: new OA\JsonContent(
+                    type: 'object',
+                    properties: [
+                        new OA\Property(
+                            property: 'status',
+                            type: 'string',
+                            example: 'error'
+                        ),
+                        new OA\Property(
+                            property: 'message',
+                            type: 'string',
+                            example: 'This item is in an active payment process and cannot be deleted at this time. If you wish to cancel, cancel the payment; otherwise, the item will be available for deletion after the payment deadline.'
+                        )
+                    ]
+                )
+            ),
+            new OA\Response(
+                response: 429,
+                description: 'Too many requests (throttled)'
+            ),
+        ]
+    )]
+
+    public function removeFromCart(CartItem $cartItem)
+    {
+        try {
+            $this->cartManager->removeFromCart($cartItem);
+        } catch (\DomainException  $e) {
+            return response()->json([
+                'status' => 'error',
+                'message' => $e->getMessage()
+            ], 409);
+        }
+
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Cart item deleted successfuly'
+        ]);
     }
 }

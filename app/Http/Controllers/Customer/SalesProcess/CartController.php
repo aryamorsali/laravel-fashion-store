@@ -60,38 +60,16 @@ class CartController extends Controller
 
     public function removeFromCart(CartItem $cartItem)
     {
-        if ($cartItem->user_id === Auth::user()->id) {
-            DB::transaction(function () use ($cartItem) {
-
-                if ($cartItem->allocations()->whereNotNull('order_item_id')->exists()) {
-                    return back()->with(
-                        'toast-error',
-                        'This item has entered the checkout process and cannot be removed.'
-                    );
-                }
-
-                foreach ($cartItem->allocations as $allocation) {
-                    $warehouseVariant = WarehouseVariant::query()
-                        ->lockForUpdate()
-                        ->findOrFail($allocation->warehouse_variant_id);
-
-                    $warehouseVariant->reserved = max(
-                        0,
-                        $warehouseVariant->reserved - $allocation->quantity
-                    );
-
-                    $warehouseVariant->save();
-                }
-
-                $cartItem->allocations()->delete();
-
-                $cartItem->delete();
-            });
-
-            return back();
-        } else {
-            abort(403);
+        try {
+            $this->cartManager->removeFromCart($cartItem);
+        } catch (\DomainException $e) {
+            return back()->with(
+                'toast-error',
+                $e->getMessage()
+            );
         }
+
+        return back();
     }
 
     public function updateCart(Request $request, CartCalculator $cartCalculator, CartInventoryAllocator $cartInventoryAllocator)

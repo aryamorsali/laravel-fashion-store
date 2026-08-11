@@ -7,6 +7,8 @@ use App\Models\Market\CartItem;
 use App\Models\Market\CommonDiscount;
 use App\Models\Market\Coupon;
 use App\Models\Market\ProductVariant;
+use App\Models\Market\WarehouseVariant;
+use Exception;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use PharIo\Manifest\Extension;
@@ -107,5 +109,32 @@ class CartManager
             'coupon' => $coupon,
             'totals' => $totals
         ];
+    }
+
+    public function removeFromCart(CartItem $cartItem)
+    {
+        DB::transaction(function () use ($cartItem) {
+
+            if ($cartItem->allocations()->whereNotNull('order_item_id')->exists()) {
+                throw new \DomainException('This item is in an active payment process and cannot be deleted at this time. If you wish to cancel, cancel the payment; otherwise, the item will be available for deletion after the payment deadline.');
+            }
+
+            foreach ($cartItem->allocations as $allocation) {
+                $warehouseVariant = WarehouseVariant::query()
+                    ->lockForUpdate()
+                    ->findOrFail($allocation->warehouse_variant_id);
+
+                $warehouseVariant->reserved = max(
+                    0,
+                    $warehouseVariant->reserved - $allocation->quantity
+                );
+
+                $warehouseVariant->save();
+            }
+
+            $cartItem->allocations()->delete();
+
+            $cartItem->delete();
+        });
     }
 }
