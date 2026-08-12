@@ -43,15 +43,9 @@ class CartController extends Controller
     public function addToCart(AddToCartRequest $request)
     {
         $data = $request->validated();
-        try {
 
-            $this->cartManager->addToCart($data);
-        } catch (\Exception $e) {
-            return back()->with(
-                'toast-error',
-                'Sorry, there isn’t enough stock for this item.'
-            );
-        }
+        $this->cartManager->addToCart($data);
+
         return redirect()->back()->with(
             'toast-success',
             'Product successfully added to your cart !'
@@ -72,143 +66,16 @@ class CartController extends Controller
         return back();
     }
 
-    public function updateCart(Request $request, CartCalculator $cartCalculator, CartInventoryAllocator $cartInventoryAllocator)
+    public function updateCart(Request $request)
     {
-        try {
-            return DB::transaction(function () use ($request, $cartCalculator, $cartInventoryAllocator) {
-                $cartItem = CartItem::where('id', $request->cart_item_id)
-                    ->where('user_id', Auth::id())
-                    ->firstOrFail();
+        $data = $request->validate([
+            'cart_item_id' => 'required|exists:cart_items,id',
+            'quantity' => 'required|integer|between:1,10'
+        ]);
 
-                $variant = $cartItem->productVariant;
-
-                $newQuantity = max((int)$request->quantity, 1);
-                $oldQuantity = $cartItem->quantity;
-                $diff = $newQuantity - $oldQuantity;
-
-                // -------------------------
-                // محدودیت گزاشتن روی تعداد واریانت رزرو شده
-                // -------------------------
-                if ($newQuantity < 1) {
-                    $newQuantity = 1;
-                }
-                $availableStock = $variant->availableStock();
-
-                $maxAllowed = min(10, $availableStock + $oldQuantity);
-
-                if ($newQuantity > $maxAllowed) {
-                    return response()->json([
-                        'status'    => 'stock_error',
-                        'available' => $maxAllowed,
-                    ]);
-                }
-                // -------------------------
-                // بررسی موجودی (فقط وقتی تعداد رو زیاد می‌کنیم)
-                // -------------------------
-
-                if ($diff > 0) {
-
-
-                    if ($diff > $availableStock) {
-                        return response()->json([
-                            'status'    => 'stock_error',
-                            'available' => $availableStock + $oldQuantity,
-                        ]);
-                    }
-                }
-
-                // -------------------------
-                // آپدیت reserved
-                // -------------------------
-
-                $cartInventoryAllocator->reallocate($cartItem, $newQuantity);
-
-                // -------------------------
-                // آپدیت تعداد محصول Product prices(x)
-                // -------------------------
-
-                $totalProductsQuantity = CartItem::where('user_id', Auth::id())->sum('quantity');
-
-                // -------------------------
-                //   محاسبه قیمت تک آیتم
-                // -------------------------
-
-                $price = $variant->price;
-                $finalPrice = $price;
-                $discount = null;
-
-                $sale = $variant->amazingSale;
-
-                if (
-                    $sale &&
-                    $sale->is_active &&
-                    $sale->start_date <= now() &&
-                    $sale->end_date >= now()
-                ) {
-                    $discount = $sale->percentage;
-                    $finalPrice = $price - ($price * $discount) / 100;
-                }
-                $totalItemPrice = $finalPrice * $newQuantity;
-
-
-                // -------------------------
-                // محاسبه کل سبد خرید
-                // -------------------------
-                $cartItems = CartItem::where('user_id', Auth::user()->id)
-                    ->with('productVariant.amazingSale')
-                    ->get();
-
-
-                $commonDiscount = CommonDiscount::where('status', 1)
-                    ->where('start_date', '<=', now())
-                    ->where('end_date', '>=', now())
-                    ->first();
-
-
-                if ($cartItems->isEmpty()) {
-                    return response()->json([
-                        'status'    => 'error',
-                        'message' => 'empty',
-                    ]);
-                }
-
-                // -------------------------
-                // محاسبه کل سبد خرید
-                // -------------------------
-
-                $totals = $cartCalculator->calculateCartTotals($cartItems, $commonDiscount, session('applied_coupon'));
-
-                return response()->json([
-                    'status' => 'success',
-
-                    // آیتم
-                    'totalItemPrice' => number_format($totalItemPrice, 2),
-                    'price' => number_format($price, 2),
-                    'finalPrice' => number_format($finalPrice, 2),
-                    'discount' => $discount,
-
-                    // مقادیر برای آپدیت هدر کارت
-                    'cart_item_id' => $cartItem->id,
-                    'new_quantity' => $newQuantity,
-                    'totalProductsQuantity' => $totalProductsQuantity,
-
-                    // کل سبد
-                    'totalCartPrice' => number_format($totals['totalCartPrice'], 2),
-                    'productPrices' => number_format($totals['productPrices'], 2),
-                    'productDiscounts' => number_format($totals['productDiscounts'], 2),
-
-                    // تخفیف عمومی
-                    'commonDiscountAmount' => number_format($totals['commonDiscountAmount'], 2),
-                    'commonDiscountPercentage' => $totals['commonDiscountPercentage'],
-
-                    // کوپن تخفیف
-                    'couponApplied' => $totals['couponDiscount'] > 0,
-                    'couponDiscount' => number_format($totals['couponDiscount'], 2),
-                ]);
-            });
-        } catch (\Exception $e) {
-            return response()->json(['status' => 'error', 'message' => $e->getMessage()], 500);
-        }
+        return response()->json(
+            $this->cartManager->updateCart($data)
+        );
     }
 
 

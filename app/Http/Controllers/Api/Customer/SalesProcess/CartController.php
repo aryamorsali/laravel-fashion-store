@@ -100,12 +100,18 @@ class CartController extends Controller
             ),
             new OA\Response(
                 response: 401,
-                description: 'Unauthenticated'
+                description: 'Unauthenticated',
+                content: new OA\JsonContent(
+                    ref: '#/components/schemas/401ResponseSchema'
+                )
             ),
             new OA\Response(
                 response: 429,
-                description: 'Too many requests (throttled)'
-            )
+                description: 'Too many requests',
+                content: new OA\JsonContent(
+                    ref: '#/components/schemas/429ResponseSchema'
+                )
+            ),
         ]
     )]
 
@@ -291,7 +297,10 @@ class CartController extends Controller
             ),
             new OA\Response(
                 response: 401,
-                description: 'Unauthenticated'
+                description: 'Unauthenticated',
+                content: new OA\JsonContent(
+                    ref: '#/components/schemas/401ResponseSchema'
+                )
             ),
         ]
     )]
@@ -360,12 +369,18 @@ class CartController extends Controller
             ),
             new OA\Response(
                 response: 401,
-                description: 'Unauthenticated'
+                description: 'Unauthenticated',
+                content: new OA\JsonContent(
+                    ref: '#/components/schemas/401ResponseSchema'
+                )
             ),
 
             new OA\Response(
                 response: 403,
-                description: 'User is not authorized to delete this cart item',
+                description: 'Unauthorized',
+                content: new OA\JsonContent(
+                    ref: '#/components/schemas/403ResponseSchema'
+                )
             ),
 
             new OA\Response(
@@ -389,25 +404,138 @@ class CartController extends Controller
             ),
             new OA\Response(
                 response: 429,
-                description: 'Too many requests (throttled)'
+                description: 'Too many requests',
+                content: new OA\JsonContent(
+                    ref: '#/components/schemas/429ResponseSchema'
+                )
             ),
+
         ]
     )]
 
     public function removeFromCart(CartItem $cartItem)
     {
-        try {
-            $this->cartManager->removeFromCart($cartItem);
-        } catch (\DomainException  $e) {
-            return response()->json([
-                'status' => 'error',
-                'message' => $e->getMessage()
-            ], 409);
-        }
+        $this->cartManager->removeFromCart($cartItem);
 
         return response()->json([
             'status' => 'success',
             'message' => 'Cart item deleted successfuly'
+        ]);
+    }
+
+
+
+
+    #[OA\Post(
+        path: '/api/shoping-cart/update',
+        operationId: 'updateCartItem',
+        summary: 'Update quantity of a cart item',
+        description: 'Updates the quantity of an existing cart item. The quantity must be between 1 and 10.',
+        security: [['sanctum' => []]],
+        tags: ['Cart'],
+        requestBody: new OA\RequestBody(
+            required: true,
+            content: new OA\MediaType(
+                mediaType: 'application/json',
+                schema: new OA\Schema(
+                    type: 'object',
+                    required: ['cart_item_id', 'quantity'],
+                    properties: [
+                        new OA\Property(
+                            property: 'cart_item_id',
+                            type: 'integer',
+                            description: 'ID of the cart item to update',
+                            example: 42,
+                        ),
+                        new OA\Property(
+                            property: 'quantity',
+                            type: 'integer',
+                            minimum: 1,
+                            maximum: 10,
+                            description: 'New quantity (1-10)',
+                            example: 3,
+                        ),
+                    ],
+                ),
+            ),
+        ),
+        responses: [
+            new OA\Response(
+                response: 200,
+                description: 'Cart item updated successfully',
+                content: new OA\JsonContent(
+                    properties: [
+                        new OA\Property(property: 'status', type: 'string', example: 'success'),
+                        new OA\Property(property: 'message', type: 'string', example: 'Cart item updated successfully'),
+                    ]
+                )
+            ),
+            new OA\Response(
+                response: 404,
+                description: 'Cart item not found',
+                content: new OA\JsonContent(
+                    type: 'object',
+                    properties: [
+                        new OA\Property(
+                            property: 'status',
+                            type: 'string',
+                            example: 'error'
+                        ),
+                        new OA\Property(
+                            property: 'message',
+                            type: 'string',
+                            example: 'Cart item not found'
+                        )
+                    ]
+                )
+            ),
+
+            new OA\Response(
+                response: 409,
+                description: 'Insufficient stock',
+                content: new OA\JsonContent(
+                    type: 'object',
+                    properties: [
+                        new OA\Property(
+                            property: 'status',
+                            type: 'string',
+                            example: 'error'
+                        ),
+                        new OA\Property(
+                            property: 'message',
+                            type: 'string',
+                            example: 'Requested quantity is not available.'
+                        )
+                    ]
+                )
+            ),
+            new OA\Response(
+                response: 422,
+                description: 'Validation error',
+                content: new OA\JsonContent(
+                    properties: [
+                        new OA\Property(property: "status", type: "string", example: "error"),
+                        new OA\Property(property: "message", type: "string", example: 'Cart is empty.'),
+                    
+                    ]
+                )
+            ),
+        ],
+    )]
+
+    public function updateCart(Request $request)
+    {
+        $data = $request->validate([
+            'cart_item_id' => 'required|exists:cart_items,id',
+            'quantity' => 'required|integer|between:1,10'
+        ]);
+
+        $this->cartManager->updateCart($data);
+
+
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Cart item updated successfuly'
         ]);
     }
 }

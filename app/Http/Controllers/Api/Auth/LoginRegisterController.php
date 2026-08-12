@@ -82,7 +82,13 @@ class LoginRegisterController extends Controller
                     ]
                 )
             ),
-            new OA\Response(response: 429, description: 'Too many requests (throttled)')
+            new OA\Response(
+                response: 429,
+                description: 'Too many requests',
+                content: new OA\JsonContent(
+                    ref: '#/components/schemas/429ResponseSchema'
+                )
+            ),
         ]
     )]
 
@@ -174,7 +180,13 @@ class LoginRegisterController extends Controller
                     ]
                 )
             ),
-            new OA\Response(response: 429, description: 'Too many requests (throttled)')
+            new OA\Response(
+                response: 429,
+                description: 'Too many requests',
+                content: new OA\JsonContent(
+                    ref: '#/components/schemas/429ResponseSchema'
+                )
+            ),
         ]
     )]
 
@@ -254,7 +266,13 @@ class LoginRegisterController extends Controller
                     ]
                 )
             ),
-            new OA\Response(response: 429, description: 'Too many requests (throttled)')
+            new OA\Response(
+                response: 429,
+                description: 'Too many requests',
+                content: new OA\JsonContent(
+                    ref: '#/components/schemas/429ResponseSchema'
+                )
+            ),
         ]
     )]
 

@@ -301,7 +301,6 @@
 
                                         </tr>
                                     @endforeach
-
                                 @endif
 
 
@@ -559,7 +558,7 @@
                 .then(res => res.json())
                 .then(data => {
 
-                    if (data.status === "stock_error") {
+                    if (data.status === "error") {
                         alert("Only " + data.available + " left in stock")
                         input.value = data.available
                         return
@@ -625,7 +624,10 @@
                         const minimal = parseFloat(infoBox.getAttribute('data-minimal'));
                         const percentage = infoBox.getAttribute('data-percentage');
                         const discountCeiling = parseFloat(infoBox.getAttribute('data-discount-ceiling'));
-                        const currentPrice = data.productPrices - data.productDiscounts;
+                        const currentPrice =
+                            parseFloat(String(data.productPrices).replace(/,/g, '')) -
+                            parseFloat(String(data.productDiscounts).replace(/,/g, ''));
+
 
 
                         let messageHTML = '';

@@ -22,8 +22,9 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/shoping-cart', [CartController::class, 'shopingCart']);
     Route::post('/add-to-cart', [CartController::class, 'addToCart'])->middleware('throttle:cart');
     Route::get('/remove-from-cart/{cartItem}', [CartController::class, 'removeFromCart'])->middleware(['throttle:cart', 'can:delete,cartItem']);
+    Route::post('/shoping-cart/update', [CartController::class, 'updateCart']);
 
-    // Route::post('/shoping-cart/update', [CartController::class, 'updateCart'])->name('customer.sales-process.update-shoping-cart');
+
     // Route::post('/shoping-cart/coupon', [CartController::class, 'coupon'])->name('customer.sales-process.coupon')->middleware('throttle:coupon');
 
     //address

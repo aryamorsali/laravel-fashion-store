@@ -107,7 +107,14 @@
                         }
                     },
                     "429": {
-                        "description": "Too many requests (throttled)"
+                        "description": "Too many requests",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/429ResponseSchema"
+                                }
+                            }
+                        }
                     }
                 }
             }
@@ -221,7 +228,14 @@
                         }
                     },
                     "429": {
-                        "description": "Too many requests (throttled)"
+                        "description": "Too many requests",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/429ResponseSchema"
+                                }
+                            }
+                        }
                     }
                 }
             }
@@ -319,7 +333,14 @@
                         }
                     },
                     "429": {
-                        "description": "Too many requests (throttled)"
+                        "description": "Too many requests",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/429ResponseSchema"
+                                }
+                            }
+                        }
                     }
                 }
             }
@@ -464,10 +485,24 @@
                         }
                     },
                     "401": {
-                        "description": "Unauthenticated"
+                        "description": "Unauthenticated",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/401ResponseSchema"
+                                }
+                            }
+                        }
                     },
                     "429": {
-                        "description": "Too many requests (throttled)"
+                        "description": "Too many requests",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/429ResponseSchema"
+                                }
+                            }
+                        }
                     }
                 },
                 "security": [
@@ -788,7 +823,14 @@
                         }
                     },
                     "401": {
-                        "description": "Unauthenticated"
+                        "description": "Unauthenticated",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/401ResponseSchema"
+                                }
+                            }
+                        }
                     }
                 },
                 "security": [
@@ -841,10 +883,24 @@
                         }
                     },
                     "401": {
-                        "description": "Unauthenticated"
+                        "description": "Unauthenticated",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/401ResponseSchema"
+                                }
+                            }
+                        }
                     },
                     "403": {
-                        "description": "User is not authorized to delete this cart item"
+                        "description": "Unauthorized",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/403ResponseSchema"
+                                }
+                            }
+                        }
                     },
                     "409": {
                         "description": "Cart item cannot be deleted because it is locked or involved in a payment process",
@@ -867,7 +923,14 @@
                         }
                     },
                     "429": {
-                        "description": "Too many requests (throttled)"
+                        "description": "Too many requests",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/429ResponseSchema"
+                                }
+                            }
+                        }
                     }
                 },
                 "security": [
@@ -875,6 +938,173 @@
                         "sanctum": []
                     }
                 ]
+            }
+        },
+        "/api/shoping-cart/update": {
+            "post": {
+                "tags": [
+                    "Cart"
+                ],
+                "summary": "Update quantity of a cart item",
+                "description": "Updates the quantity of an existing cart item. The quantity must be between 1 and 10.",
+                "operationId": "updateCartItem",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "cart_item_id",
+                                    "quantity"
+                                ],
+                                "properties": {
+                                    "cart_item_id": {
+                                        "description": "ID of the cart item to update",
+                                        "type": "integer",
+                                        "example": 42
+                                    },
+                                    "quantity": {
+                                        "description": "New quantity (1-10)",
+                                        "type": "integer",
+                                        "example": 3,
+                                        "maximum": 10,
+                                        "minimum": 1
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Cart item updated successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status": {
+                                            "type": "string",
+                                            "example": "success"
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Cart item updated successfully"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Cart item not found",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status": {
+                                            "type": "string",
+                                            "example": "error"
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Cart item not found"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "409": {
+                        "description": "Insufficient stock",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status": {
+                                            "type": "string",
+                                            "example": "error"
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Requested quantity is not available."
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status": {
+                                            "type": "string",
+                                            "example": "error"
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Cart is empty."
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        }
+    },
+    "components": {
+        "schemas": {
+            "401ResponseSchema": {
+                "title": "Unauthenticated Response",
+                "properties": {
+                    "message": {
+                        "type": "string",
+                        "example": "Unauthenticated."
+                    }
+                },
+                "type": "object"
+            },
+            "403ResponseSchema": {
+                "title": "Unauthorized Response",
+                "properties": {
+                    "message": {
+                        "type": "string",
+                        "example": "Unauthorized."
+                    }
+                },
+                "type": "object"
+            },
+            "429ResponseSchema": {
+                "title": "Too Many Requests Response",
+                "properties": {
+                    "message": {
+                        "type": "string",
+                        "example": "Too many requests (throttled)"
+                    }
+                },
+                "type": "object"
+            }
+        },
+        "securitySchemes": {
+            "sanctum": {
+                "type": "apiKey",
+                "description": "Enter token in format (Bearer <token>)",
+                "name": "Authorization",
+                "in": "header"
             }
         }
     },
@@ -887,15 +1117,5 @@
             "name": "Cart",
             "description": "Operations attributed to the users shoping cart"
         }
-    ],
-    "components": {
-        "securitySchemes": {
-            "sanctum": {
-                "type": "apiKey",
-                "description": "Enter token in format (Bearer <token>)",
-                "name": "Authorization",
-                "in": "header"
-            }
-        }
-    }
+    ]
 }
