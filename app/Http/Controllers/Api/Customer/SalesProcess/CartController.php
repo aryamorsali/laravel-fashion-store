@@ -435,29 +435,31 @@ class CartController extends Controller
         tags: ['Cart'],
         requestBody: new OA\RequestBody(
             required: true,
-            content: new OA\MediaType(
-                mediaType: 'application/json',
-                schema: new OA\Schema(
-                    type: 'object',
-                    required: ['cart_item_id', 'quantity'],
-                    properties: [
-                        new OA\Property(
-                            property: 'cart_item_id',
-                            type: 'integer',
-                            description: 'ID of the cart item to update',
-                            example: 42,
-                        ),
-                        new OA\Property(
-                            property: 'quantity',
-                            type: 'integer',
-                            minimum: 1,
-                            maximum: 10,
-                            description: 'New quantity (1-10)',
-                            example: 3,
-                        ),
-                    ],
-                ),
-            ),
+            content: new OA\JsonContent(
+                required: ['cart_item_id', 'quantity'],
+                properties: [
+                    new OA\Property(
+                        property: 'cart_item_id',
+                        type: 'integer',
+                        description: 'ID of the cart item to update',
+                        example: 42,
+                    ),
+                    new OA\Property(
+                        property: 'quantity',
+                        type: 'integer',
+                        minimum: 1,
+                        maximum: 10,
+                        description: 'New quantity (1-10)',
+                        example: 3,
+                    ),
+                    new OA\Property(
+                        property: 'coupon',
+                        type: 'string',
+                        description: 'coupon code',
+                        example: 'testy',
+                    ),
+                ],
+            )
         ),
         responses: [
             new OA\Response(
@@ -467,7 +469,39 @@ class CartController extends Controller
                     properties: [
                         new OA\Property(property: 'status', type: 'string', example: 'success'),
                         new OA\Property(property: 'message', type: 'string', example: 'Cart item updated successfully'),
+
+                        new OA\Property(
+                            property: 'data',
+                            type: 'object',
+                            properties: [
+                                new OA\Property(property: 'totalItemPrice', type: 'number', format: 'float', example: 220),
+                                new OA\Property(property: 'price', type: 'number', format: 'float', example: 110),
+                                new OA\Property(property: 'finalPrice', type: 'number', format: 'float', example: 110),
+                                new OA\Property(property: 'discount', type: 'number', format: 'float', nullable: true, example: null),
+
+                                new OA\Property(property: 'cart_item_id', type: 'integer', example: 97),
+                                new OA\Property(property: 'new_quantity', type: 'integer', example: 2),
+                                new OA\Property(property: 'totalProductsQuantity', type: 'integer', example: 2),
+
+                                new OA\Property(property: 'totalCartPrice', type: 'number', format: 'float', example: 184.5),
+                                new OA\Property(property: 'productPrices', type: 'number', format: 'float', example: 220),
+                                new OA\Property(property: 'productDiscounts', type: 'number', format: 'float', example: 0),
+
+                                new OA\Property(property: 'commonDiscountAmount', type: 'number', format: 'float', example: 15),
+                                new OA\Property(property: 'commonDiscountPercentage', type: 'integer', example: 10),
+
+                                new OA\Property(property: 'couponApplied', type: 'boolean', example: true),
+                                new OA\Property(property: 'couponDiscount', type: 'number', format: 'float', example: 20.5),
+                            ]
+                        ),
                     ]
+                )
+            ),
+            new OA\Response(
+                response: 401,
+                description: 'Unauthenticated',
+                content: new OA\JsonContent(
+                    ref: '#/components/schemas/401ResponseSchema'
                 )
             ),
             new OA\Response(
@@ -514,9 +548,25 @@ class CartController extends Controller
                 description: 'Validation error',
                 content: new OA\JsonContent(
                     properties: [
-                        new OA\Property(property: "status", type: "string", example: "error"),
-                        new OA\Property(property: "message", type: "string", example: 'Cart is empty.'),
-                    
+                        new OA\Property(property: 'status', type: 'string', example: 'error'),
+                        new OA\Property(property: 'message', type: 'string', example: 'The cart item id field is required. / The quantity field is required.'),
+                        new OA\Property(
+                            property: 'errors',
+                            type: 'object',
+                            description: 'Dictionary of field errors',
+                            properties: [
+                                new OA\Property(
+                                    property: 'cart_item_id',
+                                    type: 'string',
+                                    example: "The cart item id field is required."
+                                ),
+                                new OA\Property(
+                                    property: 'quantity',
+                                    type: 'string',
+                                    example: 'The quantity field is required.'
+                                ),
+                            ]
+                        )
                     ]
                 )
             ),
@@ -527,15 +577,137 @@ class CartController extends Controller
     {
         $data = $request->validate([
             'cart_item_id' => 'required|exists:cart_items,id',
-            'quantity' => 'required|integer|between:1,10'
+            'quantity' => 'required|integer|between:1,10',
+            'coupon' => 'nullable|max:120|min:2'
         ]);
 
-        $this->cartManager->updateCart($data);
+        $result = $this->cartManager->updateCart($data, $data['coupon'] ?? null);
 
 
         return response()->json([
             'status' => 'success',
-            'message' => 'Cart item updated successfuly'
+            'message' => 'Cart item updated successfuly',
+            'data' => $result,
+        ]);
+    }
+
+
+
+
+
+    #[OA\Post(
+        path: '/api/shoping-cart/coupon',
+        tags: ['Cart'],
+        summary: 'Apply a discount coupon to the cart',
+        description: 'Validates the coupon, checks single-use and ownership, then returns updated totals.',
+        security: [['sanctum' => []]],
+        requestBody: new OA\RequestBody(
+            required: true,
+            content: new OA\JsonContent(
+                required: ['coupon'],
+                properties: [
+                    new OA\Property(property: 'coupon', type: 'string', minLength: 2, maxLength: 120, example: 'testy'),
+                ]
+            )
+        ),
+        responses: [
+            new OA\Response(
+                response: 200,
+                description: 'Coupon applied successfully',
+                content: new OA\JsonContent(
+                    properties: [
+                        new OA\Property(property: 'status', type: 'string', example: 'success'),
+                        new OA\Property(property: 'message', type: 'string', example: 'Discount coupon applied successfully.'),
+                        new OA\Property(
+                            property: 'data',
+                            type: 'object',
+                            properties: [
+                                new OA\Property(property: 'finalPrice', type: 'number', format: 'float', example: 184.5),
+                                new OA\Property(property: 'couponDiscountAmount', type: 'number', format: 'float', example: 20.5),
+                                new OA\Property(property: 'coupon', type: 'string', example: 'testy'),
+                            ]
+                        )
+                    ]
+                )
+            ),
+            new OA\Response(
+                response: 400,
+                description: 'Coupon error — invalid code, already used, private coupon, or empty cart',
+                content: new OA\JsonContent(
+                    properties: [
+                        new OA\Property(property: 'status', type: 'string', example: 'error'),
+                        new OA\Property(
+                            property: 'message',
+                            type: 'string',
+                            enum: [
+                                'invalid code',
+                                'You have already used this discount code',
+                                'This discount code is specific to a specific user',
+                                'Cart is empty',
+                            ],
+                            example: 'invalid code'
+                        ),
+                    ]
+                )
+            ),
+            new OA\Response(
+                response: 401,
+                description: 'Unauthenticated',
+                content: new OA\JsonContent(
+                    ref: '#/components/schemas/401ResponseSchema'
+                )
+            ),
+            new OA\Response(
+                response: 422,
+                description: 'Validation error',
+                content: new OA\JsonContent(
+                    properties: [
+                        new OA\Property(property: 'status', type: 'string', example: 'error'),
+                        new OA\Property(property: 'message', type: 'string', example: 'The coupon field is required.'),
+                        new OA\Property(
+                            property: 'errors',
+                            type: 'object',
+                            description: 'Dictionary of field errors',
+                            properties: [
+                                new OA\Property(
+                                    property: 'coupon',
+                                    type: 'array',
+                                    description: 'Validation messages for the coupon field',
+                                    items: new OA\Items(
+                                        type: 'string',
+                                        enum: [
+                                            'The coupon field is required.',
+                                            'The coupon field must be at least 2 characters.',
+                                            'The coupon field must not be greater than 120 characters.',
+                                        ]
+                                    ),
+                                ),
+                            ]
+                        )
+                    ]
+                )
+            ),
+
+        ]
+    )]
+
+
+    public function coupon(Request $request)
+    {
+        $data = $request->validate([
+            'coupon' => 'required|max:120|min:2'
+        ]);
+
+        $result = $this->cartManager->applyCoupon($data);
+
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Discount coupon applied successfully.',
+            'data' => [
+                'finalPrice' => $result['finalPrice'],
+                'couponDiscountAmount' => $result['couponDiscountAmount'],
+                'coupon' => $result['coupon'],
+            ]
         ]);
     }
 }

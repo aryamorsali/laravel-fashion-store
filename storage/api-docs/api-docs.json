@@ -969,6 +969,11 @@
                                         "example": 3,
                                         "maximum": 10,
                                         "minimum": 1
+                                    },
+                                    "coupon": {
+                                        "description": "coupon code",
+                                        "type": "string",
+                                        "example": "testy"
                                     }
                                 },
                                 "type": "object"
@@ -990,9 +995,90 @@
                                         "message": {
                                             "type": "string",
                                             "example": "Cart item updated successfully"
+                                        },
+                                        "data": {
+                                            "properties": {
+                                                "totalItemPrice": {
+                                                    "type": "number",
+                                                    "format": "float",
+                                                    "example": 220
+                                                },
+                                                "price": {
+                                                    "type": "number",
+                                                    "format": "float",
+                                                    "example": 110
+                                                },
+                                                "finalPrice": {
+                                                    "type": "number",
+                                                    "format": "float",
+                                                    "example": 110
+                                                },
+                                                "discount": {
+                                                    "type": "number",
+                                                    "format": "float",
+                                                    "example": null,
+                                                    "nullable": true
+                                                },
+                                                "cart_item_id": {
+                                                    "type": "integer",
+                                                    "example": 97
+                                                },
+                                                "new_quantity": {
+                                                    "type": "integer",
+                                                    "example": 2
+                                                },
+                                                "totalProductsQuantity": {
+                                                    "type": "integer",
+                                                    "example": 2
+                                                },
+                                                "totalCartPrice": {
+                                                    "type": "number",
+                                                    "format": "float",
+                                                    "example": 184.5
+                                                },
+                                                "productPrices": {
+                                                    "type": "number",
+                                                    "format": "float",
+                                                    "example": 220
+                                                },
+                                                "productDiscounts": {
+                                                    "type": "number",
+                                                    "format": "float",
+                                                    "example": 0
+                                                },
+                                                "commonDiscountAmount": {
+                                                    "type": "number",
+                                                    "format": "float",
+                                                    "example": 15
+                                                },
+                                                "commonDiscountPercentage": {
+                                                    "type": "integer",
+                                                    "example": 10
+                                                },
+                                                "couponApplied": {
+                                                    "type": "boolean",
+                                                    "example": true
+                                                },
+                                                "couponDiscount": {
+                                                    "type": "number",
+                                                    "format": "float",
+                                                    "example": 20.5
+                                                }
+                                            },
+                                            "type": "object"
                                         }
                                     },
                                     "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthenticated",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/401ResponseSchema"
                                 }
                             }
                         }
@@ -1049,7 +1135,172 @@
                                         },
                                         "message": {
                                             "type": "string",
-                                            "example": "Cart is empty."
+                                            "example": "The cart item id field is required. / The quantity field is required."
+                                        },
+                                        "errors": {
+                                            "description": "Dictionary of field errors",
+                                            "properties": {
+                                                "cart_item_id": {
+                                                    "type": "string",
+                                                    "example": "The cart item id field is required."
+                                                },
+                                                "quantity": {
+                                                    "type": "string",
+                                                    "example": "The quantity field is required."
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/shoping-cart/coupon": {
+            "post": {
+                "tags": [
+                    "Cart"
+                ],
+                "summary": "Apply a discount coupon to the cart",
+                "description": "Validates the coupon, checks single-use and ownership, then returns updated totals.",
+                "operationId": "6a4f8298f9b1cc35f9064f9dd06879c8",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "coupon"
+                                ],
+                                "properties": {
+                                    "coupon": {
+                                        "type": "string",
+                                        "example": "testy",
+                                        "maxLength": 120,
+                                        "minLength": 2
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Coupon applied successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status": {
+                                            "type": "string",
+                                            "example": "success"
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Discount coupon applied successfully."
+                                        },
+                                        "data": {
+                                            "properties": {
+                                                "finalPrice": {
+                                                    "type": "number",
+                                                    "format": "float",
+                                                    "example": 184.5
+                                                },
+                                                "couponDiscountAmount": {
+                                                    "type": "number",
+                                                    "format": "float",
+                                                    "example": 20.5
+                                                },
+                                                "coupon": {
+                                                    "type": "string",
+                                                    "example": "testy"
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Coupon error — invalid code, already used, private coupon, or empty cart",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status": {
+                                            "type": "string",
+                                            "example": "error"
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "invalid code",
+                                            "enum": [
+                                                "invalid code",
+                                                "You have already used this discount code",
+                                                "This discount code is specific to a specific user",
+                                                "Cart is empty"
+                                            ]
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthenticated",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/401ResponseSchema"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status": {
+                                            "type": "string",
+                                            "example": "error"
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "The coupon field is required."
+                                        },
+                                        "errors": {
+                                            "description": "Dictionary of field errors",
+                                            "properties": {
+                                                "coupon": {
+                                                    "description": "Validation messages for the coupon field",
+                                                    "type": "array",
+                                                    "items": {
+                                                        "type": "string",
+                                                        "enum": [
+                                                            "The coupon field is required.",
+                                                            "The coupon field must be at least 2 characters.",
+                                                            "The coupon field must not be greater than 120 characters."
+                                                        ]
+                                                    }
+                                                }
+                                            },
+                                            "type": "object"
                                         }
                                     },
                                     "type": "object"

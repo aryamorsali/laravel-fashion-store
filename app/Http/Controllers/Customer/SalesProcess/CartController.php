@@ -5,17 +5,8 @@ namespace App\Http\Controllers\Customer\SalesProcess;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Customer\Product\AddToCartRequest;
 use App\Models\Market\CartItem;
-use App\Models\Market\CommonDiscount;
-use App\Models\Market\Coupon;
-use App\Models\Market\CouponUser;
-use App\Models\Market\ProductVariant;
-use App\Models\Market\WarehouseVariant;
-use App\Services\CartCalculator;
-use App\Services\CartInventoryAllocator;
 use App\Services\CartManager;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\DB;
 
 class CartController extends Controller
 {
@@ -73,81 +64,55 @@ class CartController extends Controller
             'quantity' => 'required|integer|between:1,10'
         ]);
 
-        return response()->json(
-            $this->cartManager->updateCart($data)
-        );
+        $result = $this->cartManager->updateCart($data, session('applied_coupon'));
+
+        return response()->json([
+            'status' => 'success',
+
+            // آیتم
+            'totalItemPrice' => number_format($result['totalItemPrice'], 2),
+            'price' => number_format($result['price'], 2),
+            'finalPrice' => number_format($result['finalPrice'], 2),
+            'discount' => $result['discount'],
+
+            // هدر سبد
+            'cart_item_id' => $result['cart_item_id'],
+            'new_quantity' => $result['new_quantity'],
+            'totalProductsQuantity' => $result['totalProductsQuantity'],
+
+            // جمع سبد
+            'totalCartPrice' => number_format($result['totalCartPrice'], 2),
+            'productPrices' => number_format($result['productPrices'], 2),
+            'productDiscounts' => number_format($result['productDiscounts'], 2),
+
+            // تخفیف عمومی
+            'commonDiscountAmount' => number_format(
+                $result['commonDiscountAmount'],
+                2
+            ),
+            'commonDiscountPercentage' => $result['commonDiscountPercentage'],
+
+            // کوپن
+            'couponApplied' => $result['couponApplied'],
+            'couponDiscount' => number_format($result['couponDiscount'], 2),
+        ]);
     }
 
 
-    public function coupon(Request $request, CartCalculator $cartCalculator)
+    public function coupon(Request $request)
     {
         $data = $request->validate([
             'coupon' => 'required|max:120|min:2'
         ]);
 
-        $coupon = Coupon::where('code', $data['coupon'])
-            ->where('status', 1)
-            ->where('start_date', '<=', now())
-            ->where('end_date', '>=', now())
-            ->first();
-
-        if (!$coupon) {
-            return response()->json([
-                'status' => 'error',
-                'message' => 'invalid code',
-            ]);
-        }
-
-
-        // بررسی استفاده قبلی
-        $alreadyUsed = CouponUser::where('user_id', Auth::id())
-            ->where('coupon_id', $coupon->id)
-            ->exists();
-
-        if ($alreadyUsed) {
-            return response()->json([
-                'status' => 'error',
-                'message' => 'You have already used this discount code'
-            ]);
-        }
-
-
-        // چک کردن عمومی یا خصوصی بودن کوپن
-        if ($coupon->type == 1) {
-            if ($coupon->user_id != Auth::id()) {
-                return response()->json([
-                    'status' => 'error',
-                    'message' => 'This discount code is specific to a specific user'
-                ]);
-            }
-        }
-
-        // محاسبه سبد خرید
-
-        $cartItems = CartItem::where('user_id', Auth::user()->id)
-            ->with('productVariant.amazingSale')
-            ->get();
-
-
-        $commonDiscount = CommonDiscount::where('status', 1)
-            ->where('start_date', '<=', now())
-            ->where('end_date', '>=', now())
-            ->first();
-
-
-        if ($cartItems->isEmpty()) {
-            return response()->json(['status' => 'error', 'message' => 'Cart is empty'], 422);
-        }
-
-        $totals = $cartCalculator->calculateCartTotals($cartItems, $commonDiscount, $coupon->code);
-
+        $result = $this->cartManager->applyCoupon($data);
         // سشن برای ذخیره کوپن
-        session(['applied_coupon' => $coupon->code]);
+        session(['applied_coupon' => $result['coupon']]);
 
         return response()->json([
             'status' => 'success',
-            'finalPrice' => number_format($totals['totalCartPrice'], 2),
-            'couponDiscountAmount' => number_format($totals['couponDiscount'], 2),
+            'finalPrice' => number_format($result['finalPrice'], 2),
+            'couponDiscountAmount' => number_format($result['couponDiscountAmount'], 2),
         ]);
     }
 }

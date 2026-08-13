@@ -3,6 +3,8 @@
 namespace App\Exceptions;
 
 use Exception;
+use Illuminate\Http\Request;
+use Illuminate\Http\JsonResponse;
 
 class CartException extends Exception
 {
@@ -22,5 +24,14 @@ class CartException extends Exception
     public function getStatusCode(): int
     {
         return $this->statusCode;
+    }
+
+    public function render(Request $request): JsonResponse
+    {
+        return response()->json([
+            'status'    => 'error',
+            'message'   => $this->message,
+            'available' => $this->getAvailable(),
+        ], $this->getStatusCode());
     }
 }

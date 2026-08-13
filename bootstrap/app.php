@@ -94,17 +94,6 @@ return Application::configure(basePath: dirname(__DIR__))
             ], 422);
         });
 
-
-
-        $exceptions->render(function (CartException $e, Request $request) {
-            return response()->json([
-                'status'    => 'error',
-                'message'   => $e->getMessage(),
-                'available' => $e->getAvailable(),
-            ], $e->getStatusCode());
-        });
-
-
         $exceptions->render(function (NotFoundHttpException  $e, Request $request) {
             if (! $request->expectsJson()) {
                 return null;
