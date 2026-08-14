@@ -147,7 +147,7 @@
 
                                 <div class="flex-w size-217">
                                     @foreach ($post->tags as $tag)
-                                        <a href="{{ route('customer.market.shop', ['tag' => $tag->name]) }}"
+                                        <a href="{{ route('customer.content.blogs', ['tag' => $tag->slug]) }}"
                                             class="flex-c-m stext-107 cl6 size-301 bor7 p-lr-15 hov-tag1 trans-04 m-r-5 m-b-5">
                                             {{ $tag->name }}
                                         </a>
@@ -226,44 +226,51 @@
                         @endif
 
                         <!--  -->
-                        <div class="p-t-40">
-                            <h5 class="mtext-113 cl2 p-b-12">
-                                Leave a Comment
-                            </h5>
+                        @if ($post->commentable == 1)
+                            <div class="p-t-40">
+                                <h5 class="mtext-113 cl2 p-b-12">
+                                    Leave a Comment
+                                </h5>
 
-                            <p class="stext-107 cl6 p-b-40">
-                                Your email address will not be published. Required fields are marked *
-                            </p>
+                                <p class="stext-107 cl6 p-b-40">
+                                    Your email address will not be published. Required fields are marked *
+                                </p>
 
-                            <form action="{{ route('customer.content.blog-detail.add-comment', $post) }}" method="POST">
-                                @csrf
-                                <div class="bor19 m-b-20">
-                                    <textarea class="stext-111 cl2 plh3 size-124 p-lr-18 p-tb-15" name="body" placeholder="Comment...">{{ old('body') }}</textarea>
+                                <form action="{{ route('customer.content.blog-detail.add-comment', $post) }}"
+                                    method="POST">
+                                    @csrf
+                                    <div class="bor19 m-b-20">
+                                        <textarea class="stext-111 cl2 plh3 size-124 p-lr-18 p-tb-15" name="body" placeholder="Comment...">{{ old('body') }}</textarea>
 
-                                </div>
-                                @error('body')
-                                    <div class="text-danger" style="margin-top: 5px; font-size: 12px; font-weight: 400;">
-                                        <strong>{{ $message }}</strong>
                                     </div>
-                                @enderror
-                                <button type="submit"
-                                    class="flex-c-m stext-101 cl0 size-125 bg3 bor2 hov-btn3 p-lr-15 trans-04 mt-3">
-                                    Post Comment
-                                </button>
-                            </form>
-                        </div>
+                                    @error('body')
+                                        <div class="text-danger" style="margin-top: 5px; font-size: 12px; font-weight: 400;">
+                                            <strong>{{ $message }}</strong>
+                                        </div>
+                                    @enderror
+                                    <button type="submit"
+                                        class="flex-c-m stext-101 cl0 size-125 bg3 bor2 hov-btn3 p-lr-15 trans-04 mt-3">
+                                        Post Comment
+                                    </button>
+                                </form>
+                            </div>
+                        @endif
+
                     </div>
                 </div>
 
                 <div class="col-md-4 col-lg-3 p-b-80">
                     <div class="side-menu">
                         <div class="bor17 of-hidden pos-relative">
-                            <input class="stext-103 cl2 plh4 size-116 p-l-28 p-r-55" type="text" name="search"
-                                placeholder="Search">
+                            <form action="{{ route('customer.content.blogs') }}" method="GET">
 
-                            <button class="flex-c-m size-122 ab-t-r fs-18 cl4 hov-cl1 trans-04">
-                                <i class="zmdi zmdi-search"></i>
-                            </button>
+                                <input class="stext-103 cl2 plh4 size-116 p-l-28 p-r-55" type="text" name="search"
+                                    value="{{ request()->search }}" placeholder="Search">
+
+                                <button class="flex-c-m size-122 ab-t-r fs-18 cl4 hov-cl1 trans-04">
+                                    <i class="zmdi zmdi-search"></i>
+                                </button>
+                            </form>
                         </div>
 
                         <div class="p-t-55">
@@ -303,10 +310,12 @@
                                                 {{ $product->name }}
                                             </a>
                                             @php
-                                                $variant = $product->variants->filter(
-                                                    fn($v) => $v->warehouseVariants->sum('stock') >
-                                                        $v->warehouseVariants->sum('reserved'),
-                                                )->first();
+                                                $variant = $product->variants
+                                                    ->filter(
+                                                        fn($v) => $v->warehouseVariants->sum('stock') >
+                                                            $v->warehouseVariants->sum('reserved'),
+                                                    )
+                                                    ->first();
                                             @endphp
                                             <span class="stext-116 cl6 p-t-20">
                                                 ${{ $variant->price }}
@@ -326,8 +335,8 @@
                             </h4>
 
                             <div class="flex-w m-r--5">
-                                @foreach ($post->tags as $tag)
-                                    <a href="{{ route('customer.market.shop', ['tag' => $tag->name]) }}"
+                                @foreach ($tags as $tag)
+                                    <a href="{{ route('customer.content.blogs', ['tag' => $tag->slug]) }}"
                                         class="flex-c-m stext-107 cl6 size-301 bor7 p-lr-15 hov-tag1 trans-04 m-r-5 m-b-5">
                                         {{ $tag->name }}
                                     </a>
