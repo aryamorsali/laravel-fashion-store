@@ -5,6 +5,7 @@ use App\Http\Controllers\Admin\Content\AboutController;
 use App\Http\Controllers\Admin\Content\BannerController;
 use App\Http\Controllers\Admin\Content\CategoryController as ContentCategoryController;
 use App\Http\Controllers\Admin\Content\CommentController as ContentCommentController;
+use App\Http\Controllers\Admin\Content\ContactMesseageController;
 use App\Http\Controllers\Admin\Content\FAQController;
 use App\Http\Controllers\Admin\Market\HomeBoxController;
 use App\Http\Controllers\Admin\Content\MenuController;
@@ -470,9 +471,15 @@ Route::prefix('admin')->middleware(['auth', 'can:access-admin-panel'])->group(fu
         });
         // about
         Route::prefix('about')->group(function () {
-            Route::get('/', [AboutController::class, 'index'])->name('admin.content.about.index');
-            Route::get('/edit/{about}', [AboutController::class, 'edit'])->name('admin.content.about.edit');
-            Route::put('/update/{about}', [AboutController::class, 'update'])->name('admin.content.about.update');
+            Route::get('/', [AboutController::class, 'index'])->name('admin.content.about.index')->middleware('can:view-about');
+            Route::get('/edit/{about}', [AboutController::class, 'edit'])->name('admin.content.about.edit')->middleware('can:update-about');
+            Route::put('/update/{about}', [AboutController::class, 'update'])->name('admin.content.about.update')->middleware('can:update-about');
+        });
+
+        // contact message
+        Route::prefix('contact')->middleware('can:view-contact-message')->group(function () {
+            Route::get('/', [ContactMesseageController::class, 'index'])->name('admin.content.contact.index');
+            Route::get('/show/{contact}', [ContactMesseageController::class, 'show'])->name('admin.content.contact.show');
         });
     });
 
@@ -527,7 +534,6 @@ Route::namespace('customer')->middleware('CheckMaintenanceMode')->group(function
         Route::get('/payment-callback/{order}/{payment}', [SalesProcessPaymentController::class, 'paymentCallBack'])->name('customer.sales-process.payment-call-back');
     });
 
-
     // like
     Route::post('/like/{type}/{id}', [LikeController::class, 'toggle'])->name('like.toggle')->middleware(['auth', 'throttle:like',]);
 
@@ -535,6 +541,8 @@ Route::namespace('customer')->middleware('CheckMaintenanceMode')->group(function
     Route::prefix('content')->group(function () {
         Route::get('/about', [ContentController::class, 'about'])->name('customer.content.about');
         Route::get('/contact', [ContentController::class, 'contact'])->name('customer.content.contact');
+        Route::post('/contact', [ContentController::class, 'storeContact'])->name('customer.content.contact.store')->middleware('throttle:contactMessage');
+        Route::get('/FAQ', [ContentController::class, 'faq'])->name('customer.content.faq');
         Route::get('/blogs/{category:slug?}', [ContentController::class, 'blogs'])->name('customer.content.blogs');
         Route::get('/blog-detail/{post:slug}', [ContentController::class, 'blogDetail'])->name('customer.content.blog-detail');
         Route::post('blog-detail/{post:slug}/add-comment', [ContentController::class, 'addComment'])->name('customer.content.blog-detail.add-comment')->middleware(['auth', 'throttle:add-comment']);

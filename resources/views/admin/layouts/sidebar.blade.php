@@ -18,26 +18,12 @@
                            'view-size', 'view-product-attribute', 'manage-product-comments'])
                            <div class="sb-sidenav-menu-heading">Market</div>
 
-                       <a class="nav-link collapsed" href="#" data-bs-toggle="collapse"
-                           data-bs-target="#collapseLayouts" aria-expanded="false" aria-controls="collapseLayouts">
-                           <div class="sb-nav-link-icon"><i class="fas fa-columns"></i></div>
-                           Showcase
-                           <div class="sb-sidenav-collapse-arrow"><i class="fas fa-angle-down"></i></div>
-                       </a>
-                       <div class="collapse" id="collapseLayouts" data-bs-parent="#sidenavAccordion">
-                           <nav class="sb-sidenav-menu-nested nav">
-                               <a class="nav-link" href="{{ route('admin.market.category.index') }}">Categories</a>
-                               <a class="nav-link" href="{{ route('admin.market.brand.index') }}">Brands</a>
-                               <a class="nav-link" href="{{ route('admin.market.color.index') }}">Colors</a>
-                               <a class="nav-link" href="{{ route('admin.market.size.index') }}">Sizes</a>
-                               <a class="nav-link" href="{{ route('admin.market.product.index') }}">Products</a>
-                               <a class="nav-link" href="{{ route('admin.market.property.index') }}">Product
-                                   Attribute</a>
-                               <a class="nav-link" href="{{ route('admin.market.home-box.index') }}">Home Boxes</a>
-                               <a class="nav-link" href="{{ route('admin.market.comment.index') }}">Comments</a>
-                           </nav>
-                       </div>
-
+                           <a class="nav-link collapsed" href="#" data-bs-toggle="collapse"
+                               data-bs-target="#collapseLayouts" aria-expanded="false" aria-controls="collapseLayouts">
+                               <div class="sb-nav-link-icon"><i class="fas fa-columns"></i></div>
+                               Showcase
+                               <div class="sb-sidenav-collapse-arrow"><i class="fas fa-angle-down"></i></div>
+                           </a>
                            <div class="collapse" id="collapseLayouts" data-bs-parent="#sidenavAccordion">
                                <nav class="sb-sidenav-menu-nested nav">
 
@@ -93,7 +79,8 @@
                                            List</a>
                                    @endcan
                                    @can('view-warehouse-transaction')
-                                       <a class="nav-link" href="{{ route('admin.market.transaction.index') }}">Transactions</a>
+                                       <a class="nav-link"
+                                           href="{{ route('admin.market.transaction.index') }}">Transactions</a>
                                    @endcan
 
                                </nav>
@@ -216,9 +203,23 @@
                                </a>
                            @endcan
 
+                           @can('view-about')
+                               <a class="nav-link" href="{{ route('admin.content.about.index') }}">
+                                   <div class="sb-nav-link-icon"><i class="fas fa-bars"></i></div>
+                                   About
+                               </a>
+                           @endcan
+
+                           @can('view-contact-message')
+                               <a class="nav-link" href="{{ route('admin.content.contact.index') }}">
+                                   <div class="sb-nav-link-icon"><i class="fas fa-bars"></i></div>
+                                   Contact
+                               </a>
+                           @endcan
+
                        @endcanany
 
-                       
+
                        @canany(['view-email-notification', 'view-sms-notification'])
 
                            <div class="sb-sidenav-menu-heading">notification</div>
@@ -229,7 +230,7 @@
                                    Email notification
                                </a>
                            @endcan
-                           
+
                            @can('view-sms-notification')
                                <a class="nav-link" href="{{ route('admin.notification.sms.index') }}">
                                    <div class="sb-nav-link-icon"><i class="fas fa-sms"></i></div>

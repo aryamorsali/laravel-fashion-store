@@ -36,7 +36,10 @@
                             <th scope="col">Title</th>
                             <th scope="col">Description</th>
                             <th scope="col">Image</th>
-                            <th class="max-width-16-rem text-center"><i class="fa fa-cogs"></i> Setting</th>
+                            @can('update-about')
+                                <th class="max-width-16-rem text-center"><i class="fa fa-cogs"></i> Setting</th>
+                            @endcan
+
                         </tr>
                     </thead>
                     <tbody>
@@ -49,19 +52,21 @@
 
                             <td>
                                 @if ($about->image)
-                                 <img class="rounded" src="{{ asset($about->image) }}" alt="{{$about->title}}" width="90"
-                                    height="70">
-                                    @else
-                                    <span style="color: red">No image</span>   
+                                    <img class="rounded" src="{{ asset($about->image) }}" alt="{{ $about->title }}"
+                                        width="90" height="70">
+                                @else
+                                    <span style="color: red">No image</span>
                                 @endif
-                                
-                            </td>
 
-                            <td class="width-16-rem text-center">
-                                <a href="{{ route('admin.content.about.edit', $about->id) }}"
-                                    class="btn btn-primary btn-sm width-8-rem mi"><i class="fa fa-edit"></i>
-                                    Edit</a>
                             </td>
+                            @can('update-about')
+                                <td class="width-16-rem text-center">
+                                    <a href="{{ route('admin.content.about.edit', $about->id) }}"
+                                        class="btn btn-primary btn-sm width-8-rem mi"><i class="fa fa-edit"></i>
+                                        Edit</a>
+                                </td>
+                            @endcan
+
                         </tr>
 
                     </tbody>
@@ -71,4 +76,3 @@
 
     </section>
 @endsection
-

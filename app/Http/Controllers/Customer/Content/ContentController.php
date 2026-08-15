@@ -3,7 +3,10 @@
 namespace App\Http\Controllers\Customer\Content;
 
 use App\Http\Controllers\Controller;
+use App\Models\Content\About;
 use App\Models\Content\Comment;
+use App\Models\Content\ContactMessage;
+use App\Models\Content\FAQ;
 use App\Models\Content\Post;
 use App\Models\Content\PostCategory;
 use App\Models\Content\Tag;
@@ -141,5 +144,43 @@ class ContentController extends Controller
             ->get();
 
         return view('customer.content.blogs', compact('posts', 'tags', 'categories', 'featuredProducts'));
+    }
+
+
+    public function about()
+    {
+        $about = About::first();
+        return view('customer.content.about', compact('about'));
+    }
+
+    public function contact()
+    {
+        return view('customer.content.contact');
+    }
+
+    public function storeContact(Request $request)
+    {
+        $inputs = $request->validate([
+            'email' => 'required|email',
+            'body' => 'required|max:2000|min:5|regex:/^[ا-یa-zA-Z0-9\-۰-۹ء-ي.,><\/;\n\r& ]+$/u',
+        ]);
+
+
+        $contactMessage = ContactMessage::create([
+            'email' => $inputs['email'],
+            'body' => $inputs['body'],
+            'user_id' => Auth::id() ?? null,
+        ]);
+
+        return redirect()->route('customer.content.contact')->with(
+            'toast-success',
+            'Your new message was successfully registered.'
+        );
+    }
+
+    public function faq()
+    {
+        $faqs = FAQ::where('status', 1)->orderBy('created_at', 'desc')->paginate(8);
+        return view('customer.content.faq', compact('faqs'));
     }
 }

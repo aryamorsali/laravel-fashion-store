@@ -56,7 +56,7 @@ class AboutController extends Controller
     public function update(Request $request, About $about, ImageService $imageService)
     {
 
-        $input = $request->validate([
+        $inputs = $request->validate([
             'title' => 'nullable|max:200|min:2|regex:/^[ا-یa-zA-Z0-9\-۰-۹ء-ي., ]+$/u',
             'description' => 'required|min:3',
             'image' => 'nullable|image|mimes:png,jpg,jpeg,gif|max:2048',
@@ -75,7 +75,7 @@ class AboutController extends Controller
             }
             $inputs['image'] = $result;
         }
-        $about->update($input);
+        $about->update($inputs);
         return redirect(route('admin.content.about.index'))->with(
             'alert-section-success',
             'about page editing completed successfully.'
