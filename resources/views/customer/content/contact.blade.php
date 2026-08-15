@@ -12,14 +12,14 @@
             Contact
         </h2>
     </section>
-
-
+    @include('admin.alerts.toast.success')
     <!-- Content page -->
     <section class="bg0 p-t-104 p-b-116">
         <div class="container">
             <div class="flex-w flex-tr">
                 <div class="size-210 bor10 p-lr-70 p-t-55 p-b-70 p-lr-15-lg w-full-md">
-                    <form>
+                    <form action="{{ route('customer.content.contact.store') }}" method="POST">
+                        @csrf
                         <h4 class="mtext-105 cl2 txt-center p-b-30">
                             Send Us A Message
                         </h4>
@@ -27,20 +27,31 @@
                         <div class="bor8 m-b-20 how-pos4-parent">
                             <input class="stext-111 cl2 plh3 size-116 p-l-62 p-r-30" type="text" name="email"
                                 placeholder="Your Email Address">
+
                             <img class="how-pos4 pointer-none"
                                 src="{{ asset('customer-assets/images/icons/icon-email.png') }}" alt="ICON">
+                            @error('email')
+                                <div class="text-danger" style="margin-top: 9px; font-size: 12px; font-weight: 400;">
+                                    <strong>{{ $message }}</strong>
+                                </div>
+                            @enderror
                         </div>
 
                         <div class="bor8 m-b-30">
-                            <textarea class="stext-111 cl2 plh3 size-120 p-lr-28 p-tb-25" name="msg" placeholder="How Can We Help?"></textarea>
+                            <textarea class="stext-111 cl2 plh3 size-120 p-lr-28 p-tb-25" name="body" placeholder="How Can We Help?"></textarea>
+                            @error('body')
+                                <div class="text-danger" style="margin-top: 9px; font-size: 12px; font-weight: 400;">
+                                    <strong>{{ $message }}</strong>
+                                </div>
+                            @enderror
                         </div>
 
-                        <button class="flex-c-m stext-101 cl0 size-121 bg3 bor1 hov-btn3 p-lr-15 trans-04 pointer">
+                        <button type="submit"
+                            class="flex-c-m stext-101 cl0 size-121 bg3 bor1 hov-btn3 p-lr-15 trans-04 pointer">
                             Submit
                         </button>
                     </form>
                 </div>
-
                 <div class="size-210 bor10 flex-w flex-col-m p-lr-93 p-tb-30 p-lr-15-lg w-full-md">
                     @if (isset($settings['site_address']))
                         <div class="flex-w w-full p-b-42">

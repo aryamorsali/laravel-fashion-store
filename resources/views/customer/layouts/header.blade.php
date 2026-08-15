@@ -11,7 +11,7 @@
                  </div>
 
                  <div class="right-top-bar flex-w h-full">
-                     <a href="#" class="flex-c-m trans-04 p-lr-25">
+                     <a href="{{route('customer.content.faq')}}" class="flex-c-m trans-04 p-lr-25">
                          Help & FAQs
                      </a>
 
@@ -27,7 +27,8 @@
 
                  <!-- Logo desktop -->
                  <a href="{{ route('customer.home') }}" class="logo">
-                     <img src="{{ asset($settings['site_logo'] ?? 'customer-assets/images/icons/logo-01.png') }}" alt="IMG-LOGO">
+                     <img src="{{ asset($settings['site_logo'] ?? 'customer-assets/images/icons/logo-01.png') }}"
+                         alt="IMG-LOGO">
                  </a>
 
                  <!-- Menu desktop -->
@@ -209,11 +210,13 @@
                  <img src="{{ asset('customer-assets/images/icons/icon-close2.png') }}" alt="CLOSE">
              </button>
 
-             <form class="wrap-search-header flex-w p-l-15" action="{{ route('customer.market.shop') }}" method="GET">
+             <form class="wrap-search-header flex-w p-l-15" action="{{ route('customer.market.shop') }}"
+                 method="GET">
                  <button class="flex-c-m trans-04">
                      <i class="zmdi zmdi-search"></i>
                  </button>
-                 <input class="plh3" type="text" name="search" placeholder="Search..." value="{{ request()->search }}">
+                 <input class="plh3" type="text" name="search" placeholder="Search..."
+                     value="{{ request()->search }}">
              </form>
          </div>
      </div>

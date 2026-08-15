@@ -44,6 +44,8 @@ class PermissionSeeder extends Seeder
             'menu' => ['view', 'create', 'update', 'delete'],
             'faq' => ['view', 'create', 'update', 'delete'],
             'banner' => ['view', 'create', 'update', 'delete'],
+            'about' => ['view', 'update'],
+            'contact-message' => ['view'],
 
             'email-notification' => ['view', 'create', 'update', 'delete', 'send'],
             'sms-notification' => ['view', 'create', 'update', 'delete', 'send'],

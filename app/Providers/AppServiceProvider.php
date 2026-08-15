@@ -70,6 +70,10 @@ class AppServiceProvider extends ServiceProvider
             return Limit::perMinute(30)->by($request->ip());
         });
 
+        RateLimiter::for('contactMessage', function (Request $request) {
+            return Limit::perMinute(5)->by($request->user()?->id ?: $request->ip());
+        });
+
         // برای هدر این مقادیر ارسال میشود
         view()->composer('customer.layouts.header', function ($view) {
             if (Auth::check()) {
@@ -93,7 +97,7 @@ class AppServiceProvider extends ServiceProvider
 
 
         // این متغیرها فقط و فقط به فایل layouts.app و فایل‌های داخل پوشه customer فرستاده می‌شوند
-        View::composer(['customer.layouts.app', 'customer.pages', 'customer.pages.contact'], function ($view) {
+        View::composer(['customer.layouts.app', 'customer.content', 'customer.content.contact'], function ($view) {
 
             // array
             $settings = Setting::where('status', 1)->pluck('value', 'key')->toArray();
