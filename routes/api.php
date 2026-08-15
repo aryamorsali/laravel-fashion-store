@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Api\Auth\LoginRegisterController;
 use App\Http\Controllers\Api\Customer\SalesProcess\CartController;
+use App\Http\Controllers\LikeController;
 use Illuminate\Support\Facades\Route;
 
 
@@ -24,6 +25,10 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/remove-from-cart/{cartItem}', [CartController::class, 'removeFromCart'])->middleware(['throttle:cart', 'can:delete,cartItem']);
     Route::post('/shoping-cart/update', [CartController::class, 'updateCart']);
     Route::post('/shoping-cart/coupon', [CartController::class, 'coupon'])->middleware('throttle:coupon');
+
+    // like
+    Route::post('/like/{type}/{id}', [LikeController::class, 'toggle'])->middleware('throttle:like');
+
 
     //address
     // Route::get('/address-and-delivery', [AddressController::class, 'addressAndDelivery'])->name('customer.sales-process.address-and-delivery');

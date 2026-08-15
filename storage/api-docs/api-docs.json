@@ -1315,6 +1315,126 @@
                     }
                 ]
             }
+        },
+        "/api/like/{type}/{id}": {
+            "post": {
+                "tags": [
+                    "Like"
+                ],
+                "summary": "Toggle like/wishlist",
+                "operationId": "e0f7fea2610f559683493e5ce01537ee",
+                "parameters": [
+                    {
+                        "name": "type",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "example": "product",
+                            "enum": [
+                                "product"
+                            ]
+                        }
+                    },
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Success",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status": {
+                                            "type": "string",
+                                            "example": "success"
+                                        },
+                                        "message": {
+                                            "type": "string"
+                                        },
+                                        "liked": {
+                                            "type": "boolean"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid like type"
+                    },
+                    "401": {
+                        "description": "Unauthenticated",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/401ResponseSchema"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Resource not found"
+                    },
+                    "422": {
+                        "description": "Validation error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status": {
+                                            "type": "string",
+                                            "example": "error"
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "The type field is required. | The id field is required."
+                                        },
+                                        "errors": {
+                                            "description": "Dictionary of field errors",
+                                            "properties": {
+                                                "type": {
+                                                    "type": "string",
+                                                    "example": "The type field is required."
+                                                },
+                                                "id": {
+                                                    "type": "string",
+                                                    "example": "The id field is required."
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "429": {
+                        "description": "Too many requests",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/429ResponseSchema"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
         }
     },
     "components": {
@@ -1367,6 +1487,9 @@
         {
             "name": "Cart",
             "description": "Operations attributed to the users shoping cart"
+        },
+        {
+            "name": "Like"
         }
     ]
 }
