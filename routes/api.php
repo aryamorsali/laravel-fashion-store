@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Api\Auth\LoginRegisterController;
+use App\Http\Controllers\Api\Customer\Market\ProductController;
 use App\Http\Controllers\Api\Customer\SalesProcess\CartController;
 use App\Http\Controllers\LikeController;
 use Illuminate\Support\Facades\Route;
@@ -15,6 +16,10 @@ Route::middleware('guest')->group(function () {
     Route::get('/login-resend-otp/{token}', [LoginRegisterController::class, 'resendOtp'])->middleware('throttle:login-resend-otp-limiter');
 });
 
+
+// product detail
+Route::get('/product/{product:slug}', [ProductController::class, 'product']);              /////////////////////////////////
+
 Route::middleware('auth:sanctum')->group(function () {
 
     Route::get('/logout', [LoginRegisterController::class, 'logout']);
@@ -28,6 +33,9 @@ Route::middleware('auth:sanctum')->group(function () {
 
     // like
     Route::post('/like/{type}/{id}', [LikeController::class, 'toggle'])->middleware('throttle:like');
+
+    // product add comment
+    Route::post('/product/{product:slug}/add-comment', [ProductController::class, 'addComment'])->middleware('throttle:add-comment');
 
 
     //address
