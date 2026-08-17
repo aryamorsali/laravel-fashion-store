@@ -41,9 +41,10 @@ class BrandController extends Controller
         $tags = $inputs['tags'] ?? null;
 
 
-        if ($request->hasFile('image')) {
+        if ($request->hasFile('logo')) {
             $imageService->setExclusiveDirectory('images' . DIRECTORY_SEPARATOR . 'brand');
-            $result = $imageService->createIndexAndSave($request->file('image'));
+            $result = $imageService->createIndexAndSave($request->file('logo'));
+            dd($result);
 
             if ($result === false) {
                 return redirect()->route('admin.market.brand.index')->with(
@@ -51,7 +52,7 @@ class BrandController extends Controller
                     'There was an error uploading the photo.'
                 );
             }
-            $inputs['image'] = $result;
+            $inputs['logo'] = $result;
         }
 
         DB::transaction(function () use ($inputs, $tags) {
@@ -98,12 +99,12 @@ class BrandController extends Controller
         $inputs = $request->validated();
 
         // اگر کاربر فایل جدید آپلود کرد
-        if ($request->hasFile('image')) {
-            if (!empty($brand->image)) {
-                $imageService->deleteIndexFiles($brand->image['indexArray']);
+        if ($request->hasFile('logo')) {
+            if (!empty($brand->logo)) {
+                $imageService->deleteIndexFiles($brand->logo['indexArray']);
             }
             $imageService->setExclusiveDirectory('images' . DIRECTORY_SEPARATOR . 'brand');
-            $result = $imageService->createIndexAndSave($request->file('image'));
+            $result = $imageService->createIndexAndSave($request->file('logo'));
 
             if ($result === false) {
                 return redirect()->route('admin.market.brand.index')->with(
@@ -111,13 +112,13 @@ class BrandController extends Controller
                     'There was an error uploading the photo.'
                 );
             }
-            $inputs['image'] = $result;
+            $inputs['logo'] = $result;
         } else {
             // اگر سایز انتخاب شده رو تغییر داد
-            if (isset($inputs['currentImage']) && !empty($brand->image)) {
-                $image = $brand->image;
-                $image['currentImage'] = $inputs['currentImage'];
-                $inputs['image'] = $image;
+            if (isset($inputs['currentImage']) && !empty($brand->logo)) {
+                $logo = $brand->logo;
+                $logo['currentImage'] = $inputs['currentImage'];
+                $inputs['logo'] = $logo;
             }
         }
 

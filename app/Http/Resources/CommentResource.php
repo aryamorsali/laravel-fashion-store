@@ -17,10 +17,17 @@ class CommentResource extends JsonResource
         return [
             'id' => $this->id,
             'body' => $this->body,
-            'rating' => (int) $this->rating,
-            'status' => $this->status,
+            'rating' => $this->rating,
+            'approved' => (bool) $this->approved,
             'parent_id' => $this->parent_id,
-            'created_at' => $this->created_at?->toISOString(),
+            'created_at' => $this->created_at,
+            'user' => new CommentAuthorResource(
+                $this->whenLoaded('user')
+            ),
+
+            'children' => CommentResource::collection(
+                $this->whenLoaded('children')
+            ),
         ];
     }
 }

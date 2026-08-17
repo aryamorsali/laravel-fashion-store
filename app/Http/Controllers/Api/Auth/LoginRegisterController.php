@@ -63,25 +63,9 @@ class LoginRegisterController extends Controller
             new OA\Response(
                 response: 422,
                 description: 'Validation error',
-                content: new OA\JsonContent(
-                    properties: [
-                        new OA\Property(property: 'status', type: 'string', example: 'error'),
-                        new OA\Property(property: 'message', type: 'string', example: 'Your login ID is neither a mobile number nor an email.'),
-                        new OA\Property(
-                            property: 'errors',
-                            type: 'object',
-                            properties: [
-                                new OA\Property(
-                                    property: 'id',
-                                    type: 'array',
-                                    items: new OA\Items(type: 'string'),
-                                    example: ['Your login ID is neither a mobile number nor an email.']
-                                )
-                            ]
-                        )
-                    ]
-                )
+                content: new OA\JsonContent(ref: '#/components/schemas/422ResponseSchema')
             ),
+
             new OA\Response(
                 response: 429,
                 description: 'Too many requests',
@@ -160,25 +144,8 @@ class LoginRegisterController extends Controller
             ),
             new OA\Response(
                 response: 422,
-                description: 'Invalid or expired OTP',
-                content: new OA\JsonContent(
-                    properties: [
-                        new OA\Property(property: 'status', type: 'string', example: 'error'),
-                        new OA\Property(property: 'message', type: 'string', example: 'The verification code is expired or invalid.'),
-                        new OA\Property(
-                            property: 'errors',
-                            type: 'object',
-                            properties: [
-                                new OA\Property(
-                                    property: 'id',
-                                    type: 'array',
-                                    items: new OA\Items(type: 'string'),
-                                    example: ['The verification code is expired or invalid.']
-                                )
-                            ]
-                        )
-                    ]
-                )
+                description: 'Validation error',
+                content: new OA\JsonContent(ref: '#/components/schemas/422ResponseSchema')
             ),
             new OA\Response(
                 response: 429,
@@ -246,26 +213,10 @@ class LoginRegisterController extends Controller
             ),
             new OA\Response(
                 response: 422,
-                description: 'Token expired or invalid',
-                content: new OA\JsonContent(
-                    properties: [
-                        new OA\Property(property: 'status', type: 'string', example: 'error'),
-                        new OA\Property(property: 'message', type: 'string', example: 'The address is not valid'),
-                        new OA\Property(
-                            property: 'errors',
-                            type: 'object',
-                            properties: [
-                                new OA\Property(
-                                    property: 'id',
-                                    type: 'array',
-                                    items: new OA\Items(type: 'string'),
-                                    example: ['The address is not valid']
-                                )
-                            ]
-                        )
-                    ]
-                )
+                description: 'Validation error',
+                content: new OA\JsonContent(ref: '#/components/schemas/422ResponseSchema')
             ),
+
             new OA\Response(
                 response: 429,
                 description: 'Too many requests',

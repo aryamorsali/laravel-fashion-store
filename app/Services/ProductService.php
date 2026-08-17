@@ -18,6 +18,9 @@ class ProductService
         );
         $product = Product::withTotalSold()
             ->with([
+                'productCategory' => fn($q) => $q->where('status', 1),
+                'brand' => fn($q) => $q->where('status', 1),
+                'images',
                 'attributeValues.productAttribute',
                 'variants.activeAmazingSale',
                 'variants.color',
@@ -33,8 +36,9 @@ class ProductService
                     'color_hex' => $v->color?->hex_code,
                     'size_id' => $v->size?->id,
                     'size_name' => $v->size?->name,
-                    'price' => $v->price,
-                    'stock' => $v->availableStock(),
+                    'price' =>(float) $v->price,
+                    'final_price' => (float) $v->final_price,
+                    'stock' => (int) $v->availableStock(),
                     'percentage' => $v->activeAmazingSale?->percentage,
                     'expire_at' => $v->activeAmazingSale?->end_date ? Carbon::parse($v->activeAmazingSale->end_date)->toIso8601String() : null,
                 ];

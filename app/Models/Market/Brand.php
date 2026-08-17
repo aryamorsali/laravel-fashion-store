@@ -22,9 +22,8 @@ class Brand extends Model
             ]
         ];
     }
-    protected $casts = [
-        'image' => 'array',
-    ];
+    protected $casts = ['logo' => 'array'];
+
 
     public function tags()
     {

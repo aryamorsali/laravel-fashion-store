@@ -27,8 +27,20 @@ use OpenApi\Attributes as OA;
     properties: [
         new OA\Property(property: 'message', type: 'string', example: 'Unauthorized.'),
     ]
-
 )]
+
+#[OA\Schema(
+    schema: '422ResponseSchema',
+    title: 'Validation Error Response',
+    type: 'object',
+    properties: [
+        new OA\Property(property: 'status', type: 'string', example: 'error'),
+        new OA\Property(property: 'message', type: 'string', example: 'The given data was invalid.'),
+        new OA\Property(property: 'errors', type: 'object', description: 'Validation errors'),
+    ]
+)]
+
+
 
 #[OA\Schema(
     schema: '429ResponseSchema',

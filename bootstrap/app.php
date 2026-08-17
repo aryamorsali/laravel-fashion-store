@@ -94,14 +94,4 @@ return Application::configure(basePath: dirname(__DIR__))
             ], 422);
         });
 
-        $exceptions->render(function (NotFoundHttpException  $e, Request $request) {
-            if (! $request->expectsJson()) {
-                return null;
-            }
-
-            return response()->json([
-                'status'  => 'error',
-                'message' => 'Requested cart item does not exist or does not belong to you.',
-            ], 404);
-        });
     })->create();

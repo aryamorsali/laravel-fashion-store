@@ -73,31 +73,10 @@ class CartController extends Controller
             ),
             new OA\Response(
                 response: 422,
-                description: 'Validation error or Out of stock',
-                content: new OA\JsonContent(
-                    properties: [
-                        new OA\Property(property: 'status', type: 'string', example: 'error'),
-                        new OA\Property(property: 'message', type: 'string', example: 'The given data was invalid. / Sorry, there isn’t enough stock for this item.'),
-                        new OA\Property(
-                            property: 'errors',
-                            type: 'object',
-                            description: 'Dictionary of field errors',
-                            properties: [
-                                new OA\Property(
-                                    property: 'variant_id',
-                                    type: 'string',
-                                    example: 'The selected variant id is invalid.'
-                                ),
-                                new OA\Property(
-                                    property: 'quantity',
-                                    type: 'string',
-                                    example: 'The quantity field is required.'
-                                ),
-                            ]
-                        )
-                    ]
-                )
+                description: 'Validation error',
+                content: new OA\JsonContent(ref: '#/components/schemas/422ResponseSchema')
             ),
+
             new OA\Response(
                 response: 401,
                 description: 'Unauthenticated',
@@ -275,26 +254,10 @@ class CartController extends Controller
             ),
             new OA\Response(
                 response: 422,
-                description: "Validation error (such as invalid or expired discount coupon)",
-                content: new OA\JsonContent(
-                    properties: [
-                        new OA\Property(property: "status", type: "string", example: "error"),
-                        new OA\Property(property: "message", type: "string", example: "Validation failed."),
-                        new OA\Property(
-                            property: "errors",
-                            type: "object",
-                            properties: [
-                                new OA\Property(
-                                    property: "coupon",
-                                    type: "array",
-                                    items: new OA\Items(type: "string"),
-                                    example: ["The discount code entered is not valid or has expired."]
-                                )
-                            ]
-                        )
-                    ]
-                )
+                description: 'Validation error',
+                content: new OA\JsonContent(ref: '#/components/schemas/422ResponseSchema')
             ),
+
             new OA\Response(
                 response: 401,
                 description: 'Unauthenticated',
@@ -504,25 +467,6 @@ class CartController extends Controller
                     ref: '#/components/schemas/401ResponseSchema'
                 )
             ),
-            new OA\Response(
-                response: 404,
-                description: 'Cart item not found',
-                content: new OA\JsonContent(
-                    type: 'object',
-                    properties: [
-                        new OA\Property(
-                            property: 'status',
-                            type: 'string',
-                            example: 'error'
-                        ),
-                        new OA\Property(
-                            property: 'message',
-                            type: 'string',
-                            example: 'Cart item not found'
-                        )
-                    ]
-                )
-            ),
 
             new OA\Response(
                 response: 409,
@@ -546,30 +490,9 @@ class CartController extends Controller
             new OA\Response(
                 response: 422,
                 description: 'Validation error',
-                content: new OA\JsonContent(
-                    properties: [
-                        new OA\Property(property: 'status', type: 'string', example: 'error'),
-                        new OA\Property(property: 'message', type: 'string', example: 'The cart item id field is required. / The quantity field is required.'),
-                        new OA\Property(
-                            property: 'errors',
-                            type: 'object',
-                            description: 'Dictionary of field errors',
-                            properties: [
-                                new OA\Property(
-                                    property: 'cart_item_id',
-                                    type: 'string',
-                                    example: "The cart item id field is required."
-                                ),
-                                new OA\Property(
-                                    property: 'quantity',
-                                    type: 'string',
-                                    example: 'The quantity field is required.'
-                                ),
-                            ]
-                        )
-                    ]
-                )
+                content: new OA\JsonContent(ref: '#/components/schemas/422ResponseSchema')
             ),
+
         ],
     )]
 
@@ -660,32 +583,7 @@ class CartController extends Controller
             new OA\Response(
                 response: 422,
                 description: 'Validation error',
-                content: new OA\JsonContent(
-                    properties: [
-                        new OA\Property(property: 'status', type: 'string', example: 'error'),
-                        new OA\Property(property: 'message', type: 'string', example: 'The coupon field is required.'),
-                        new OA\Property(
-                            property: 'errors',
-                            type: 'object',
-                            description: 'Dictionary of field errors',
-                            properties: [
-                                new OA\Property(
-                                    property: 'coupon',
-                                    type: 'array',
-                                    description: 'Validation messages for the coupon field',
-                                    items: new OA\Items(
-                                        type: 'string',
-                                        enum: [
-                                            'The coupon field is required.',
-                                            'The coupon field must be at least 2 characters.',
-                                            'The coupon field must not be greater than 120 characters.',
-                                        ]
-                                    ),
-                                ),
-                            ]
-                        )
-                    ]
-                )
+                content: new OA\JsonContent(ref: '#/components/schemas/422ResponseSchema')
             ),
 
         ]

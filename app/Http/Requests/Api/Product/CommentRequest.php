@@ -1,11 +1,11 @@
 <?php
 
-namespace App\Http\Requests\Api\Cart;
+namespace App\Http\Requests\Api\Product;
 
 use App\Http\Requests\Api\BaseApiFormRequest;
 use Illuminate\Foundation\Http\FormRequest;
 
-class ShopingCartRequest extends BaseApiFormRequest
+class CommentRequest extends BaseApiFormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -23,7 +23,8 @@ class ShopingCartRequest extends BaseApiFormRequest
     public function rules(): array
     {
         return [
-            'coupon' => 'nullable|max:120|min:2'
+            'body' => 'required|max:2000',
+            'rating' => 'required|integer|between:1,5'
         ];
     }
 }

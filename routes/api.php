@@ -18,7 +18,7 @@ Route::middleware('guest')->group(function () {
 
 
 // product detail
-Route::get('/product/{product:slug}', [ProductController::class, 'product']);              /////////////////////////////////
+Route::get('/product/{product:slug}', [ProductController::class, 'product']);  
 
 Route::middleware('auth:sanctum')->group(function () {
 

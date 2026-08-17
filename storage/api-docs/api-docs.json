@@ -77,31 +77,7 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "properties": {
-                                        "status": {
-                                            "type": "string",
-                                            "example": "error"
-                                        },
-                                        "message": {
-                                            "type": "string",
-                                            "example": "Your login ID is neither a mobile number nor an email."
-                                        },
-                                        "errors": {
-                                            "properties": {
-                                                "id": {
-                                                    "type": "array",
-                                                    "items": {
-                                                        "type": "string"
-                                                    },
-                                                    "example": [
-                                                        "Your login ID is neither a mobile number nor an email."
-                                                    ]
-                                                }
-                                            },
-                                            "type": "object"
-                                        }
-                                    },
-                                    "type": "object"
+                                    "$ref": "#/components/schemas/422ResponseSchema"
                                 }
                             }
                         }
@@ -194,35 +170,11 @@
                         }
                     },
                     "422": {
-                        "description": "Invalid or expired OTP",
+                        "description": "Validation error",
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "properties": {
-                                        "status": {
-                                            "type": "string",
-                                            "example": "error"
-                                        },
-                                        "message": {
-                                            "type": "string",
-                                            "example": "The verification code is expired or invalid."
-                                        },
-                                        "errors": {
-                                            "properties": {
-                                                "id": {
-                                                    "type": "array",
-                                                    "items": {
-                                                        "type": "string"
-                                                    },
-                                                    "example": [
-                                                        "The verification code is expired or invalid."
-                                                    ]
-                                                }
-                                            },
-                                            "type": "object"
-                                        }
-                                    },
-                                    "type": "object"
+                                    "$ref": "#/components/schemas/422ResponseSchema"
                                 }
                             }
                         }
@@ -299,35 +251,11 @@
                         }
                     },
                     "422": {
-                        "description": "Token expired or invalid",
+                        "description": "Validation error",
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "properties": {
-                                        "status": {
-                                            "type": "string",
-                                            "example": "error"
-                                        },
-                                        "message": {
-                                            "type": "string",
-                                            "example": "The address is not valid"
-                                        },
-                                        "errors": {
-                                            "properties": {
-                                                "id": {
-                                                    "type": "array",
-                                                    "items": {
-                                                        "type": "string"
-                                                    },
-                                                    "example": [
-                                                        "The address is not valid"
-                                                    ]
-                                                }
-                                            },
-                                            "type": "object"
-                                        }
-                                    },
-                                    "type": "object"
+                                    "$ref": "#/components/schemas/422ResponseSchema"
                                 }
                             }
                         }
@@ -370,6 +298,149 @@
                                         }
                                     },
                                     "type": "object"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/product/{product}/add-comment": {
+            "post": {
+                "tags": [
+                    "Product"
+                ],
+                "summary": "Add comment",
+                "description": "Add a comment for a product",
+                "operationId": "8b5f261ccb6c2bed640ef1024fcdde21",
+                "parameters": [
+                    {
+                        "name": "product",
+                        "in": "path",
+                        "description": "Product slug",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "example": "blue-shirt"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "rating",
+                                    "body"
+                                ],
+                                "properties": {
+                                    "rating": {
+                                        "description": "User rating for this product between 1 and 5",
+                                        "type": "integer",
+                                        "example": 5,
+                                        "maximum": 5,
+                                        "minimum": 1
+                                    },
+                                    "body": {
+                                        "description": "User opinion about this product",
+                                        "type": "string",
+                                        "example": "nice"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Comment successfully registered",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status": {
+                                            "type": "string",
+                                            "example": "success"
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Your comment has been recorded and will be displayed after review."
+                                        },
+                                        "data": {
+                                            "properties": {
+                                                "comment": {
+                                                    "properties": {
+                                                        "id": {
+                                                            "type": "integer",
+                                                            "example": 38
+                                                        },
+                                                        "body": {
+                                                            "type": "string",
+                                                            "example": "nice"
+                                                        },
+                                                        "rating": {
+                                                            "type": "integer",
+                                                            "example": 5
+                                                        },
+                                                        "approved": {
+                                                            "type": "boolean",
+                                                            "example": false
+                                                        },
+                                                        "parent_id": {
+                                                            "type": "integer",
+                                                            "example": null,
+                                                            "nullable": true
+                                                        },
+                                                        "created_at": {
+                                                            "type": "string",
+                                                            "format": "date-time",
+                                                            "example": "2026-08-17T17:40:49.000000Z"
+                                                        }
+                                                    },
+                                                    "type": "object"
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthenticated",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/401ResponseSchema"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/422ResponseSchema"
+                                }
+                            }
+                        }
+                    },
+                    "429": {
+                        "description": "Too many requests",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/429ResponseSchema"
                                 }
                             }
                         }
@@ -451,35 +522,11 @@
                         }
                     },
                     "422": {
-                        "description": "Validation error or Out of stock",
+                        "description": "Validation error",
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "properties": {
-                                        "status": {
-                                            "type": "string",
-                                            "example": "error"
-                                        },
-                                        "message": {
-                                            "type": "string",
-                                            "example": "The given data was invalid. / Sorry, there isn’t enough stock for this item."
-                                        },
-                                        "errors": {
-                                            "description": "Dictionary of field errors",
-                                            "properties": {
-                                                "variant_id": {
-                                                    "type": "string",
-                                                    "example": "The selected variant id is invalid."
-                                                },
-                                                "quantity": {
-                                                    "type": "string",
-                                                    "example": "The quantity field is required."
-                                                }
-                                            },
-                                            "type": "object"
-                                        }
-                                    },
-                                    "type": "object"
+                                    "$ref": "#/components/schemas/422ResponseSchema"
                                 }
                             }
                         }
@@ -789,35 +836,11 @@
                         }
                     },
                     "422": {
-                        "description": "Validation error (such as invalid or expired discount coupon)",
+                        "description": "Validation error",
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "properties": {
-                                        "status": {
-                                            "type": "string",
-                                            "example": "error"
-                                        },
-                                        "message": {
-                                            "type": "string",
-                                            "example": "Validation failed."
-                                        },
-                                        "errors": {
-                                            "properties": {
-                                                "coupon": {
-                                                    "type": "array",
-                                                    "items": {
-                                                        "type": "string"
-                                                    },
-                                                    "example": [
-                                                        "The discount code entered is not valid or has expired."
-                                                    ]
-                                                }
-                                            },
-                                            "type": "object"
-                                        }
-                                    },
-                                    "type": "object"
+                                    "$ref": "#/components/schemas/422ResponseSchema"
                                 }
                             }
                         }
@@ -1083,26 +1106,6 @@
                             }
                         }
                     },
-                    "404": {
-                        "description": "Cart item not found",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "properties": {
-                                        "status": {
-                                            "type": "string",
-                                            "example": "error"
-                                        },
-                                        "message": {
-                                            "type": "string",
-                                            "example": "Cart item not found"
-                                        }
-                                    },
-                                    "type": "object"
-                                }
-                            }
-                        }
-                    },
                     "409": {
                         "description": "Insufficient stock",
                         "content": {
@@ -1128,31 +1131,7 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "properties": {
-                                        "status": {
-                                            "type": "string",
-                                            "example": "error"
-                                        },
-                                        "message": {
-                                            "type": "string",
-                                            "example": "The cart item id field is required. / The quantity field is required."
-                                        },
-                                        "errors": {
-                                            "description": "Dictionary of field errors",
-                                            "properties": {
-                                                "cart_item_id": {
-                                                    "type": "string",
-                                                    "example": "The cart item id field is required."
-                                                },
-                                                "quantity": {
-                                                    "type": "string",
-                                                    "example": "The quantity field is required."
-                                                }
-                                            },
-                                            "type": "object"
-                                        }
-                                    },
-                                    "type": "object"
+                                    "$ref": "#/components/schemas/422ResponseSchema"
                                 }
                             }
                         }
@@ -1275,35 +1254,7 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "properties": {
-                                        "status": {
-                                            "type": "string",
-                                            "example": "error"
-                                        },
-                                        "message": {
-                                            "type": "string",
-                                            "example": "The coupon field is required."
-                                        },
-                                        "errors": {
-                                            "description": "Dictionary of field errors",
-                                            "properties": {
-                                                "coupon": {
-                                                    "description": "Validation messages for the coupon field",
-                                                    "type": "array",
-                                                    "items": {
-                                                        "type": "string",
-                                                        "enum": [
-                                                            "The coupon field is required.",
-                                                            "The coupon field must be at least 2 characters.",
-                                                            "The coupon field must not be greater than 120 characters."
-                                                        ]
-                                                    }
-                                                }
-                                            },
-                                            "type": "object"
-                                        }
-                                    },
-                                    "type": "object"
+                                    "$ref": "#/components/schemas/422ResponseSchema"
                                 }
                             }
                         }
@@ -1459,6 +1410,24 @@
                 },
                 "type": "object"
             },
+            "422ResponseSchema": {
+                "title": "Validation Error Response",
+                "properties": {
+                    "status": {
+                        "type": "string",
+                        "example": "error"
+                    },
+                    "message": {
+                        "type": "string",
+                        "example": "The given data was invalid."
+                    },
+                    "errors": {
+                        "description": "Validation errors",
+                        "type": "object"
+                    }
+                },
+                "type": "object"
+            },
             "429ResponseSchema": {
                 "title": "Too Many Requests Response",
                 "properties": {
@@ -1483,6 +1452,10 @@
         {
             "name": "Authentication",
             "description": "OTP-based login and registration"
+        },
+        {
+            "name": "Product",
+            "description": "Product details, add comments"
         },
         {
             "name": "Cart",

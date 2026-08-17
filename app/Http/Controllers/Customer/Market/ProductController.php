@@ -50,7 +50,7 @@ class ProductController extends Controller
 
         $data  = $request->validated();
 
-        $result = $this->productService->addComment($product, $data);
+        $comment = $this->productService->addComment($product, $data);
 
 
         return redirect()->back()->with(

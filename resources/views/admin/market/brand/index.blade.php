@@ -58,10 +58,10 @@
                                 <td>
                                     @if (!empty($brand->logo))
                                         <img class="rounded"
-                                            src="{{ asset($brand->image['indexArray'][$brand->image['currentImage']]) }}"
+                                            src="{{ asset($brand->logo['indexArray'][$brand->logo['currentImage']]) }}"
                                             alt="" width="80" height="60">
                                     @else
-                                        <p class="text-danger mt-3">without image</p>
+                                        <p class="text-danger mt-3">without logo</p>
                                     @endif
                                 </td>
                                 <td>
