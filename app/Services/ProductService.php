@@ -62,8 +62,6 @@ class ProductService
 
         $selectedVariantId = $selectedVariant?->id;
 
-        // dd($selectedVariantId);
-
         // محصول در کل موجود هست یا نه؟
         $hasSellableVariant = $product->variants->contains(fn($v) => $v->availableStock() > 0);
 

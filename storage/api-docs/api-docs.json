@@ -310,6 +310,533 @@
                 ]
             }
         },
+        "/api/product/{product}": {
+            "get": {
+                "tags": [
+                    "Product"
+                ],
+                "summary": "Get product detail",
+                "description": "Retrieve complete product detail by slug, including variants, comments, related products and rating",
+                "operationId": "578d4755429dee6e6fc812adc8794431",
+                "parameters": [
+                    {
+                        "name": "product",
+                        "in": "path",
+                        "description": "Product slug",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "example": "blue-shirt"
+                        }
+                    },
+                    {
+                        "name": "variant",
+                        "in": "query",
+                        "description": "Selected variant id",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "example": 95
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Product detail retrieved successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status": {
+                                            "type": "string",
+                                            "example": "success"
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "product detail"
+                                        },
+                                        "data": {
+                                            "properties": {
+                                                "product": {
+                                                    "properties": {
+                                                        "id": {
+                                                            "type": "integer",
+                                                            "example": 26
+                                                        },
+                                                        "name": {
+                                                            "type": "string",
+                                                            "example": "Blue shirt"
+                                                        },
+                                                        "slug": {
+                                                            "type": "string",
+                                                            "example": "blue-shirt"
+                                                        },
+                                                        "image": {
+                                                            "type": "string",
+                                                            "format": "uri",
+                                                            "example": "http://127.0.0.1:8000/images/product/2026/02/26/1772130441_main.jpg"
+                                                        },
+                                                        "description": {
+                                                            "type": "string",
+                                                            "example": "<p>stest</p>"
+                                                        },
+                                                        "category": {
+                                                            "properties": {
+                                                                "id": {
+                                                                    "type": "integer",
+                                                                    "example": 12
+                                                                },
+                                                                "name": {
+                                                                    "type": "string",
+                                                                    "example": "Men"
+                                                                },
+                                                                "description": {
+                                                                    "type": "string",
+                                                                    "example": "<p>Men Men Men</p>"
+                                                                },
+                                                                "slug": {
+                                                                    "type": "string",
+                                                                    "example": "men"
+                                                                },
+                                                                "image": {
+                                                                    "type": "string",
+                                                                    "format": "uri",
+                                                                    "example": "http://127.0.0.1:8000/images/product-category/2025/12/26/1766779279_main.jpg"
+                                                                },
+                                                                "parent_id": {
+                                                                    "type": "integer",
+                                                                    "example": null,
+                                                                    "nullable": true
+                                                                }
+                                                            },
+                                                            "type": "object",
+                                                            "nullable": true
+                                                        },
+                                                        "brand": {
+                                                            "properties": {
+                                                                "id": {
+                                                                    "type": "integer",
+                                                                    "example": 14
+                                                                },
+                                                                "name": {
+                                                                    "type": "string",
+                                                                    "example": "nike"
+                                                                },
+                                                                "slug": {
+                                                                    "type": "string",
+                                                                    "example": "nike"
+                                                                },
+                                                                "logo": {
+                                                                    "type": "string",
+                                                                    "format": "uri",
+                                                                    "example": "http://127.0.0.1:8000/images/brand/2026/08/17/1786994228_main.jpg"
+                                                                }
+                                                            },
+                                                            "type": "object",
+                                                            "nullable": true
+                                                        },
+                                                        "gallery": {
+                                                            "type": "array",
+                                                            "items": {
+                                                                "properties": {
+                                                                    "id": {
+                                                                        "type": "integer",
+                                                                        "example": 13
+                                                                    },
+                                                                    "image": {
+                                                                        "type": "string",
+                                                                        "format": "uri",
+                                                                        "example": "http://127.0.0.1:8000/images/product_gallery/2026/08/17/1786996835_main.jpg"
+                                                                    }
+                                                                },
+                                                                "type": "object"
+                                                            }
+                                                        },
+                                                        "attributes": {
+                                                            "type": "array",
+                                                            "items": {
+                                                                "properties": {
+                                                                    "id": {
+                                                                        "type": "integer",
+                                                                        "example": 14
+                                                                    },
+                                                                    "name": {
+                                                                        "type": "string",
+                                                                        "example": "material"
+                                                                    },
+                                                                    "unit": {
+                                                                        "type": "string",
+                                                                        "example": null,
+                                                                        "nullable": true
+                                                                    },
+                                                                    "value": {
+                                                                        "type": "string",
+                                                                        "example": "Plastic"
+                                                                    }
+                                                                },
+                                                                "type": "object"
+                                                            }
+                                                        },
+                                                        "is_liked": {
+                                                            "type": "boolean",
+                                                            "example": false
+                                                        },
+                                                        "total_sold": {
+                                                            "type": "integer",
+                                                            "example": 0
+                                                        }
+                                                    },
+                                                    "type": "object"
+                                                },
+                                                "variantsForJs": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "properties": {
+                                                            "id": {
+                                                                "type": "integer",
+                                                                "example": 93
+                                                            },
+                                                            "color_id": {
+                                                                "type": "integer",
+                                                                "example": 2,
+                                                                "nullable": true
+                                                            },
+                                                            "color_name": {
+                                                                "type": "string",
+                                                                "example": "green",
+                                                                "nullable": true
+                                                            },
+                                                            "color_hex": {
+                                                                "type": "string",
+                                                                "example": "#59e84f",
+                                                                "nullable": true
+                                                            },
+                                                            "size_id": {
+                                                                "type": "integer",
+                                                                "example": 6,
+                                                                "nullable": true
+                                                            },
+                                                            "size_name": {
+                                                                "type": "string",
+                                                                "example": "38",
+                                                                "nullable": true
+                                                            },
+                                                            "price": {
+                                                                "type": "number",
+                                                                "format": "float",
+                                                                "example": 423
+                                                            },
+                                                            "final_price": {
+                                                                "type": "number",
+                                                                "format": "float",
+                                                                "example": 423
+                                                            },
+                                                            "stock": {
+                                                                "type": "integer",
+                                                                "example": 12
+                                                            },
+                                                            "percentage": {
+                                                                "type": "integer",
+                                                                "example": null,
+                                                                "nullable": true
+                                                            },
+                                                            "expire_at": {
+                                                                "type": "string",
+                                                                "format": "date-time",
+                                                                "example": null,
+                                                                "nullable": true
+                                                            }
+                                                        },
+                                                        "type": "object"
+                                                    }
+                                                },
+                                                "hasSellableVariant": {
+                                                    "type": "boolean",
+                                                    "example": true
+                                                },
+                                                "approvedComments": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "properties": {
+                                                            "id": {
+                                                                "type": "integer",
+                                                                "example": 18
+                                                            },
+                                                            "body": {
+                                                                "type": "string",
+                                                                "example": "good material"
+                                                            },
+                                                            "rating": {
+                                                                "type": "integer",
+                                                                "example": 4,
+                                                                "nullable": true
+                                                            },
+                                                            "parent_id": {
+                                                                "type": "integer",
+                                                                "example": null,
+                                                                "nullable": true
+                                                            },
+                                                            "created_at": {
+                                                                "type": "string",
+                                                                "format": "date-time",
+                                                                "example": "2026-04-12T20:24:08.000000Z"
+                                                            },
+                                                            "user": {
+                                                                "properties": {
+                                                                    "id": {
+                                                                        "type": "integer",
+                                                                        "example": 10
+                                                                    },
+                                                                    "first_name": {
+                                                                        "type": "string",
+                                                                        "example": "arya"
+                                                                    },
+                                                                    "last_name": {
+                                                                        "type": "string",
+                                                                        "example": "morsali"
+                                                                    },
+                                                                    "full_name": {
+                                                                        "type": "string",
+                                                                        "example": "arya morsali"
+                                                                    },
+                                                                    "profile_photo": {
+                                                                        "type": "string",
+                                                                        "format": "uri",
+                                                                        "example": "http://127.0.0.1:8000/images/users/2025/11/18/1763412881_main.jpg",
+                                                                        "nullable": true
+                                                                    }
+                                                                },
+                                                                "type": "object",
+                                                                "nullable": true
+                                                            },
+                                                            "children": {
+                                                                "type": "array",
+                                                                "items": {
+                                                                    "properties": {
+                                                                        "id": {
+                                                                            "type": "integer",
+                                                                            "example": 19
+                                                                        },
+                                                                        "body": {
+                                                                            "type": "string",
+                                                                            "example": "good"
+                                                                        },
+                                                                        "rating": {
+                                                                            "type": "integer",
+                                                                            "example": null,
+                                                                            "nullable": true
+                                                                        },
+                                                                        "parent_id": {
+                                                                            "type": "integer",
+                                                                            "example": 18
+                                                                        },
+                                                                        "created_at": {
+                                                                            "type": "string",
+                                                                            "format": "date-time",
+                                                                            "example": "2026-04-13T10:15:00.000000Z"
+                                                                        },
+                                                                        "user": {
+                                                                            "properties": {
+                                                                                "id": {
+                                                                                    "type": "integer",
+                                                                                    "example": 11
+                                                                                },
+                                                                                "first_name": {
+                                                                                    "type": "string",
+                                                                                    "example": "ali"
+                                                                                },
+                                                                                "last_name": {
+                                                                                    "type": "string",
+                                                                                    "example": "abdi"
+                                                                                },
+                                                                                "full_name": {
+                                                                                    "type": "string",
+                                                                                    "example": "ali abdi"
+                                                                                },
+                                                                                "profile_photo": {
+                                                                                    "type": "string",
+                                                                                    "format": "uri",
+                                                                                    "example": null,
+                                                                                    "nullable": true
+                                                                                }
+                                                                            },
+                                                                            "type": "object",
+                                                                            "nullable": true
+                                                                        }
+                                                                    },
+                                                                    "type": "object"
+                                                                }
+                                                            }
+                                                        },
+                                                        "type": "object"
+                                                    }
+                                                },
+                                                "relatedProducts": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "properties": {
+                                                            "id": {
+                                                                "type": "integer",
+                                                                "example": 27
+                                                            },
+                                                            "name": {
+                                                                "type": "string",
+                                                                "example": "clock"
+                                                            },
+                                                            "slug": {
+                                                                "type": "string",
+                                                                "example": "clock"
+                                                            },
+                                                            "image": {
+                                                                "type": "string",
+                                                                "format": "uri",
+                                                                "example": "http://127.0.0.1:8000/images/product/2026/02/25/1771971480_main.jpg"
+                                                            },
+                                                            "description": {
+                                                                "type": "string",
+                                                                "example": "<p>clockclockclockclock</p>"
+                                                            },
+                                                            "category": {
+                                                                "properties": {
+                                                                    "id": {
+                                                                        "type": "integer",
+                                                                        "example": 12
+                                                                    },
+                                                                    "name": {
+                                                                        "type": "string",
+                                                                        "example": "Men"
+                                                                    },
+                                                                    "description": {
+                                                                        "type": "string",
+                                                                        "example": "<p>Men Men Men</p>"
+                                                                    },
+                                                                    "slug": {
+                                                                        "type": "string",
+                                                                        "example": "men"
+                                                                    },
+                                                                    "image": {
+                                                                        "type": "string",
+                                                                        "format": "uri",
+                                                                        "example": "http://127.0.0.1:8000/images/product-category/2025/12/26/1766779279_main.jpg"
+                                                                    },
+                                                                    "parent_id": {
+                                                                        "type": "integer",
+                                                                        "example": null,
+                                                                        "nullable": true
+                                                                    }
+                                                                },
+                                                                "type": "object",
+                                                                "nullable": true
+                                                            },
+                                                            "brand": {
+                                                                "properties": {
+                                                                    "id": {
+                                                                        "type": "integer",
+                                                                        "example": 14
+                                                                    },
+                                                                    "name": {
+                                                                        "type": "string",
+                                                                        "example": "nike"
+                                                                    },
+                                                                    "slug": {
+                                                                        "type": "string",
+                                                                        "example": "nike"
+                                                                    },
+                                                                    "logo": {
+                                                                        "type": "string",
+                                                                        "format": "uri",
+                                                                        "example": "http://127.0.0.1:8000/images/brand/2026/08/17/1786994228_main.jpg"
+                                                                    }
+                                                                },
+                                                                "type": "object",
+                                                                "nullable": true
+                                                            },
+                                                            "gallery": {
+                                                                "type": "array",
+                                                                "items": {
+                                                                    "properties": {
+                                                                        "id": {
+                                                                            "type": "integer",
+                                                                            "example": 13
+                                                                        },
+                                                                        "image": {
+                                                                            "type": "string",
+                                                                            "format": "uri",
+                                                                            "example": "http://127.0.0.1:8000/images/product_gallery/2026/08/17/1786996835_main.jpg"
+                                                                        }
+                                                                    },
+                                                                    "type": "object"
+                                                                }
+                                                            },
+                                                            "attributes": {
+                                                                "type": "array",
+                                                                "items": {
+                                                                    "properties": {
+                                                                        "id": {
+                                                                            "type": "integer",
+                                                                            "example": 14
+                                                                        },
+                                                                        "name": {
+                                                                            "type": "string",
+                                                                            "example": "material"
+                                                                        },
+                                                                        "unit": {
+                                                                            "type": "string",
+                                                                            "example": null,
+                                                                            "nullable": true
+                                                                        },
+                                                                        "value": {
+                                                                            "type": "string",
+                                                                            "example": "Plastic"
+                                                                        }
+                                                                    },
+                                                                    "type": "object"
+                                                                }
+                                                            },
+                                                            "is_liked": {
+                                                                "type": "boolean",
+                                                                "example": true
+                                                            },
+                                                            "total_sold": {
+                                                                "type": "integer",
+                                                                "example": 33
+                                                            }
+                                                        },
+                                                        "type": "object"
+                                                    }
+                                                },
+                                                "aveRating": {
+                                                    "type": "number",
+                                                    "format": "float",
+                                                    "example": 4
+                                                },
+                                                "selectedVariantId": {
+                                                    "type": "integer",
+                                                    "example": 95,
+                                                    "nullable": true
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Product not found or not published",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/404ResponseSchema"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
         "/api/product/{product}/add-comment": {
             "post": {
                 "tags": [
@@ -441,6 +968,194 @@
                             "application/json": {
                                 "schema": {
                                     "$ref": "#/components/schemas/429ResponseSchema"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/address-and-delivery": {
+            "get": {
+                "tags": [
+                    "Address"
+                ],
+                "summary": "Get addresses, shipping methods, and shopping cart summaries",
+                "description": "This endpoint returns a list of user addresses, active shipping methods, discounts, and the final cart price.",
+                "operationId": "c3ce3841c61bbfaae1499fafc4866d7d",
+                "parameters": [
+                    {
+                        "name": "coupon",
+                        "in": "query",
+                        "description": "Optional discount coupon code to apply and calculate in amounts",
+                        "required": false
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Information received successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status": {
+                                            "type": "string",
+                                            "example": "success"
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "users addresses"
+                                        },
+                                        "data": {
+                                            "properties": {
+                                                "addresses": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "properties": {
+                                                            "id": {
+                                                                "type": "integer",
+                                                                "example": 3
+                                                            },
+                                                            "recipient_name": {
+                                                                "type": "string",
+                                                                "example": "arya"
+                                                            },
+                                                            "mobile": {
+                                                                "type": "string",
+                                                                "example": "12345678901"
+                                                            },
+                                                            "province": {
+                                                                "properties": {
+                                                                    "id": {
+                                                                        "type": "integer",
+                                                                        "example": 1
+                                                                    },
+                                                                    "name": {
+                                                                        "type": "string",
+                                                                        "example": "Tehran"
+                                                                    }
+                                                                },
+                                                                "type": "object"
+                                                            },
+                                                            "city": {
+                                                                "properties": {
+                                                                    "id": {
+                                                                        "type": "integer",
+                                                                        "example": 3
+                                                                    },
+                                                                    "name": {
+                                                                        "type": "string",
+                                                                        "example": "Shahriar"
+                                                                    }
+                                                                },
+                                                                "type": "object"
+                                                            },
+                                                            "address": {
+                                                                "type": "string",
+                                                                "example": "Governorship Alley 2"
+                                                            },
+                                                            "postal_code": {
+                                                                "type": "string",
+                                                                "example": "1234567890"
+                                                            },
+                                                            "no": {
+                                                                "type": "string",
+                                                                "example": "12"
+                                                            },
+                                                            "unit": {
+                                                                "type": "string",
+                                                                "example": "4"
+                                                            }
+                                                        },
+                                                        "type": "object"
+                                                    }
+                                                },
+                                                "deliveries": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "properties": {
+                                                            "id": {
+                                                                "type": "integer",
+                                                                "example": 1
+                                                            },
+                                                            "name": {
+                                                                "type": "string",
+                                                                "example": "motor peyck"
+                                                            },
+                                                            "delivery_cost": {
+                                                                "type": "number",
+                                                                "example": 7
+                                                            },
+                                                            "delivery_days": {
+                                                                "type": "integer",
+                                                                "example": 5,
+                                                                "nullable": true
+                                                            }
+                                                        },
+                                                        "type": "object"
+                                                    }
+                                                },
+                                                "totals": {
+                                                    "properties": {
+                                                        "totalCartPrice": {
+                                                            "type": "number",
+                                                            "format": "float",
+                                                            "example": 283.5
+                                                        },
+                                                        "productDiscounts": {
+                                                            "type": "number",
+                                                            "example": 0
+                                                        },
+                                                        "productPrices": {
+                                                            "type": "number",
+                                                            "example": 330
+                                                        },
+                                                        "commonDiscountAmount": {
+                                                            "type": "number",
+                                                            "example": 15
+                                                        },
+                                                        "couponDiscount": {
+                                                            "type": "number",
+                                                            "format": "float",
+                                                            "example": 31.5
+                                                        },
+                                                        "commonDiscountPercentage": {
+                                                            "type": "number",
+                                                            "example": 10
+                                                        }
+                                                    },
+                                                    "type": "object"
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/422ResponseSchema"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthenticated",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/401ResponseSchema"
                                 }
                             }
                         }
@@ -1410,6 +2125,16 @@
                 },
                 "type": "object"
             },
+            "404ResponseSchema": {
+                "title": "Not Found Response",
+                "properties": {
+                    "message": {
+                        "type": "string",
+                        "example": "No result found."
+                    }
+                },
+                "type": "object"
+            },
             "422ResponseSchema": {
                 "title": "Validation Error Response",
                 "properties": {
@@ -1456,6 +2181,10 @@
         {
             "name": "Product",
             "description": "Product details, add comments"
+        },
+        {
+            "name": "Address",
+            "description": "User address related operations"
         },
         {
             "name": "Cart",

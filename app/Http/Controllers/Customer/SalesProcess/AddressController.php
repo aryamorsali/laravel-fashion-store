@@ -6,37 +6,30 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Customer\Profile\StoreAddressRequest;
 use App\Http\Requests\Customer\Profile\UpdateAddressRequest;
 use App\Models\Market\Address;
-use App\Models\Market\CartItem;
-use App\Models\Market\CommonDiscount;
-use App\Models\Market\Coupon;
-use App\Models\Market\Delivery;
-use App\Models\Market\Order;
 use App\Models\Market\Province;
-use App\Services\CartCalculator;
-use Illuminate\Http\Request;
+use App\Services\AddressService;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\DB;
 
 class AddressController extends Controller
 {
-    public function addressAndDelivery(CartCalculator $cartCalculator)
+    protected $addressService;
+
+    public function __construct(AddressService $addressService)
     {
-        $cartItems = CartItem::where('user_id', Auth::user()->id)
-            ->with('productVariant.amazingSale')
-            ->get();
+        $this->addressService = $addressService;
+    }
 
-        if ($cartItems->isEmpty()) {
-            return redirect()->back();
-        }
+    public function addressAndDelivery()
+    {
 
-        $commonDiscount = CommonDiscount::where('status', 1)->where('start_date', '<=', now())->where('end_date', '>=', now())->first();
-
-        $provinces = Province::with('cities')->get();
-
-        $addresses = Auth::user()->addresses;
-        $deliveries = Delivery::where('status', 1)->get();
-
-        $totals = $cartCalculator->calculateCartTotals($cartItems, $commonDiscount, session('applied_coupon'));
+        $result = $this->addressService->addressAndDelivery();
+        
+        $cartItems = $result['cartItems'];
+        $commonDiscount = $result['commonDiscount'];
+        $totals = $result['totals'];
+        $provinces = $result['provinces'];
+        $addresses = $result['addresses'];
+        $deliveries = $result['deliveries'];
 
 
         return view('customer.sales-process.address-and-delivery', compact(

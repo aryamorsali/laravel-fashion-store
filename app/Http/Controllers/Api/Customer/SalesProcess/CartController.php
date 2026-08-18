@@ -9,7 +9,7 @@ use App\Http\Resources\CartItemResource;
 use App\Http\Resources\CommonDiscountResource;
 use App\Http\Resources\CouponResource;
 use App\Models\Market\CartItem;
-use App\Services\CartManager;
+use App\Services\CartService;
 use Illuminate\Http\Request;
 use OpenApi\Attributes as OA;
 
@@ -18,11 +18,11 @@ use OpenApi\Attributes as OA;
 
 class CartController extends Controller
 {
-    protected $cartManager;
+    protected $CartService;
 
-    public function __construct(CartManager $cartManager)
+    public function __construct(CartService $CartService)
     {
-        $this->cartManager = $cartManager;
+        $this->CartService = $CartService;
     }
 
 
@@ -99,7 +99,7 @@ class CartController extends Controller
     {
         $data = $request->validated();
 
-        $cartItem = $this->cartManager->addToCart($data);
+        $cartItem = $this->CartService->addToCart($data);
 
         return response()->json([
             'status' => 'success',
@@ -273,7 +273,7 @@ class CartController extends Controller
     {
         $data = $request->validated();
 
-        $result = $this->cartManager->shopingCart($data['coupon'] ?? null);
+        $result = $this->CartService->shopingCart($data['coupon'] ?? null);
 
         return response()->json([
             'status' => 'success',
@@ -378,7 +378,7 @@ class CartController extends Controller
 
     public function removeFromCart(CartItem $cartItem)
     {
-        $this->cartManager->removeFromCart($cartItem);
+        $this->CartService->removeFromCart($cartItem);
 
         return response()->json([
             'status' => 'success',
@@ -504,7 +504,7 @@ class CartController extends Controller
             'coupon' => 'nullable|max:120|min:2'
         ]);
 
-        $result = $this->cartManager->updateCart($data, $data['coupon'] ?? null);
+        $result = $this->CartService->updateCart($data, $data['coupon'] ?? null);
 
 
         return response()->json([
@@ -596,7 +596,7 @@ class CartController extends Controller
             'coupon' => 'required|max:120|min:2'
         ]);
 
-        $result = $this->cartManager->applyCoupon($data);
+        $result = $this->CartService->applyCoupon($data);
 
         return response()->json([
             'status' => 'success',

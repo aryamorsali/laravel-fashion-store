@@ -30,6 +30,15 @@ use OpenApi\Attributes as OA;
 )]
 
 #[OA\Schema(
+    schema: '404ResponseSchema',
+    title: 'Not Found Response',
+
+    properties: [
+        new OA\Property(property: 'message', type: 'string', example: 'No result found.'),
+    ]
+)]
+
+#[OA\Schema(
     schema: '422ResponseSchema',
     title: 'Validation Error Response',
     type: 'object',
@@ -39,8 +48,6 @@ use OpenApi\Attributes as OA;
         new OA\Property(property: 'errors', type: 'object', description: 'Validation errors'),
     ]
 )]
-
-
 
 #[OA\Schema(
     schema: '429ResponseSchema',

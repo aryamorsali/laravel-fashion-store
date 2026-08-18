@@ -16,7 +16,7 @@ use Illuminate\Support\Facades\DB;
 use PharIo\Manifest\Extension;
 use Illuminate\Validation\ValidationException;
 
-class CartManager
+class CartService
 {
     protected $cartInventoryAllocator;
     protected $cartCalculator;

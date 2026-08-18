@@ -5,22 +5,22 @@ namespace App\Http\Controllers\Customer\SalesProcess;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Customer\Product\AddToCartRequest;
 use App\Models\Market\CartItem;
-use App\Services\CartManager;
+use App\Services\CartService;
 use Illuminate\Http\Request;
 
 class CartController extends Controller
 {
 
-    protected $cartManager;
+    protected $CartService;
 
-    public function __construct(CartManager $cartManager)
+    public function __construct(CartService $CartService)
     {
-        $this->cartManager = $cartManager;
+        $this->CartService = $CartService;
     }
 
     public function shopingCart()
     {
-        $result = $this->cartManager->shopingCart();
+        $result = $this->CartService->shopingCart();
 
 
         $cartItems = $result['cartItems'];
@@ -35,7 +35,7 @@ class CartController extends Controller
     {
         $data = $request->validated();
 
-        $this->cartManager->addToCart($data);
+        $this->CartService->addToCart($data);
 
         return redirect()->back()->with(
             'toast-success',
@@ -46,7 +46,7 @@ class CartController extends Controller
     public function removeFromCart(CartItem $cartItem)
     {
         try {
-            $this->cartManager->removeFromCart($cartItem);
+            $this->CartService->removeFromCart($cartItem);
         } catch (\DomainException $e) {
             return back()->with(
                 'toast-error',
@@ -64,7 +64,7 @@ class CartController extends Controller
             'quantity' => 'required|integer|between:1,10'
         ]);
 
-        $result = $this->cartManager->updateCart($data, session('applied_coupon'));
+        $result = $this->CartService->updateCart($data, session('applied_coupon'));
 
         return response()->json([
             'status' => 'success',
@@ -105,7 +105,7 @@ class CartController extends Controller
             'coupon' => 'required|max:120|min:2'
         ]);
 
-        $result = $this->cartManager->applyCoupon($data);
+        $result = $this->CartService->applyCoupon($data);
         // سشن برای ذخیره کوپن
         session(['applied_coupon' => $result['coupon']]);
 

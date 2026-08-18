@@ -155,7 +155,7 @@ class ProductController extends Controller
                                         type: 'object',
                                         properties: [
                                             new OA\Property(property: 'id', type: 'integer', example: 18),
-                                            new OA\Property(property: 'body', type: 'string', example: 'جنس خوبی داره'),
+                                            new OA\Property(property: 'body', type: 'string', example: 'good material'),
                                             new OA\Property(property: 'rating', type: 'integer', nullable: true, example: 4),
                                             new OA\Property(property: 'parent_id', type: 'integer', nullable: true, example: null),
                                             new OA\Property(
@@ -199,8 +199,8 @@ class ProductController extends Controller
                                                             properties: [
                                                                 new OA\Property(property: 'id', type: 'integer', example: 11),
                                                                 new OA\Property(property: 'first_name', type: 'string', example: 'ali'),
-                                                                new OA\Property(property: 'last_name', type: 'string', example: 'testt'),
-                                                                new OA\Property(property: 'full_name', type: 'string', example: 'ali testt'),
+                                                                new OA\Property(property: 'last_name', type: 'string', example: 'abdi'),
+                                                                new OA\Property(property: 'full_name', type: 'string', example: 'ali abdi'),
                                                                 new OA\Property(property: 'profile_photo', type: 'string', format: 'uri', nullable: true, example: null),
                                                             ]
                                                         ),
@@ -211,22 +211,69 @@ class ProductController extends Controller
                                     )
                                 ),
                                 new OA\Property(
-                                    
+
                                     property: 'relatedProducts',
                                     type: 'array',
                                     items: new OA\Items(
                                         type: 'object',
-                                        
+
                                         properties: [
-                                            new OA\Property(property: 'id', type: 'integer', example: 38),
-                                            new OA\Property(property: 'name', type: 'string', example: 'commodi voluptas'),
-                                            new OA\Property(property: 'slug', type: 'string', example: 'nostrum-ea-quibusdam-provident'),
-                                            new OA\Property(property: 'image', type: 'string', format: 'uri', example: 'http://127.0.0.1:8000/images/product/2026/06/13/1781304849_main.jpg'),
-                                            new OA\Property(property: 'description', type: 'string', example: '<p>Quia veritatis quis modi...</p>'),
-                                            new OA\Property(property: 'is_liked', type: 'boolean', example: false),
-                                            new OA\Property(property: 'total_sold', type: 'integer', example: 0),
+                                            new OA\Property(property: 'id', type: 'integer', example: 27),
+                                            new OA\Property(property: 'name', type: 'string', example: 'clock'),
+                                            new OA\Property(property: 'slug', type: 'string', example: 'clock'),
+                                            new OA\Property(property: 'image', type: 'string', format: 'uri', example: 'http://127.0.0.1:8000/images/product/2026/02/25/1771971480_main.jpg'),
+                                            new OA\Property(property: 'description', type: 'string', example: '<p>clockclockclockclock</p>'),
+                                            new OA\Property(
+                                                property: 'category',
+                                                type: 'object',
+                                                nullable: true,
+                                                properties: [
+                                                    new OA\Property(property: 'id', type: 'integer', example: 12),
+                                                    new OA\Property(property: 'name', type: 'string', example: 'Men'),
+                                                    new OA\Property(property: 'description', type: 'string', example: '<p>Men Men Men</p>'),
+                                                    new OA\Property(property: 'slug', type: 'string', example: 'men'),
+                                                    new OA\Property(property: 'image', type: 'string', format: 'uri', example: 'http://127.0.0.1:8000/images/product-category/2025/12/26/1766779279_main.jpg'),
+                                                    new OA\Property(property: 'parent_id', type: 'integer', nullable: true, example: null),
+                                                ]
+                                            ),
+                                            new OA\Property(
+                                                property: 'brand',
+                                                type: 'object',
+                                                nullable: true,
+                                                properties: [
+                                                    new OA\Property(property: 'id', type: 'integer', example: 14),
+                                                    new OA\Property(property: 'name', type: 'string', example: 'nike'),
+                                                    new OA\Property(property: 'slug', type: 'string', example: 'nike'),
+                                                    new OA\Property(property: 'logo', type: 'string', format: 'uri', example: 'http://127.0.0.1:8000/images/brand/2026/08/17/1786994228_main.jpg'),
+                                                ]
+                                            ),
+                                            new OA\Property(
+                                                property: 'gallery',
+                                                type: 'array',
+                                                items: new OA\Items(
+                                                    type: 'object',
+                                                    properties: [
+                                                        new OA\Property(property: 'id', type: 'integer', example: 13),
+                                                        new OA\Property(property: 'image', type: 'string', format: 'uri', example: 'http://127.0.0.1:8000/images/product_gallery/2026/08/17/1786996835_main.jpg'),
+                                                    ]
+                                                )
+                                            ),
+                                            new OA\Property(
+                                                property: 'attributes',
+                                                type: 'array',
+                                                items: new OA\Items(
+                                                    type: 'object',
+                                                    properties: [
+                                                        new OA\Property(property: 'id', type: 'integer', example: 14),
+                                                        new OA\Property(property: 'name', type: 'string', example: 'material'),
+                                                        new OA\Property(property: 'unit', type: 'string', nullable: true, example: null),
+                                                        new OA\Property(property: 'value', type: 'string', example: 'Plastic'),
+                                                    ]
+                                                )
+                                            ),
+                                            new OA\Property(property: 'is_liked', type: 'boolean', example: true),
+                                            new OA\Property(property: 'total_sold', type: 'integer', example: 33),
                                         ]
-                                        
                                     )
                                 ),
                                 new OA\Property(property: 'aveRating', type: 'number', format: 'float', example: 4),

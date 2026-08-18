@@ -468,7 +468,7 @@ Route::namespace('SalesProcess')->group(function () {
         //address
         Route::get('/address-and-delivery', [AddressController::class, 'addressAndDelivery'])->name('customer.sales-process.address-and-delivery');
         Route::post('/store-address', [AddressController::class, 'storeAddress'])->name('customer.sales-process.store-address')->middleware('throttle:address');
-        Route::put('/update-address/{address}', [AddressController::class, 'updateAddress'])->name('customer.sales-process.update-address')->middleware('throttle:address');
+        Route::put('/update-address/{address}', [AddressController::class, 'updateAddress'])->name('customer.sales-process.update-address')->middleware(['throttle:address', 'can:update,address']);
         Route::get('/provinces/{province}/cities', [AddressController::class, 'getCities']);
 
         // payment

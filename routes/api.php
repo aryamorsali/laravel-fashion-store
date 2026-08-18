@@ -2,6 +2,8 @@
 
 use App\Http\Controllers\Api\Auth\LoginRegisterController;
 use App\Http\Controllers\Api\Customer\Market\ProductController;
+use App\Http\Controllers\Api\Customer\Market\ShopController;
+use App\Http\Controllers\Api\Customer\SalesProcess\AddressController;
 use App\Http\Controllers\Api\Customer\SalesProcess\CartController;
 use App\Http\Controllers\LikeController;
 use Illuminate\Support\Facades\Route;
@@ -17,8 +19,11 @@ Route::middleware('guest')->group(function () {
 });
 
 
+
 // product detail
-Route::get('/product/{product:slug}', [ProductController::class, 'product']);  
+Route::get('/product/{product:slug}', [ProductController::class, 'product']);
+
+
 
 Route::middleware('auth:sanctum')->group(function () {
 
@@ -37,10 +42,10 @@ Route::middleware('auth:sanctum')->group(function () {
     // product add comment
     Route::post('/product/{product:slug}/add-comment', [ProductController::class, 'addComment'])->middleware('throttle:add-comment');
 
-
     //address
-    // Route::get('/address-and-delivery', [AddressController::class, 'addressAndDelivery'])->name('customer.sales-process.address-and-delivery');
-    // Route::post('/store-address', [AddressController::class, 'storeAddress'])->name('customer.sales-process.store-address')->middleware('throttle:address');
-    // Route::put('/update-address/{address}', [AddressController::class, 'updateAddress'])->name('customer.sales-process.update-address')->middleware('throttle:address');
+    Route::get('/address-and-delivery', [AddressController::class, 'addressAndDelivery']);
+    
+    // Route::post('/store-address', [AddressController::class, 'storeAddress'])->middleware('throttle:address');
+    // Route::put('/update-address/{address}', [AddressController::class, 'updateAddress'])->middleware(['throttle:address', 'can:update,address']);
     // Route::get('/provinces/{province}/cities', [AddressController::class, 'getCities']);
 });
