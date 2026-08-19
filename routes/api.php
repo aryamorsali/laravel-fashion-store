@@ -45,7 +45,7 @@ Route::middleware('auth:sanctum')->group(function () {
     //address
     Route::get('/address-and-delivery', [AddressController::class, 'addressAndDelivery']);
     Route::post('/store-address', [AddressController::class, 'storeAddress'])->middleware('throttle:address');
+    Route::put('/update-address/{address}', [AddressController::class, 'updateAddress'])->middleware(['throttle:address', 'can:update,address']);
     
-    // Route::put('/update-address/{address}', [AddressController::class, 'updateAddress'])->middleware(['throttle:address', 'can:update,address']);
     // Route::get('/provinces/{province}/cities', [AddressController::class, 'getCities']);
 });

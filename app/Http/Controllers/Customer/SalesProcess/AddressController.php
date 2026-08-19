@@ -62,9 +62,9 @@ class AddressController extends Controller
 
     public function updateAddress(UpdateAddressRequest $request, Address $address)
     {
-        $inputs = $request->validated();
+        $data = $request->validated();
 
-        $address->update($inputs);
+        $this->addressService->updateAddress($data, $address);
 
         return redirect()->back()->with(
             'toast-success',

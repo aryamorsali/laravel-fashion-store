@@ -109,4 +109,13 @@ class AddressService
             'mobile' => $data['mobile'],
         ]);
     }
+
+
+
+    public function updateAddress($data, $address)
+    {
+        $address->update($data);
+
+        return $address;
+    }
 }
