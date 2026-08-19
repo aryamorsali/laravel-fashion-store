@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Exceptions\EmptyCartException;
+use App\Models\Market\Address;
 use App\Models\Market\CartItem;
 use App\Models\Market\CommonDiscount;
 use App\Models\Market\Coupon;
@@ -90,5 +91,22 @@ class AddressService
             'addresses' => $addresses,
             'deliveries' => $deliveries,
         ];
+    }
+
+
+
+    public function storeAddress($data)
+    {
+        return Address::create([
+            'user_id' => Auth::id(),
+            'recipient_name' => $data['recipient_name'],
+            'city_id' => $data['city_id'],
+            'province_id' => $data['province_id'],
+            'address' => $data['address'],
+            'postal_code' => $data['postal_code'],
+            'no' => $data['no'] ?? null,
+            'unit' => $data['unit'] ?? null,
+            'mobile' => $data['mobile'],
+        ]);
     }
 }

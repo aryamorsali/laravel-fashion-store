@@ -1140,12 +1140,172 @@
                             }
                         }
                     },
+                    "401": {
+                        "description": "Unauthenticated",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/401ResponseSchema"
+                                }
+                            }
+                        }
+                    },
                     "422": {
                         "description": "Validation error",
                         "content": {
                             "application/json": {
                                 "schema": {
                                     "$ref": "#/components/schemas/422ResponseSchema"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/store-address": {
+            "post": {
+                "tags": [
+                    "Address"
+                ],
+                "summary": "Register a new user address",
+                "description": "Creates and stores a new address for the authenticated user.",
+                "operationId": "41263649b666b2388fda74b38eb87e34",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "recipient_name",
+                                    "city_id",
+                                    "province_id",
+                                    "address",
+                                    "postal_code",
+                                    "mobile"
+                                ],
+                                "properties": {
+                                    "recipient_name": {
+                                        "type": "string",
+                                        "example": "ali rezaii"
+                                    },
+                                    "city_id": {
+                                        "type": "integer",
+                                        "example": 1
+                                    },
+                                    "province_id": {
+                                        "type": "integer",
+                                        "example": 1
+                                    },
+                                    "address": {
+                                        "type": "string",
+                                        "example": "tehran valiasr street"
+                                    },
+                                    "postal_code": {
+                                        "type": "string",
+                                        "example": "1234567890"
+                                    },
+                                    "no": {
+                                        "type": "string",
+                                        "example": "12",
+                                        "nullable": true
+                                    },
+                                    "unit": {
+                                        "type": "string",
+                                        "example": "3",
+                                        "nullable": true
+                                    },
+                                    "mobile": {
+                                        "type": "string",
+                                        "example": "09121234567"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Address successfully registered",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status": {
+                                            "type": "string",
+                                            "example": "success"
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Address successfully registered."
+                                        },
+                                        "data": {
+                                            "properties": {
+                                                "id": {
+                                                    "type": "integer",
+                                                    "example": 3
+                                                },
+                                                "recipient_name": {
+                                                    "type": "string",
+                                                    "example": "soheila alipour"
+                                                },
+                                                "mobile": {
+                                                    "type": "string",
+                                                    "example": "98765432100"
+                                                },
+                                                "province": {
+                                                    "properties": {
+                                                        "id": {
+                                                            "type": "integer",
+                                                            "example": 1
+                                                        },
+                                                        "name": {
+                                                            "type": "string",
+                                                            "example": "Tehran"
+                                                        }
+                                                    },
+                                                    "type": "object"
+                                                },
+                                                "city": {
+                                                    "properties": {
+                                                        "id": {
+                                                            "type": "integer",
+                                                            "example": 3
+                                                        },
+                                                        "name": {
+                                                            "type": "string",
+                                                            "example": "Shahriar"
+                                                        }
+                                                    },
+                                                    "type": "object"
+                                                },
+                                                "address": {
+                                                    "type": "string",
+                                                    "example": "Governorship Alley 2"
+                                                },
+                                                "postal_code": {
+                                                    "type": "string",
+                                                    "example": "1234567890"
+                                                },
+                                                "no": {
+                                                    "type": "string",
+                                                    "example": "12"
+                                                },
+                                                "unit": {
+                                                    "type": "string",
+                                                    "example": "4"
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
                                 }
                             }
                         }
@@ -1156,6 +1316,26 @@
                             "application/json": {
                                 "schema": {
                                     "$ref": "#/components/schemas/401ResponseSchema"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/422ResponseSchema"
+                                }
+                            }
+                        }
+                    },
+                    "429": {
+                        "description": "Too many requests",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/429ResponseSchema"
                                 }
                             }
                         }

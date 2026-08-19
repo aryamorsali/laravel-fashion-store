@@ -3,12 +3,14 @@
 namespace App\Http\Controllers\Api\Customer\SalesProcess;
 
 use App\Http\Controllers\Controller;
-use App\Http\Requests\Api\Address\AddressRequest;
+use App\Http\Requests\Api\Address\AddressCouponRequest;
+use App\Http\Requests\Api\Address\StoreAddressRequest;
 use App\Http\Resources\AddressResource;
 use App\Http\Resources\DeliveryResource;
 use App\Http\Resources\ProvinceResource;
 use App\Services\AddressService;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 use OpenApi\Attributes as OA;
 
 #[OA\Tag(name: 'Address', description: 'User address related operations')]
@@ -111,22 +113,23 @@ class AddressController extends Controller
                 )
             ),
             new OA\Response(
-                response: 422,
-                description: 'Validation error',
-                content: new OA\JsonContent(ref: '#/components/schemas/422ResponseSchema')
-            ),
-
-            new OA\Response(
                 response: 401,
                 description: 'Unauthenticated',
                 content: new OA\JsonContent(
                     ref: '#/components/schemas/401ResponseSchema'
                 )
             ),
+
+            new OA\Response(
+                response: 422,
+                description: 'Validation error',
+                content: new OA\JsonContent(ref: '#/components/schemas/422ResponseSchema')
+            ),
+
         ]
     )]
 
-    public function addressAndDelivery(AddressRequest $request)
+    public function addressAndDelivery(AddressCouponRequest $request)
     {
         $data = $request->validated();
 
@@ -141,5 +144,154 @@ class AddressController extends Controller
                 'totals' => $result['totals'],
             ]
         ]);
+    }
+
+
+    #[OA\Post(
+        path: '/api/store-address',
+        summary: 'Register a new user address',
+        description: 'Creates and stores a new address for the authenticated user.',
+        security: [
+            ['sanctum' => []]
+        ],
+        tags: ['Address'],
+        requestBody: new OA\RequestBody(
+            required: true,
+            content: new OA\JsonContent(
+                type: 'object',
+                required: [
+                    'recipient_name',
+                    'city_id',
+                    'province_id',
+                    'address',
+                    'postal_code',
+                    'mobile',
+                ],
+                properties: [
+                    new OA\Property(
+                        property: 'recipient_name',
+                        type: 'string',
+                        example: 'ali rezaii'
+                    ),
+                    new OA\Property(
+                        property: 'city_id',
+                        type: 'integer',
+                        example: 1
+                    ),
+                    new OA\Property(
+                        property: 'province_id',
+                        type: 'integer',
+                        example: 1
+                    ),
+                    new OA\Property(
+                        property: 'address',
+                        type: 'string',
+                        example: 'tehran valiasr street'
+                    ),
+                    new OA\Property(
+                        property: 'postal_code',
+                        type: 'string',
+                        example: '1234567890'
+                    ),
+                    new OA\Property(
+                        property: 'no',
+                        type: 'string',
+                        nullable: true,
+                        example: '12'
+                    ),
+                    new OA\Property(
+                        property: 'unit',
+                        type: 'string',
+                        nullable: true,
+                        example: '3'
+                    ),
+                    new OA\Property(
+                        property: 'mobile',
+                        type: 'string',
+                        example: '09121234567'
+                    ),
+                ]
+            )
+        ),
+        responses: [
+            new OA\Response(
+                response: 201,
+                description: 'Address successfully registered',
+                content: new OA\JsonContent(
+                    properties: [
+                        new OA\Property(property: 'status', type: 'string', example: 'success'),
+                        new OA\Property(property: 'message', type: 'string', example: 'Address successfully registered.'),
+                        new OA\Property(
+                            property: 'data',
+                            type: 'object',
+                            properties: [
+                                new OA\Property(property: 'id', type: 'integer', example: 3),
+                                new OA\Property(property: 'recipient_name', type: 'string', example: 'soheila alipour'),
+                                new OA\Property(property: 'mobile', type: 'string', example: '98765432100'),
+                                new OA\Property(
+                                    property: 'province',
+                                    type: 'object',
+                                    properties: [
+                                        new OA\Property(property: 'id', type: 'integer', example: 1),
+                                        new OA\Property(property: 'name', type: 'string', example: 'Tehran'),
+                                    ]
+                                ),
+                                new OA\Property(
+                                    property: 'city',
+                                    type: 'object',
+                                    properties: [
+                                        new OA\Property(property: 'id', type: 'integer', example: 3),
+                                        new OA\Property(property: 'name', type: 'string', example: 'Shahriar'),
+                                    ]
+                                ),
+                                new OA\Property(property: 'address', type: 'string', example: 'Governorship Alley 2'),
+                                new OA\Property(property: 'postal_code', type: 'string', example: '1234567890'),
+                                new OA\Property(property: 'no', type: 'string', example: '12'),
+                                new OA\Property(property: 'unit', type: 'string', example: '4'),
+                            ]
+                        ),
+                    ]
+                )
+            ),
+            new OA\Response(
+                response: 401,
+                description: 'Unauthenticated',
+                content: new OA\JsonContent(
+                    ref: '#/components/schemas/401ResponseSchema'
+                )
+            ),
+
+            new OA\Response(
+                response: 422,
+                description: 'Validation error',
+                content: new OA\JsonContent(ref: '#/components/schemas/422ResponseSchema')
+            ),
+
+            new OA\Response(
+                response: 429,
+                description: 'Too many requests',
+                content: new OA\JsonContent(
+                    ref: '#/components/schemas/429ResponseSchema'
+                )
+            ),
+        ]
+    )]
+
+
+    public function storeAddress(StoreAddressRequest $request)
+    {
+        $data = $request->validated();
+
+        $address = $this->addressService->storeAddress($data);
+
+        $address->load([
+            'province',
+            'city',
+        ]);
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Address successfuly registered.',
+            'data' => new AddressResource($address),
+        ], 201);
     }
 }

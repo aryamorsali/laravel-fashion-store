@@ -23,7 +23,7 @@ class AddressController extends Controller
     {
 
         $result = $this->addressService->addressAndDelivery();
-        
+
         $cartItems = $result['cartItems'];
         $commonDiscount = $result['commonDiscount'];
         $totals = $result['totals'];
@@ -50,19 +50,9 @@ class AddressController extends Controller
 
     public function storeAddress(StoreAddressRequest $request)
     {
-        $inputs = $request->validated();
+        $data = $request->validated();
 
-        Address::create([
-            'user_id' => Auth::user()->id,
-            'recipient_name' => $inputs['recipient_name'],
-            'city_id' => $inputs['city_id'],
-            'province_id' => $inputs['province_id'],
-            'address' => $inputs['address'],
-            'postal_code' => $inputs['postal_code'],
-            'no' => $inputs['no'],
-            'unit' => $inputs['unit'],
-            'mobile' => $inputs['mobile'],
-        ]);
+        $result = $this->addressService->storeAddress($data);
 
         return redirect()->back()->with(
             'toast-success',

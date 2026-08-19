@@ -5,7 +5,7 @@ namespace App\Http\Requests\Api\Address;
 use App\Http\Requests\Api\BaseApiFormRequest;
 use Illuminate\Foundation\Http\FormRequest;
 
-class AddressRequest extends BaseApiFormRequest
+class AddressCouponRequest extends BaseApiFormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
