@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Exceptions\EmptyCartException;
+use App\Http\Resources\CityResource;
 use App\Models\Market\Address;
 use App\Models\Market\CartItem;
 use App\Models\Market\CommonDiscount;
@@ -117,5 +118,10 @@ class AddressService
         $address->update($data);
 
         return $address;
+    }
+
+    public function getCities($province)
+    {
+       return $province->cities()->get();
     }
 }

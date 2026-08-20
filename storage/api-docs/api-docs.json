@@ -1556,6 +1556,95 @@
                 ]
             }
         },
+        "/api/provinces/{province}/cities": {
+            "get": {
+                "tags": [
+                    "Address"
+                ],
+                "summary": "Get cities by province",
+                "description": "Returns all cities that belong to the specified province.",
+                "operationId": "fb5044ff700d9aa80822fd95cc74abb0",
+                "parameters": [
+                    {
+                        "name": "province",
+                        "in": "path",
+                        "description": "Province ID",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "example": 1
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "List of cities retrieved successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status": {
+                                            "type": "string",
+                                            "example": "success"
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "List of cities in the province"
+                                        },
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "required": [
+                                                    "id",
+                                                    "name"
+                                                ],
+                                                "properties": {
+                                                    "id": {
+                                                        "type": "integer",
+                                                        "example": 7
+                                                    },
+                                                    "name": {
+                                                        "type": "string",
+                                                        "example": "Shiraz"
+                                                    }
+                                                },
+                                                "type": "object"
+                                            }
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthenticated",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/401ResponseSchema"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Address not found",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/404ResponseSchema"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
         "/api/add-to-cart": {
             "post": {
                 "tags": [

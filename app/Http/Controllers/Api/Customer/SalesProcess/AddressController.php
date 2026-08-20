@@ -7,9 +7,11 @@ use App\Http\Requests\Api\Address\AddressCouponRequest;
 use App\Http\Requests\Api\Address\StoreAddressRequest;
 use App\Http\Requests\Api\Address\UpdateAddressRequest;
 use App\Http\Resources\AddressResource;
+use App\Http\Resources\CityResource;
 use App\Http\Resources\DeliveryResource;
 use App\Http\Resources\ProvinceResource;
 use App\Models\Market\Address;
+use App\Models\Market\Province;
 use App\Services\AddressService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
@@ -298,8 +300,6 @@ class AddressController extends Controller
     }
 
 
-
-
     #[OA\Put(
         path: '/api/update-address/{address}',
         operationId: 'updateAddress',
@@ -462,6 +462,89 @@ class AddressController extends Controller
             'status' => 'success',
             'message' => 'Address successfuly updated.',
             'data' => new AddressResource($address),
+        ]);
+    }
+
+
+    #[OA\Get(
+        path: '/api/provinces/{province}/cities',
+        tags: ['Address'],
+        security: [['sanctum' => []]],
+        summary: 'Get cities by province',
+        description: 'Returns all cities that belong to the specified province.',
+        parameters: [
+            new OA\Parameter(
+                name: 'province',
+                in: 'path',
+                required: true,
+                description: 'Province ID',
+                schema: new OA\Schema(
+                    type: 'integer',
+                    example: 1
+                )
+            ),
+        ],
+        responses: [
+            new OA\Response(
+                response: 200,
+                description: 'List of cities retrieved successfully',
+                content: new OA\JsonContent(
+                    properties: [
+                        new OA\Property(
+                            property: 'status',
+                            type: 'string',
+                            example: 'success'
+                        ),
+                        new OA\Property(
+                            property: 'message',
+                            type: 'string',
+                            example: 'List of cities in the province'
+                        ),
+                        new OA\Property(
+                            property: 'data',
+                            type: 'array',
+                            items: new OA\Items(
+                                type: 'object',
+                                required: ['id', 'name'],
+                                properties: [
+                                    new OA\Property(
+                                        property: 'id',
+                                        type: 'integer',
+                                        example: 7
+                                    ),
+                                    new OA\Property(
+                                        property: 'name',
+                                        type: 'string',
+                                        example: 'Shiraz'
+                                    ),
+                                ]
+                            )
+                        ),
+                    ]
+                )
+            ),
+            new OA\Response(
+                response: 401,
+                description: 'Unauthenticated',
+                content: new OA\JsonContent(
+                    ref: '#/components/schemas/401ResponseSchema'
+                )
+            ),
+            new OA\Response(
+                response: 404,
+                description: 'Address not found',
+                content: new OA\JsonContent(ref: '#/components/schemas/404ResponseSchema')
+            ),
+        ]
+    )]
+
+    public function getCities(Province $province)
+    {
+        $cities = $this->addressService->getCities($province);
+        return response()->json([
+            'status' => 'success',
+            'message' => 'List of cities in the province',
+            'data' => CityResource::collection($cities),
         ]);
     }
 }

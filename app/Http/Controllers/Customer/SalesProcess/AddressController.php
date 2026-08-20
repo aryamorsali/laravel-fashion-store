@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Customer\SalesProcess;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Customer\Profile\StoreAddressRequest;
 use App\Http\Requests\Customer\Profile\UpdateAddressRequest;
+use App\Http\Resources\CityResource;
 use App\Models\Market\Address;
 use App\Models\Market\Province;
 use App\Services\AddressService;
@@ -44,7 +45,10 @@ class AddressController extends Controller
 
     public function getCities(Province $province)
     {
-        return response()->json($province->cities()->select('id', 'name')->get());
+        $cities = $this->addressService->getCities($province);
+        return response()->json(
+            CityResource::collection($cities)
+        );
     }
 
 
