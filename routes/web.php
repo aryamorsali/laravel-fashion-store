@@ -40,11 +40,12 @@ use App\Http\Controllers\Admin\User\RoleController;
 use App\Http\Controllers\Customer\HomeController;
 use App\Http\Controllers\Customer\Market\ProductController as MarketProductController;
 use App\Http\Controllers\Customer\Market\ShopController;
+use App\Http\Controllers\Customer\Profile\ProfileController;
+use App\Http\Controllers\Customer\Profile\ProfileTiketController;
 use App\Http\Controllers\Customer\SalesProcess\AddressController;
 use App\Http\Controllers\Customer\SalesProcess\CartController;
 use App\Http\Controllers\Customer\SalesProcess\PaymentController as SalesProcessPaymentController;
 use App\Http\Controllers\LikeController;
-use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
 
 // admin
@@ -476,6 +477,25 @@ Route::namespace('SalesProcess')->group(function () {
     });
 
     Route::get('/payment-callback/{order}/{payment}', [SalesProcessPaymentController::class, 'paymentCallBack'])->name('customer.sales-process.payment-call-back');
+});
+
+// user profile
+Route::namespace('Profile')->middleware('auth')->group(function () {
+
+    Route::get('/profile', [ProfileController::class, 'index'])->name('customer.profile.profile');
+    Route::put('/update-profile', [ProfileController::class, 'updateProfile'])->name('customer.profile.update-profile');
+
+    Route::get('/my-orders', [ProfileController::class, 'myOrders'])->name('customer.profile.my-orders');
+    Route::get('/my-favorites', [ProfileController::class, 'myFavorites'])->name('customer.profile.my-favorites');
+    Route::get('/delete-my-favorite/{product}', [ProfileController::class, 'deleteMyFavorite'])->name('customer.profile.my-favorites.delete');
+    Route::get('/my-addresses', [ProfileController::class, 'myAddresses'])->name('customer.profile.my-addresses');
+
+    Route::get('/my-tickets', [ProfileTiketController::class, 'index'])->name('customer.profile.my-tickets');
+    Route::get('my-tickets/show/{ticket}', [ProfileTiketController::class, 'show'])->name('customer.profile.my-ticket.show');
+    Route::post('my-tickets/answer/{ticket}', [ProfileTiketController::class, 'answer'])->name('customer.profile.my-ticket.answer');
+    Route::get('my-tickets/change/{ticket}', [ProfileTiketController::class, 'change'])->name('customer.profile.my-ticket.change');
+    Route::get('my-tickets/create', [ProfileTiketController::class, 'create'])->name('customer.profile.my-ticket.create');
+    Route::post('my-tickets/store', [ProfileTiketController::class, 'store'])->name('customer.profile.my-ticket.store');
 });
 
 
