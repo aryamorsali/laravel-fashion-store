@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Customer\Profile;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Customer\Profile\UserProfileRequest;
 use App\Http\Services\Image\ImageService;
+use App\Models\Market\Province;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -53,5 +54,14 @@ class ProfileController extends Controller
             'toast-success',
             'User information was successfully updated.'
         );
+    }
+
+
+    public function myAddresses()
+    {
+        $provinces = Province::with('cities')->get();
+        $addresses = Auth::user()->addresses()->with(['province', 'city'])->get();
+
+        return view('customer.profile.address', compact('addresses', 'provinces'));
     }
 }
