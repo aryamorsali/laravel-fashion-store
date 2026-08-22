@@ -487,7 +487,7 @@ Route::namespace('Profile')->middleware('auth')->group(function () {
 
     Route::get('/my-orders', [ProfileController::class, 'myOrders'])->name('customer.profile.my-orders');
     Route::get('/my-favorites', [ProfileController::class, 'myFavorites'])->name('customer.profile.my-favorites');
-    Route::get('/delete-my-favorite/{product}', [ProfileController::class, 'deleteMyFavorite'])->name('customer.profile.my-favorites.delete');
+    Route::delete('/delete-my-favorite/{product}', [ProfileController::class, 'deleteMyFavorite'])->name('customer.profile.my-favorites.delete');
     Route::get('/my-addresses', [ProfileController::class, 'myAddresses'])->name('customer.profile.my-addresses');
 
     Route::get('/my-tickets', [ProfileTiketController::class, 'index'])->name('customer.profile.my-tickets');

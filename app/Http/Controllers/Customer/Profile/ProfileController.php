@@ -5,9 +5,8 @@ namespace App\Http\Controllers\Customer\Profile;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Customer\Profile\UserProfileRequest;
 use App\Http\Services\Image\ImageService;
+use App\Models\Market\Product;
 use App\Models\Market\Province;
-use App\Models\User;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
 class ProfileController extends Controller
@@ -63,5 +62,20 @@ class ProfileController extends Controller
         $addresses = Auth::user()->addresses()->with(['province', 'city'])->get();
 
         return view('customer.profile.address', compact('addresses', 'provinces'));
+    }
+
+    public function myFavorites()
+    {
+        $products = Auth::user()->favoriteProducts()->latest('likes.created_at')->paginate(10);
+
+
+        return view('customer.profile.favorites', compact('products'));
+    }
+
+    public function deleteMyFavorite(Product $product)
+    {
+        $user = Auth::user();
+        $user->favoriteProducts()->detach($product->id);  // حذف کن
+        return redirect()->route('customer.profile.my-favorites')->with('toast-success', 'Product successfully removed from wishlist');
     }
 }

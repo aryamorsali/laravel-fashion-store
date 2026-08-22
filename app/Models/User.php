@@ -6,6 +6,7 @@ namespace App\Models;
 
 use App\Models\Market\Address;
 use App\Models\Market\CartItem;
+use App\Models\Market\Product;
 use App\Models\Ticket\AdminTicket;
 use App\Models\Ticket\Ticket;
 use App\Models\Ticket\TicketCategory;
@@ -86,6 +87,18 @@ class User extends Authenticatable
     {
         return $this->hasMany(Address::class);
     }
+
+    public function favoriteProducts()
+    {
+        return $this->morphedByMany(
+            Product::class,
+            'likeable',
+            'likes',
+            'user_id',
+            'likeable_id'
+        );
+    }
+
 
     public function accessibleCategories()
     {

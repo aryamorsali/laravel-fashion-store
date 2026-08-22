@@ -34,7 +34,7 @@
                    My Tickets
                </a>
 
-               <a href="#" class="profile-menu-item">
+               <a href="{{route('customer.profile.my-favorites')}}" class="profile-menu-item {{ Route::is('customer.profile.my-favorites') ? 'active' : '' }}">
                    <i class="zmdi zmdi-favorite-outline"></i>
                    Wishlist
                </a>
