@@ -19,7 +19,7 @@
                    Profile Details
                </a>
 
-               <a href="#" class="profile-menu-item">
+               <a href="{{route('customer.profile.my-orders')}}" class="profile-menu-item">
                    <i class="zmdi zmdi-shopping-basket"></i>
                    My Orders
                </a>

@@ -6,6 +6,7 @@ namespace App\Models;
 
 use App\Models\Market\Address;
 use App\Models\Market\CartItem;
+use App\Models\Market\Order;
 use App\Models\Market\Product;
 use App\Models\Ticket\AdminTicket;
 use App\Models\Ticket\Ticket;
@@ -86,6 +87,11 @@ class User extends Authenticatable
     public function addresses()
     {
         return $this->hasMany(Address::class);
+    }
+
+    public function orders()
+    {
+        return $this->hasMany(Order::class);
     }
 
     public function favoriteProducts()

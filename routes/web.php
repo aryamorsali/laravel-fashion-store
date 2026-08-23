@@ -486,6 +486,7 @@ Route::namespace('Profile')->middleware('auth')->group(function () {
     Route::put('/update-profile', [ProfileController::class, 'updateProfile'])->name('customer.profile.update-profile');
 
     Route::get('/my-orders', [ProfileController::class, 'myOrders'])->name('customer.profile.my-orders');
+    Route::get('/my-orders/detail/{order}', [ProfileController::class, 'myOrdersDetail'])->name('customer.profile.my-orders.detail');
     Route::get('/my-favorites', [ProfileController::class, 'myFavorites'])->name('customer.profile.my-favorites');
     Route::delete('/delete-my-favorite/{product}', [ProfileController::class, 'deleteMyFavorite'])->name('customer.profile.my-favorites.delete');
     Route::get('/my-addresses', [ProfileController::class, 'myAddresses'])->name('customer.profile.my-addresses');

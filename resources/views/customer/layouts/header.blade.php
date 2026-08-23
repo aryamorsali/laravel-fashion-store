@@ -86,7 +86,7 @@
                                      <i class="zmdi zmdi-account text-base mr-2"></i>User Profile
                                  </a>
                                  <a class="dropdown-item flex items-center px-4 py-2 text-gray-700 hover:bg-gray-100"
-                                     href="#">
+                                     href="{{route('customer.profile.my-orders')}}">
                                      <i class="zmdi zmdi-case text-base mr-2"></i>Orders
                                  </a>
                                  <a class="dropdown-item flex items-center px-4 py-2 text-gray-700 hover:bg-gray-100"
