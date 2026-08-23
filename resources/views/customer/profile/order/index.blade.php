@@ -1,7 +1,7 @@
 @extends('customer.layouts.app')
 
 @section('head-tag')
-    <title>Profile</title>
+    <title>Orders</title>
 
     <style>
         .profile-sidebar-menu {
@@ -400,7 +400,8 @@
 
                                     {{-- Action --}}
                                     <div class="order-action">
-                                        <a href="#" class="order-details-btn">
+                                        <a href="{{ route('customer.profile.my-orders.detail', $order) }}"
+                                            class="order-details-btn">
                                             View Details
                                         </a>
                                     </div>
@@ -431,11 +432,9 @@
                         @endforelse
 
                         {{-- Pagination --}}
-                        @if ($orders->hasPages())
-                            <div class="d-flex justify-content-center mt-4">
-                                {{ $orders->onEachSide(1)->links('vendor.pagination.custom') }}
-                            </div>
-                        @endif
+                        <div class="d-flex justify-content-center mt-4">
+                            {{ $orders->onEachSide(1)->links('vendor.pagination.custom') }}
+                        </div>
 
                     </div>
                 </div>

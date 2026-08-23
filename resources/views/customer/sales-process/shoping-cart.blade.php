@@ -213,16 +213,13 @@
                                             $amazingSaleDiscount = null;
 
                                             // تخفیف شگفت انگیز
-                                            $activeAmazingSale =
-                                                $item->productVariant &&
-                                                $item->productVariant->amazingSale &&
-                                                $item->productVariant->amazingSale->is_active &&
-                                                $item->productVariant->amazingSale->start_date <= now() &&
-                                                $item->productVariant->amazingSale->end_date >= now();
+                                            $activeAmazingSale = $item->productVariant->has_amazing_sale
+                                                ? $item->productVariant->amazingSale
+                                                : null;
 
                                             if ($activeAmazingSale) {
-                                                $amazingSaleDiscount = $item->productVariant->amazingSale->percentage;
-                                                $finalPrice = $price - ($price * $amazingSaleDiscount) / 100;
+                                                $amazingSaleDiscount = $item->productVariant->discount_percentage;
+                                                $finalPrice = $item->productVariant->final_price;
                                             }
 
                                             // قیمت نهایی تک آیتم

@@ -87,5 +87,9 @@ class ProfileController extends Controller
     }
 
 
-  
+    public function myOrdersDetail(Order $order)
+    {
+        $order->load(['orderItems', 'orderItems.productVariant', 'orderItems.productVariant.product']);
+        return view('customer.profile.order.detail', compact('order'));
+    }
 }
