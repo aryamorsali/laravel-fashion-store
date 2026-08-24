@@ -491,12 +491,12 @@ Route::namespace('Profile')->middleware('auth')->group(function () {
     Route::delete('/delete-my-favorite/{product}', [ProfileController::class, 'deleteMyFavorite'])->name('customer.profile.my-favorites.delete');
     Route::get('/my-addresses', [ProfileController::class, 'myAddresses'])->name('customer.profile.my-addresses');
 
-    Route::get('/my-tickets', [ProfileTiketController::class, 'index'])->name('customer.profile.my-tickets');
-    Route::get('my-tickets/show/{ticket}', [ProfileTiketController::class, 'show'])->name('customer.profile.my-ticket.show');
-    Route::post('my-tickets/answer/{ticket}', [ProfileTiketController::class, 'answer'])->name('customer.profile.my-ticket.answer');
-    Route::get('my-tickets/change/{ticket}', [ProfileTiketController::class, 'change'])->name('customer.profile.my-ticket.change');
-    Route::get('my-tickets/create', [ProfileTiketController::class, 'create'])->name('customer.profile.my-ticket.create');
-    Route::post('my-tickets/store', [ProfileTiketController::class, 'store'])->name('customer.profile.my-ticket.store');
+    Route::get('/my-tickets', [ProfileTiketController::class, 'index'])->name('customer.profile.ticket');
+    Route::get('my-tickets/show/{ticket}', [ProfileTiketController::class, 'show'])->name('customer.profile.ticket.show');
+    Route::post('my-tickets/answer/{ticket}', [ProfileTiketController::class, 'answer'])->name('customer.profile.ticket.answer');
+    Route::get('my-tickets/change/{ticket}', [ProfileTiketController::class, 'change'])->name('customer.profile.ticket.change');
+    Route::get('my-tickets/create', [ProfileTiketController::class, 'create'])->name('customer.profile.ticket.create');
+    Route::post('my-tickets/store', [ProfileTiketController::class, 'store'])->name('customer.profile.ticket.store');
 });
 
 

@@ -29,7 +29,7 @@
                    My Addresses
                </a>
 
-               <a href="#" class="profile-menu-item">
+               <a href="{{route('customer.profile.ticket')}}" class="profile-menu-item">
                    <i class="zmdi zmdi-headset-mic"></i>
                    My Tickets
                </a>

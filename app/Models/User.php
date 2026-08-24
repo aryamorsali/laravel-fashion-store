@@ -84,6 +84,11 @@ class User extends Authenticatable
         return $this->hasMany(AdminTicket::class, 'admin_id');
     }
 
+    public function tickets()
+    {
+        return $this->hasMany(Ticket::class);
+    }
+
     public function addresses()
     {
         return $this->hasMany(Address::class);

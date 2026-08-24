@@ -91,31 +91,25 @@
             font-size: 7px;
         }
 
-        .order-status-badge.order-status-0,
-        .order-status-badge.order-status-pending {
-            background-color: #fff3cd;
-            color: #856404;
+        .order-status-awaiting_confirmation,
+        .order-status-not_checked {
+            color: #f0ad4e;
         }
 
-        .order-status-badge.order-status-1,
-        .order-status-badge.order-status-processing {
-            background-color: #e8eaf6;
-            color: #3f51b5;
+        .order-status-confirmed {
+            color: #26a65b;
         }
 
-        .order-status-badge.order-status-2,
-        .order-status-badge.order-status-delivered,
-        .order-status-badge.order-status-completed {
-            background-color: #d4edda;
-            color: #155724;
+        .order-status-confirmed {
+            color: #28a745;
         }
 
-        .order-status-badge.order-status-3,
-        .order-status-badge.order-status-returned,
-        .order-status-badge.order-status-cancelled {
-            background-color: #f8d7da;
-            color: #721c24;
+        .order-status-canceled,
+        .order-status-returned,
+        .order-status-not_confirmed {
+            color: #e65540;
         }
+
 
         .payment-badge {
             padding: 3px 8px;
@@ -420,21 +414,18 @@
                                         $deliveryAmount = $order->delivery_amount ?? 0;
                                         $totalDiscount = $order->order_discount_amount ?? 0;
 
+                                        $productPrices = $finalAmount + $totalDiscount - $deliveryAmount;
+
                                         $couponDiscount = $order->order_coupon_discount_amount ?? 0;
                                         $commonDiscount = $order->order_common_discount_amount ?? 0;
                                         $productDiscount = $order->order_total_products_discount_amount ?? 0;
-
-                                        if ($totalDiscount == 0) {
-                                            $totalDiscount = $couponDiscount + $commonDiscount + $productDiscount;
-                                        }
-
                                     @endphp
 
-                                    {{-- Subtotal (جمع قبل از تخفیف) --}}
+                                    {{-- Product Prices --}}
                                     <div class="flex-w flex-sb-m p-t-12 p-b-8">
-                                        <span class="stext-109 cl6">Subtotal:</span>
+                                        <span class="stext-109 cl6">Product Prices:</span>
                                         <span class="stext-109 cl2">
-                                            ${{ rtrim(rtrim(number_format($finalAmount, 2), '0'), '.') }}
+                                            ${{ rtrim(rtrim(number_format($productPrices, 2), '0'), '.') }}
                                         </span>
                                     </div>
 
@@ -461,7 +452,7 @@
                                     {{-- Common Discount --}}
                                     @if ($commonDiscount > 0)
                                         <div class="flex-w flex-sb-m p-b-8">
-                                            <span class="stext-109 cl6">Special Discount:</span>
+                                            <span class="stext-109 cl6">Common Discount:</span>
                                             <span class="stext-109 text-danger">
                                                 -${{ rtrim(rtrim(number_format($commonDiscount, 2), '0'), '.') }}
                                             </span>
