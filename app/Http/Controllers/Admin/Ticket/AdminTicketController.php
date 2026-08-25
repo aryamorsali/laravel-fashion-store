@@ -25,7 +25,9 @@ class AdminTicketController extends Controller
      */
     public function create()
     {
-        $admins = User::where('user_type', 1)->get();
+        $admins = User::whereHas('roles', function ($query) {
+            $query->where('name', 'admin');
+        })->get();
         $ticketCategories = TicketCategory::where('status', 1)->get();
         return view('admin.ticket.admin.create', compact('admins', 'ticketCategories'));
     }
@@ -56,7 +58,9 @@ class AdminTicketController extends Controller
      */
     public function edit(AdminTicket $adminTicket)
     {
-        $admins = User::where('user_type', 1)->get();
+        $admins = User::whereHas('roles', function ($query) {
+            $query->where('name', 'admin');
+        })->get();
         $ticketCategories = TicketCategory::where('status', 1)->get();
         return view('admin.ticket.admin.edit', compact('admins', 'ticketCategories', 'adminTicket'));
     }

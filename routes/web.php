@@ -340,15 +340,6 @@ Route::prefix('admin')->middleware(['auth', 'can:access-admin-panel'])->group(fu
             Route::get('/status/{priority}', [TicketPriorityController::class, 'status'])->name('admin.ticket.priority.status');
         });
 
-        // ticket admin
-        Route::prefix('/admin')->group(function () {
-            Route::get('/', [AdminTicketController::class, 'index'])->name('admin.ticket.admin.index');
-            Route::get('/create', [AdminTicketController::class, 'create'])->name('admin.ticket.admin.create');
-            Route::post('/store', [AdminTicketController::class, 'store'])->name('admin.ticket.admin.store');
-            Route::get('/edit/{adminTicket}', [AdminTicketController::class, 'edit'])->name('admin.ticket.admin.edit');
-            Route::put('/update/{adminTicket}', [AdminTicketController::class, 'update'])->name('admin.ticket.admin.update');
-            Route::delete('/destroy/{adminTicket}', [AdminTicketController::class, 'destroy'])->name('admin.ticket.admin.destroy');
-        });
     });
 
     // content
@@ -486,15 +477,15 @@ Route::namespace('Profile')->middleware('auth')->group(function () {
     Route::put('/update-profile', [ProfileController::class, 'updateProfile'])->name('customer.profile.update-profile');
 
     Route::get('/my-orders', [ProfileController::class, 'myOrders'])->name('customer.profile.my-orders');
-    Route::get('/my-orders/detail/{order}', [ProfileController::class, 'myOrdersDetail'])->name('customer.profile.my-orders.detail');
+    Route::get('/my-orders/detail/{order}', [ProfileController::class, 'myOrdersDetail'])->middleware('can:view,order')->name('customer.profile.my-orders.detail');
     Route::get('/my-favorites', [ProfileController::class, 'myFavorites'])->name('customer.profile.my-favorites');
     Route::delete('/delete-my-favorite/{product}', [ProfileController::class, 'deleteMyFavorite'])->name('customer.profile.my-favorites.delete');
     Route::get('/my-addresses', [ProfileController::class, 'myAddresses'])->name('customer.profile.my-addresses');
 
-    Route::get('/my-tickets', [ProfileTiketController::class, 'index'])->name('customer.profile.ticket');
-    Route::get('my-tickets/show/{ticket}', [ProfileTiketController::class, 'show'])->name('customer.profile.ticket.show');
-    Route::post('my-tickets/answer/{ticket}', [ProfileTiketController::class, 'answer'])->name('customer.profile.ticket.answer');
-    Route::get('my-tickets/change/{ticket}', [ProfileTiketController::class, 'change'])->name('customer.profile.ticket.change');
+    Route::get('/my-tickets', [ProfileTiketController::class, 'index'])->name('customer.profile.ticket.index');
+    Route::get('my-tickets/show/{ticket}', [ProfileTiketController::class, 'show'])->middleware('can:show,ticket')->name('customer.profile.ticket.show');
+    Route::post('my-tickets/answer/{ticket}', [ProfileTiketController::class, 'answer'])->middleware('can:answer,ticket')->name('customer.profile.ticket.answer');
+    Route::get('my-tickets/change/{ticket}', [ProfileTiketController::class, 'change'])->middleware('can:change,ticket')->name('customer.profile.ticket.change');
     Route::get('my-tickets/create', [ProfileTiketController::class, 'create'])->name('customer.profile.ticket.create');
     Route::post('my-tickets/store', [ProfileTiketController::class, 'store'])->name('customer.profile.ticket.store');
 });

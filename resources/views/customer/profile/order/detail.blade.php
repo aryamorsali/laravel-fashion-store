@@ -169,6 +169,25 @@
             font-size: 12px;
         }
 
+        .btn-back-order {
+            display: inline-flex;
+            align-items: center;
+            padding: 8px 16px;
+            font-size: 13px;
+            font-weight: 600;
+            color: #555555;
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            transition: all 0.2s ease;
+            text-decoration: none !important;
+        }
+
+        .btn-back-order:hover {
+            background: #222222;
+            color: #ffffff;
+            border-color: #222222;
+        }
 
         @media (max-width: 767.98px) {
             .table-shopping-cart .column-1 {
@@ -246,10 +265,12 @@
                                 </p>
                             </div>
 
-                            <a href="{{ route('customer.profile.my-orders') }}"
-                                class="back-to-orders-btn hov-btn1 trans-04">
-                                <i class="fa fa-arrow-left m-r-6"></i> Back to Orders
-                            </a>
+
+                            <div class="order-view-actions">
+                                <a href="{{ route('customer.profile.my-orders') }}" class="btn-back-order">
+                                    <i class="zmdi zmdi-arrow-left m-r-6"></i> Back to Orders
+                                </a>
+                            </div>
                         </div>
 
                         {{-- Order Metadata Cards --}}
@@ -397,7 +418,7 @@
                                     </div>
                                     <p class="stext-107 cl6">
                                         If you have any questions or require support regarding your parcel, please submit a
-                                        ticket in the <a href="{{ route('customer.profile.my-tickets') }}"
+                                        ticket in the <a href="{{ route('customer.profile.ticket.index') }}"
                                             class="cl1 hov-cl2 trans-04 underline">Support Center</a>.
                                     </p>
                                 </div>

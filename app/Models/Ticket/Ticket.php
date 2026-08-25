@@ -26,12 +26,6 @@ class Ticket extends Model
         return $this->belongsTo(TicketPriority::class);
     }
 
-
-    public function assignedAdmin()
-    {
-        return $this->belongsTo(User::class, 'assigned_admin_id');
-    }
-
     public function parent()
     {
         return $this->belongsTo(Ticket::class, 'parent_id');

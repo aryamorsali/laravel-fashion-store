@@ -43,7 +43,7 @@
                             <section class="card-header bg-light d-flex justify-content-between">
                                 <div>
                                     {{ optional($ticket->user)->fullName ?? 'کاربر حذف‌شده' }}
-                                    - پاسخ دهنده : {{ optional($child->assignedAdmin)->fullName ?? 'نامشخص' }}
+                                    - پاسخ دهنده : {{ optional($child->user)->fullName ?? 'نامشخص' }}
                                 </div>
 
                                 <small>{{ $child->created_at }}</small>

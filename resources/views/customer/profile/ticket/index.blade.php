@@ -40,7 +40,7 @@
 
         ///////////////////////////////////////////
 
-        <style>.ticket-page-card {
+        .ticket-page-card {
             background: #fff;
             border: 1px solid #e9e9e9;
             border-radius: 14px;
@@ -428,7 +428,7 @@
                                 <div class="ticket-category-cell">
                                     <span class="ticket-category">
                                         <i class="zmdi zmdi-label"></i>
-                                        {{ $ticket->category->name  ?? 'Uncategorized' }}
+                                        {{ $ticket->category->name ?? 'Uncategorized' }}
                                     </span>
                                 </div>
 
@@ -458,12 +458,14 @@
                                     <span class="ticket-no-priority">-</span>
                                 @endif
 
-                                {{-- Details --}}
                                 <div class="ticket-action-cell text-center">
+                                    {{-- Details --}}
+
                                     <a href="{{ route('customer.profile.ticket.show', $ticket) }}"
                                         class="ticket-details-btn" title="View Ticket">
                                         <i class="zmdi zmdi-eye"></i>
                                     </a>
+                                    {{-- change status --}}
                                     <a href="{{ route('customer.profile.ticket.change', $ticket) }}"
                                         class="ticket-status-btn {{ $ticket->status === 0 ? 'bg-danger' : 'bg-success' }}"
                                         title="{{ $ticket->status === 0 ? 'Close' : 'Open' }} Ticket">
