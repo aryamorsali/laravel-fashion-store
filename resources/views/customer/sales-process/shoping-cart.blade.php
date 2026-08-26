@@ -213,16 +213,13 @@
                                             $amazingSaleDiscount = null;
 
                                             // تخفیف شگفت انگیز
-                                            $activeAmazingSale =
-                                                $item->productVariant &&
-                                                $item->productVariant->amazingSale &&
-                                                $item->productVariant->amazingSale->is_active &&
-                                                $item->productVariant->amazingSale->start_date <= now() &&
-                                                $item->productVariant->amazingSale->end_date >= now();
+                                            $activeAmazingSale = $item->productVariant->has_amazing_sale
+                                                ? $item->productVariant->amazingSale
+                                                : null;
 
                                             if ($activeAmazingSale) {
-                                                $amazingSaleDiscount = $item->productVariant->amazingSale->percentage;
-                                                $finalPrice = $price - ($price * $amazingSaleDiscount) / 100;
+                                                $amazingSaleDiscount = $item->productVariant->discount_percentage;
+                                                $finalPrice = $item->productVariant->final_price;
                                             }
 
                                             // قیمت نهایی تک آیتم
@@ -301,7 +298,6 @@
 
                                         </tr>
                                     @endforeach
-
                                 @endif
 
 
@@ -559,7 +555,7 @@
                 .then(res => res.json())
                 .then(data => {
 
-                    if (data.status === "stock_error") {
+                    if (data.status === "error") {
                         alert("Only " + data.available + " left in stock")
                         input.value = data.available
                         return
@@ -625,7 +621,10 @@
                         const minimal = parseFloat(infoBox.getAttribute('data-minimal'));
                         const percentage = infoBox.getAttribute('data-percentage');
                         const discountCeiling = parseFloat(infoBox.getAttribute('data-discount-ceiling'));
-                        const currentPrice = data.productPrices - data.productDiscounts;
+                        const currentPrice =
+                            parseFloat(String(data.productPrices).replace(/,/g, '')) -
+                            parseFloat(String(data.productDiscounts).replace(/,/g, ''));
+
 
 
                         let messageHTML = '';

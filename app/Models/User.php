@@ -6,6 +6,8 @@ namespace App\Models;
 
 use App\Models\Market\Address;
 use App\Models\Market\CartItem;
+use App\Models\Market\Order;
+use App\Models\Market\Product;
 use App\Models\Ticket\AdminTicket;
 use App\Models\Ticket\Ticket;
 use App\Models\Ticket\TicketCategory;
@@ -15,11 +17,12 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Laravel\Sanctum\HasApiTokens;
 
 class User extends Authenticatable
 {
     /** @use HasFactory<\Database\Factories\UserFactory> */
-    use HasFactory, Notifiable, SoftDeletes;
+    use HasFactory, Notifiable, HasApiTokens, SoftDeletes;
 
     /**
      * The attributes that are mass assignable.
@@ -71,20 +74,32 @@ class User extends Authenticatable
         return $this->first_name . ' ' . $this->last_name;
     }
 
-    public function assignedTicket()
+    public function tickets()
     {
-        return $this->hasMany(Ticket::class, 'assigned_admin_id');
-    }
-
-    public function ticketAccesses()
-    {
-        return $this->hasMany(AdminTicket::class, 'admin_id');
+        return $this->hasMany(Ticket::class);
     }
 
     public function addresses()
     {
         return $this->hasMany(Address::class);
     }
+
+    public function orders()
+    {
+        return $this->hasMany(Order::class);
+    }
+
+    public function favoriteProducts()
+    {
+        return $this->morphedByMany(
+            Product::class,
+            'likeable',
+            'likes',
+            'user_id',
+            'likeable_id'
+        );
+    }
+
 
     public function accessibleCategories()
     {

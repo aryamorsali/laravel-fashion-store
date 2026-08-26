@@ -5,38 +5,32 @@ namespace App\Http\Controllers\Customer\SalesProcess;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Customer\Profile\StoreAddressRequest;
 use App\Http\Requests\Customer\Profile\UpdateAddressRequest;
+use App\Http\Resources\CityResource;
 use App\Models\Market\Address;
-use App\Models\Market\CartItem;
-use App\Models\Market\CommonDiscount;
-use App\Models\Market\Coupon;
-use App\Models\Market\Delivery;
-use App\Models\Market\Order;
 use App\Models\Market\Province;
-use App\Services\CartCalculator;
-use Illuminate\Http\Request;
+use App\Services\AddressService;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\DB;
 
 class AddressController extends Controller
 {
-    public function addressAndDelivery(CartCalculator $cartCalculator)
+    protected $addressService;
+
+    public function __construct(AddressService $addressService)
     {
-        $cartItems = CartItem::where('user_id', Auth::user()->id)
-            ->with('productVariant.amazingSale')
-            ->get();
+        $this->addressService = $addressService;
+    }
 
-        if ($cartItems->isEmpty()) {
-            return redirect()->back();
-        }
+    public function addressAndDelivery()
+    {
 
-        $commonDiscount = CommonDiscount::where('status', 1)->where('start_date', '<=', now())->where('end_date', '>=', now())->first();
+        $result = $this->addressService->addressAndDelivery();
 
-        $provinces = Province::with('cities')->get();
-
-        $addresses = Auth::user()->addresses;
-        $deliveries = Delivery::where('status', 1)->get();
-
-        $totals = $cartCalculator->calculateCartTotals($cartItems, $commonDiscount, session('applied_coupon'));
+        $cartItems = $result['cartItems'];
+        $commonDiscount = $result['commonDiscount'];
+        $totals = $result['totals'];
+        $provinces = $result['provinces'];
+        $addresses = $result['addresses'];
+        $deliveries = $result['deliveries'];
 
 
         return view('customer.sales-process.address-and-delivery', compact(
@@ -51,25 +45,18 @@ class AddressController extends Controller
 
     public function getCities(Province $province)
     {
-        return response()->json($province->cities()->select('id', 'name')->get());
+        $cities = $this->addressService->getCities($province);
+        return response()->json(
+            CityResource::collection($cities)
+        );
     }
 
 
     public function storeAddress(StoreAddressRequest $request)
     {
-        $inputs = $request->validated();
+        $data = $request->validated();
 
-        Address::create([
-            'user_id' => Auth::user()->id,
-            'recipient_name' => $inputs['recipient_name'],
-            'city_id' => $inputs['city_id'],
-            'province_id' => $inputs['province_id'],
-            'address' => $inputs['address'],
-            'postal_code' => $inputs['postal_code'],
-            'no' => $inputs['no'],
-            'unit' => $inputs['unit'],
-            'mobile' => $inputs['mobile'],
-        ]);
+        $result = $this->addressService->storeAddress($data);
 
         return redirect()->back()->with(
             'toast-success',
@@ -79,9 +66,9 @@ class AddressController extends Controller
 
     public function updateAddress(UpdateAddressRequest $request, Address $address)
     {
-        $inputs = $request->validated();
+        $data = $request->validated();
 
-        $address->update($inputs);
+        $this->addressService->updateAddress($data, $address);
 
         return redirect()->back()->with(
             'toast-success',

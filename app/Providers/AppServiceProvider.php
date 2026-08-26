@@ -81,17 +81,11 @@ class AppServiceProvider extends ServiceProvider
             }
         });
 
-        // Gates
-        Gate::before(function (User $user) {
-            if ($user->is_owner) return true;
-            return null; // برو ادامه بده
-        });
-
         $permissions = Permission::all()->pluck('name');
 
         foreach ($permissions as $permission) {
             Gate::define($permission, function (User $user) use ($permission) {
-                return $user->hasPermissionTo($permission);
+                return $user->hasPermissionTo($permission) || $user->is_owner;
             });
         }
 

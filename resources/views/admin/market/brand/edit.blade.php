@@ -93,17 +93,17 @@
                                 </div>
                             @enderror
                         </section>
-                        @if ($brand->image)
+                        @if ($brand->logo)
                             <section class="row my-2">
                                 @php
                                     $number = 2;
                                 @endphp
-                                @foreach ($brand->image['indexArray'] as $key => $value)
+                                @foreach ($brand->logo['indexArray'] as $key => $value)
                                     <section class="col-md-{{ 6 / $number }} mr-5">
                                         <div class="form-check  p-1">
                                             <input type="radio" name="currentImage" class="form-check-input"
                                                 value="{{ $key }}" id="{{ $number }}"
-                                                @if ($brand->image['currentImage'] == $key) checked @endif>
+                                                @if ($brand->logo['currentImage'] == $key) checked @endif>
                                             <label for="{{ $number }}" class="form-check-label mx-3">
                                                 <img src="{{ asset($value) }}" class="img-fluid rounded w-100"
                                                     alt="">

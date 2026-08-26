@@ -69,8 +69,8 @@
                                 <td>{{ $ticket->user->full_name }}</td>
                                 <td>{{ $ticket->subject }}</td>
                                 <td>{{ $ticket->category->name }}</td>
-                                <td>{{ $ticket->priority->name }}</td>
-                                <td>{{ $ticket->assignedAdmin->full_name }}</td>
+                                <td>{{ $ticket->priority->name ?? '-' }}</td>
+                                <td>{{ $ticket->user->full_name }}</td>
 
 
                                 <td class="width-16-rem text-center">
