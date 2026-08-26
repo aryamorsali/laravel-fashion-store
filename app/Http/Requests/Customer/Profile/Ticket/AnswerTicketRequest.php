@@ -1,11 +1,11 @@
 <?php
 
-namespace App\Http\Requests\Admin\Ticket;
+namespace App\Http\Requests\Customer\Profile\Ticket;
+
 
 use Illuminate\Foundation\Http\FormRequest;
-use Illuminate\Validation\Rule;
 
-class AdminTicketRequest extends FormRequest
+class AnswerTicketRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -23,11 +23,7 @@ class AdminTicketRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'category_id' => 'required|exists:ticket_categories,id',
-            'admin_id' => [
-                'required',
-                Rule::exists('users', 'id')->where('user_type', 1),
-            ],
+            'description' => 'required|min:10|max:1000'
         ];
     }
 }

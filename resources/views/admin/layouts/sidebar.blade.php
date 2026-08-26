@@ -247,7 +247,6 @@
                                    <a class="nav-link" href="{{ route('admin.ticket.index') }}">All Tickets</a>
                                    <a class="nav-link" href="{{ route('admin.ticket.category.index') }}">Categories</a>
                                    <a class="nav-link" href="{{ route('admin.ticket.priority.index') }}">Priorities</a>
-                                   <a class="nav-link" href="{{ route('admin.ticket.admin.index') }}">Admins</a>
                                </nav>
                            </div>
                        @endcan

@@ -2,6 +2,13 @@
 
 @section('head-tag')
     <title>Admin Permissions</title>
+    <style>
+        .page-description {
+            margin: 0;
+            color: #888;
+            font-size: 14px;
+        }
+    </style>
 @endsection
 
 @section('content')
@@ -16,6 +23,9 @@
         <section class="main-body-container">
             <section>
                 <h3 class="mt-2 mb-4">Admin Permissions</h3>
+                <p class="page-description">
+                    These permissions are through added permissions or roles.
+                </p>
             </section>
             <section class="d-flex justify-content-between align-items-center mt-3 mb-3 border-bottom pb-3">
                 <a href="{{ route('admin.user.admin.index') }}" class="btn btn-dark btn-sm">Back</a>

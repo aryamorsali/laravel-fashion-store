@@ -74,16 +74,6 @@ class User extends Authenticatable
         return $this->first_name . ' ' . $this->last_name;
     }
 
-    public function assignedTicket()
-    {
-        return $this->hasMany(Ticket::class, 'assigned_admin_id');
-    }
-
-    public function ticketAccesses()
-    {
-        return $this->hasMany(AdminTicket::class, 'admin_id');
-    }
-
     public function tickets()
     {
         return $this->hasMany(Ticket::class);

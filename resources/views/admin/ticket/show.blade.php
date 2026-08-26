@@ -2,6 +2,13 @@
 
 @section('head-tag')
     <title>Show Tickets</title>
+    <style>
+        .chat-message-file {
+            width: 30%;
+            height: 30%;
+            margin-top: 2rem;
+        }
+    </style>
 @endsection
 
 @section('content')
@@ -30,7 +37,12 @@
                         Subject : {{ $ticket->subject }}
                     </h5>
                     <p class="card-text mt-4">{{ $ticket->description }}</p>
-
+                    @if ($ticket->file)
+                        <div>
+                            <img src="{{ asset($ticket->file->file_path) }}" class="chat-message-file"
+                                alt="{{ $ticket->subject }}">
+                        </div>
+                    @endif
                 </section>
 
             </section>
@@ -39,14 +51,17 @@
             @if ($ticket->children->count() > 0)
                 <div class="border my-2">
                     @foreach ($ticket->children as $child)
+                        @php
+                            $isAdmin = $ticket->user_id !== $child->user_id;
+                        @endphp
                         <section class="card m-4 my-3">
-                            <section class="card-header bg-light d-flex justify-content-between">
+                            <section
+                                class="card-header d-flex justify-content-between text-white @if ($isAdmin) bg-dark @else bg-primary @endif">
                                 <div>
-                                    {{ optional($ticket->user)->fullName ?? 'کاربر حذف‌شده' }}
-                                    - پاسخ دهنده : {{ optional($child->user)->fullName ?? 'نامشخص' }}
+                                    Responsible admin: {{ optional($child->user)->fullName ?? 'uncertain' }}
                                 </div>
 
-                                <small>{{ $child->created_at }}</small>
+                                <small>{{ $child->created_at->format('M d, Y - H:i') }}</small>
                             </section>
                             <section class="card-body">
                                 <p class="card-text">{{ $child->description }}</p>

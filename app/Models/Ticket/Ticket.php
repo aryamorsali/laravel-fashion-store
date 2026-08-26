@@ -35,4 +35,9 @@ class Ticket extends Model
     {
         return $this->hasMany(Ticket::class, 'parent_id');
     }
+
+    public function file()
+    {
+        return $this->hasOne(TicketFile::class);
+    }
 }

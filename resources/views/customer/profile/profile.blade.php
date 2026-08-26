@@ -389,7 +389,7 @@
                     <div class="row p-t-30">
                         {{-- My Orders --}}
                         <div class="col-12 col-md-6 col-lg-3 m-b-20">
-                            <a href="#" class="profile-quick-card">
+                            <a href="{{route('customer.profile.my-orders')}}" class="profile-quick-card">
                                 <i class="zmdi zmdi-shopping-basket"></i>
 
                                 <div>
@@ -401,7 +401,7 @@
 
                         {{-- My Addresses --}}
                         <div class="col-12 col-md-6 col-lg-3 m-b-20">
-                            <a href="#" class="profile-quick-card">
+                            <a href="{{route('customer.profile.my-addresses')}}" class="profile-quick-card">
                                 <i class="zmdi zmdi-pin"></i>
 
                                 <div>
@@ -413,7 +413,7 @@
 
                         {{-- My Tickets --}}
                         <div class="col-12 col-md-6 col-lg-3 m-b-20">
-                            <a href="#" class="profile-quick-card">
+                            <a href="{{route('customer.profile.ticket.index')}}" class="profile-quick-card">
                                 <i class="zmdi zmdi-headset-mic"></i>
 
                                 <div>
@@ -425,7 +425,7 @@
 
                         {{-- Wishlist --}}
                         <div class="col-12 col-md-6 col-lg-3 m-b-20">
-                            <a href="#" class="profile-quick-card">
+                            <a href="{{route('customer.profile.my-favorites')}}" class="profile-quick-card">
                                 <i class="zmdi zmdi-favorite-outline"></i>
 
                                 <div>

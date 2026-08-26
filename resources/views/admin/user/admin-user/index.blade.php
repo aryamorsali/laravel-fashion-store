@@ -166,7 +166,7 @@
                                                 <li>
                                                     <a href="{{ route('admin.user.admin.add.permission', $admin) }}"
                                                         class="dropdown-item text-right">
-                                                        <i class="fa-solid fa-user-shield"></i> Add Permission
+                                                        <i class="fa-solid fa-user-shield"></i> Manage Permission
                                                     </a>
                                                 </li>
                                                 <li>

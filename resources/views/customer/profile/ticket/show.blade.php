@@ -228,6 +228,14 @@
             margin-bottom: 0;
         }
 
+        .chat-message-file {
+            width: 30%;
+            height: 30%;
+            margin-top: 2rem;
+        }
+
+
+
         /* Reply Form Box */
         .ticket-reply-card {
             background: #f8fafc;
@@ -430,6 +438,13 @@
                                 <div class="chat-message-body">
                                     <p>{{ $ticket->description }}</p>
                                 </div>
+
+                                @if ($ticket->file)
+                                    <div>
+                                        <img src="{{ asset($ticket->file->file_path) }}" class="chat-message-file" alt="{{ $ticket->subject }}">
+                                    </div>
+                                @endif
+
                             </div>
 
                             {{-- Ticket Replies Loop --}}
