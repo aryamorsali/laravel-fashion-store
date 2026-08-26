@@ -23,8 +23,9 @@
 
             <section class="d-flex align-items-center mt-4 mb-3 border-bottom pb-2">
                 <div class="me-auto" style="max-width: 16rem;">
-                    <form action="{{route('admin.setting.index')}}" method="get">
-                        <input name="search" type="text" value="{{ request()->search }}" class="form-control form-control-sm form-text" placeholder="search..">
+                    <form action="{{ route('admin.setting.index') }}" method="get">
+                        <input name="search" type="text" value="{{ request()->search }}"
+                            class="form-control form-control-sm form-text" placeholder="search..">
                     </form>
                 </div>
 
@@ -55,6 +56,12 @@
                                                 width="90" height="70">
                                         @else
                                             <span class="text-danger">No image</span>
+                                        @endif
+                                    @elseif ($setting->key == 'maintenance_mode')
+                                        @if ($setting->value == 1)
+                                            <span class="text-success">True</span>
+                                        @else
+                                            <span class="text-danger">False</span>
                                         @endif
                                     @else
                                         {{ $setting->value ?? '-' }}

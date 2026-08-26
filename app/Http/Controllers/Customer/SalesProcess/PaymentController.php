@@ -252,7 +252,7 @@ class PaymentController extends Controller
     {
 
         if ($payment->order_id !== $order->id) {
-            abort(404, 'اطلاعات پرداخت با سفارش مطابقت ندارد.');
+            abort(404, 'Payment information does not match the order.');
         }
 
         $result = $paymentService->zarinpalVerify($request, $payment);

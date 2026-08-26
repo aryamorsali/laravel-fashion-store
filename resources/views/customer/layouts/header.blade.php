@@ -11,7 +11,7 @@
                  </div>
 
                  <div class="right-top-bar flex-w h-full">
-                     <a href="#" class="flex-c-m trans-04 p-lr-25">
+                     <a href="{{route('customer.content.faq')}}" class="flex-c-m trans-04 p-lr-25">
                          Help & FAQs
                      </a>
 
@@ -27,7 +27,8 @@
 
                  <!-- Logo desktop -->
                  <a href="{{ route('customer.home') }}" class="logo">
-                     <img src="{{ asset('customer-assets/images/icons/logo-01.png') }}" alt="IMG-LOGO">
+                     <img src="{{ asset($settings['site_logo'] ?? 'customer-assets/images/icons/logo-01.png') }}"
+                         alt="IMG-LOGO">
                  </a>
 
                  <!-- Menu desktop -->
@@ -45,16 +46,16 @@
                              <a href="shoping-cart.html">Features</a>
                          </li> --}}
 
-                         <li class="{{ Route::is('customer.blog') ? 'active-menu' : '' }}">
-                             <a href="{{ route('customer.blog') }}">Blog</a>
+                         <li class="{{ Route::is('customer.content.blogs') ? 'active-menu' : '' }}">
+                             <a href="{{ route('customer.content.blogs') }}">Blog</a>
                          </li>
 
-                         <li class="{{ Route::is('customer.about') ? 'active-menu' : '' }}">
-                             <a href="{{ route('customer.about') }}">About</a>
+                         <li class="{{ Route::is('customer.content.about') ? 'active-menu' : '' }}">
+                             <a href="{{ route('customer.content.about') }}">About</a>
                          </li>
 
-                         <li class="{{ Route::is('customer.contact') ? 'active-menu' : '' }}">
-                             <a href="{{ route('customer.contact') }}">Contact</a>
+                         <li class="{{ Route::is('customer.content.contact') ? 'active-menu' : '' }}">
+                             <a href="{{ route('customer.content.contact') }}">Contact</a>
                          </li>
                      </ul>
                  </div>
@@ -209,11 +210,13 @@
                  <img src="{{ asset('customer-assets/images/icons/icon-close2.png') }}" alt="CLOSE">
              </button>
 
-             <form class="wrap-search-header flex-w p-l-15" action="{{ route('customer.market.shop') }}" method="GET">
+             <form class="wrap-search-header flex-w p-l-15" action="{{ route('customer.market.shop') }}"
+                 method="GET">
                  <button class="flex-c-m trans-04">
                      <i class="zmdi zmdi-search"></i>
                  </button>
-                 <input class="plh3" type="text" name="search" placeholder="Search..." value="{{ request()->search }}">
+                 <input class="plh3" type="text" name="search" placeholder="Search..."
+                     value="{{ request()->search }}">
              </form>
          </div>
      </div>

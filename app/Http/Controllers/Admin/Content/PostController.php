@@ -10,6 +10,7 @@ use App\Models\Content\PostCategory;
 use App\Models\Content\Tag;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
 class PostController extends Controller
@@ -62,7 +63,17 @@ class PostController extends Controller
         }
 
         DB::transaction(function () use ($inputs, $tags) {
-            $post = Post::create($inputs);
+            $post = Post::create([
+                'title' => $inputs['title'],
+                'body' => $inputs['body'],
+                'summary' => $inputs['summary'],
+                'image' => $inputs['image'],
+                'status' => $inputs['status'],
+                'commentable' => $inputs['commentable'],
+                'published_at' => $inputs['published_at'],
+                'author_id' => Auth::user()->id,
+                'category_id' => $inputs['category_id'],
+            ]);
 
             // attach tags
             if ($tags) {

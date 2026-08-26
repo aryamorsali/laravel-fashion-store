@@ -47,8 +47,15 @@
                                 <label for="value">Value</label>
 
                                 @if ($setting->key === 'site_logo')
-                                    <input type="file" class="form-control form-control-sm" name="value"
-                                        id="value" style="padding: 8px 12px;">
+                                    <input type="file" class="form-control form-control-sm" name="value" id="value"
+                                        style="padding: 8px 12px;">
+                                @elseif ($setting->key === 'maintenance_mode')
+                                    <select name="value" class="form-control form-control-sm" id="value">
+                                        <option value="0" @if (old('value', $setting->value) == 0) selected @endif>false
+                                        </option>
+                                        <option value="1" @if (old('value', $setting->value) == 1) selected @endif>true
+                                        </option>
+                                    </select>
                                 @else
                                     <input type="text" class="form-control form-control-sm" name="value" id="value"
                                         value="{{ old('value', $setting->value) }}" style="padding: 8px 12px;">

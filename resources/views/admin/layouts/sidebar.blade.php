@@ -24,7 +24,6 @@
                                Showcase
                                <div class="sb-sidenav-collapse-arrow"><i class="fas fa-angle-down"></i></div>
                            </a>
-
                            <div class="collapse" id="collapseLayouts" data-bs-parent="#sidenavAccordion">
                                <nav class="sb-sidenav-menu-nested nav">
 
@@ -80,7 +79,8 @@
                                            List</a>
                                    @endcan
                                    @can('view-warehouse-transaction')
-                                       <a class="nav-link" href="{{ route('admin.market.transaction.index') }}">Transactions</a>
+                                       <a class="nav-link"
+                                           href="{{ route('admin.market.transaction.index') }}">Transactions</a>
                                    @endcan
 
                                </nav>
@@ -203,7 +203,44 @@
                                </a>
                            @endcan
 
+                           @can('view-about')
+                               <a class="nav-link" href="{{ route('admin.content.about.index') }}">
+                                   <div class="sb-nav-link-icon"><i class="fas fa-bars"></i></div>
+                                   About
+                               </a>
+                           @endcan
+
+                           @can('view-contact-message')
+                               <a class="nav-link" href="{{ route('admin.content.contact.index') }}">
+                                   <div class="sb-nav-link-icon"><i class="fas fa-bars"></i></div>
+                                   Contact
+                               </a>
+                           @endcan
+
                        @endcanany
+
+
+                       @canany(['view-email-notification', 'view-sms-notification'])
+
+                           <div class="sb-sidenav-menu-heading">notification</div>
+
+                           @can('view-email-notification')
+                               <a class="nav-link" href="{{ route('admin.notification.email.index') }}">
+                                   <div class="sb-nav-link-icon"><i class="fas fa-envelope"></i></div>
+                                   Email notification
+                               </a>
+                           @endcan
+
+                           @can('view-sms-notification')
+                               <a class="nav-link" href="{{ route('admin.notification.sms.index') }}">
+                                   <div class="sb-nav-link-icon"><i class="fas fa-sms"></i></div>
+                                   SMS notification
+                               </a>
+                           @endcan
+
+                       @endcanany
+
+
 
                        @if (auth()->user()?->is_owner)
                            <div class="sb-sidenav-menu-heading">User</div>
@@ -258,6 +295,7 @@
                                Settings
                            </a>
                        @endif
+
 
                    </div>
                </div>
