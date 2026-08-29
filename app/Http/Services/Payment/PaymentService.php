@@ -45,6 +45,39 @@ class PaymentService
     }
 
 
+    public function getZarinpalUrl(int $amount, $order, $payment)
+    {
+        $callbackUrl = route('customer.sales-process.payment-call-back', [
+            'order' => $order->id,
+            'payment' => $payment->id
+        ]);
+
+        // است بخاطر همین  T 100 = R 1000 حداقل مبلغ قابل قبول در زرین پال 
+        $amount = $amount * 10;
+
+        $invoice = (new Invoice)->amount((int)$amount)
+            ->detail('پرداخت سفارش شماره ' . $order->id);
+
+        // دریافت آدرس درگاه زرین‌ پال به صورت رشته URL
+        $redirectionForm = PaymentShetabit::callbackUrl($callbackUrl)->purchase($invoice, function ($driver, $transactionId) use ($payment, $amount) {
+            $payment->update([
+                'transaction_id' => $transactionId,
+                'first_response' => [
+                    'transaction_id' => $transactionId,
+                    'gateway' => 'zarinpal',
+                    'driver_class' => get_class($driver),
+                    'amount' => $amount,
+                    'currency' => 'T',
+                    'created_at' => now()->toDateTimeString(),
+                ],
+            ]);
+        })->pay();
+
+        return $redirectionForm->getAction();
+    }
+
+
+
     public function zarinpalVerify(Request $request, Payment $payment)
     {
         $authority = (string) $request->input('Authority');

@@ -5,6 +5,7 @@ use App\Http\Controllers\Api\Customer\Market\ProductController;
 use App\Http\Controllers\Api\Customer\Market\ShopController;
 use App\Http\Controllers\Api\Customer\SalesProcess\AddressController;
 use App\Http\Controllers\Api\Customer\SalesProcess\CartController;
+use App\Http\Controllers\Api\Customer\SalesProcess\PaymentController;
 use App\Http\Controllers\LikeController;
 use Illuminate\Support\Facades\Route;
 
@@ -46,6 +47,9 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/address-and-delivery', [AddressController::class, 'addressAndDelivery']);
     Route::post('/store-address', [AddressController::class, 'storeAddress'])->middleware('throttle:address');
     Route::put('/update-address/{address}', [AddressController::class, 'updateAddress'])->middleware(['throttle:address', 'can:update,address']);
-    
+
     Route::get('/provinces/{province}/cities', [AddressController::class, 'getCities']);
+
+    // payment
+    Route::post('/payment', [PaymentController::class, 'payment'])->middleware('throttle:payment');
 });

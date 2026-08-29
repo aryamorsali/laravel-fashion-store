@@ -2459,6 +2459,366 @@
                 ]
             }
         },
+        "/api/payment": {
+            "post": {
+                "tags": [
+                    "Payment"
+                ],
+                "summary": "Final order registration and receipt of payment gateway link",
+                "description": "This endpoint processes the users shopping cart, applies the discount coupon (if any), saves the order along with a snapshot of the information, and returns a link to connect to the payment gateway (ZarinPal).",
+                "operationId": "eaf28890b80fa2bb7d73572e1f0c3409",
+                "requestBody": {
+                    "description": "Information required for final order registration including address, shipping method, and optional discount code",
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "address_id",
+                                    "delivery_id"
+                                ],
+                                "properties": {
+                                    "address_id": {
+                                        "description": "Users order delivery address ID",
+                                        "type": "integer",
+                                        "example": 12
+                                    },
+                                    "delivery_id": {
+                                        "description": "Selected delivery method ID",
+                                        "type": "integer",
+                                        "example": 2
+                                    },
+                                    "coupon": {
+                                        "description": "Discount coupon code (optional)",
+                                        "type": "string",
+                                        "example": "testy",
+                                        "nullable": true
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "The order was successfully placed and the payment gateway link was issued.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status": {
+                                            "type": "boolean",
+                                            "example": true
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "The order has been registered and is ready to connect to the portal."
+                                        },
+                                        "data": {
+                                            "properties": {
+                                                "payment_url": {
+                                                    "type": "string",
+                                                    "format": "uri",
+                                                    "example": "https://sandbox.zarinpal.com/pg/StartPay/S000000000000000000000000000002oo3lp"
+                                                },
+                                                "order": {
+                                                    "properties": {
+                                                        "id": {
+                                                            "type": "integer",
+                                                            "example": 37
+                                                        },
+                                                        "status": {
+                                                            "properties": {
+                                                                "order_status": {
+                                                                    "type": "string",
+                                                                    "example": "not_checked"
+                                                                },
+                                                                "payment_status": {
+                                                                    "type": "string",
+                                                                    "example": "unpaid"
+                                                                },
+                                                                "delivery_status": {
+                                                                    "type": "string",
+                                                                    "example": "sending"
+                                                                }
+                                                            },
+                                                            "type": "object"
+                                                        },
+                                                        "pricing": {
+                                                            "properties": {
+                                                                "final_amount": {
+                                                                    "type": "number",
+                                                                    "example": 105
+                                                                },
+                                                                "total_products_discount": {
+                                                                    "type": "number",
+                                                                    "example": 2
+                                                                },
+                                                                "total_discount": {
+                                                                    "type": "number",
+                                                                    "example": 25
+                                                                },
+                                                                "coupon_discount": {
+                                                                    "type": "number",
+                                                                    "example": 10
+                                                                },
+                                                                "common_discount": {
+                                                                    "type": "number",
+                                                                    "example": 12
+                                                                },
+                                                                "delivery_amount": {
+                                                                    "type": "number",
+                                                                    "example": 7
+                                                                }
+                                                            },
+                                                            "type": "object"
+                                                        },
+                                                        "snapshots": {
+                                                            "properties": {
+                                                                "address": {
+                                                                    "properties": {
+                                                                        "province": {
+                                                                            "type": "string",
+                                                                            "example": "Fars"
+                                                                        },
+                                                                        "city": {
+                                                                            "type": "string",
+                                                                            "example": "Jahrom"
+                                                                        },
+                                                                        "address": {
+                                                                            "type": "string",
+                                                                            "example": "test location"
+                                                                        },
+                                                                        "postal_code": {
+                                                                            "type": "string",
+                                                                            "example": "1234567890"
+                                                                        },
+                                                                        "receiver": {
+                                                                            "type": "string",
+                                                                            "example": "abdollah"
+                                                                        },
+                                                                        "mobile": {
+                                                                            "type": "string",
+                                                                            "example": "98765432100"
+                                                                        },
+                                                                        "unit": {
+                                                                            "type": "string",
+                                                                            "example": "3"
+                                                                        },
+                                                                        "no": {
+                                                                            "type": "string",
+                                                                            "example": "3"
+                                                                        }
+                                                                    },
+                                                                    "type": "object"
+                                                                },
+                                                                "delivery": {
+                                                                    "properties": {
+                                                                        "name": {
+                                                                            "type": "string",
+                                                                            "example": "motor peyck"
+                                                                        },
+                                                                        "delivery_cost": {
+                                                                            "type": "string",
+                                                                            "example": "7.000"
+                                                                        },
+                                                                        "delivery_days": {
+                                                                            "type": "integer",
+                                                                            "example": 5
+                                                                        }
+                                                                    },
+                                                                    "type": "object"
+                                                                },
+                                                                "coupon": {
+                                                                    "properties": {
+                                                                        "code": {
+                                                                            "type": "string",
+                                                                            "example": "testy"
+                                                                        },
+                                                                        "amount": {
+                                                                            "type": "string",
+                                                                            "example": "10.00"
+                                                                        },
+                                                                        "amount_type": {
+                                                                            "type": "integer",
+                                                                            "example": 0
+                                                                        },
+                                                                        "discount_ceiling": {
+                                                                            "type": "number",
+                                                                            "example": null,
+                                                                            "nullable": true
+                                                                        },
+                                                                        "type": {
+                                                                            "type": "integer",
+                                                                            "example": 0
+                                                                        },
+                                                                        "user_id": {
+                                                                            "type": "integer",
+                                                                            "example": null,
+                                                                            "nullable": true
+                                                                        },
+                                                                        "status": {
+                                                                            "type": "integer",
+                                                                            "example": 1
+                                                                        },
+                                                                        "start_date": {
+                                                                            "type": "string",
+                                                                            "example": "2026-08-09 12:00:00"
+                                                                        },
+                                                                        "end_date": {
+                                                                            "type": "string",
+                                                                            "example": "2026-09-30 12:00:00"
+                                                                        }
+                                                                    },
+                                                                    "type": "object",
+                                                                    "nullable": true
+                                                                },
+                                                                "common_discount": {
+                                                                    "properties": {
+                                                                        "title": {
+                                                                            "type": "string",
+                                                                            "example": "روز کارگر"
+                                                                        },
+                                                                        "status": {
+                                                                            "type": "integer",
+                                                                            "example": 1
+                                                                        },
+                                                                        "start_date": {
+                                                                            "type": "string",
+                                                                            "example": "2025-11-02 16:00:00"
+                                                                        },
+                                                                        "end_date": {
+                                                                            "type": "string",
+                                                                            "example": "2026-08-31 14:00:00"
+                                                                        },
+                                                                        "percentage": {
+                                                                            "type": "integer",
+                                                                            "example": 10
+                                                                        },
+                                                                        "discount_ceiling": {
+                                                                            "type": "number",
+                                                                            "example": 15
+                                                                        },
+                                                                        "minimal_order_amount": {
+                                                                            "type": "number",
+                                                                            "example": 100
+                                                                        }
+                                                                    },
+                                                                    "type": "object",
+                                                                    "nullable": true
+                                                                }
+                                                            },
+                                                            "type": "object"
+                                                        },
+                                                        "delivery_date": {
+                                                            "type": "string",
+                                                            "format": "date-time",
+                                                            "example": "2026-09-03T20:06:53.641931Z"
+                                                        },
+                                                        "created_at": {
+                                                            "type": "string",
+                                                            "format": "date-time",
+                                                            "example": "2026-08-29T19:48:56.000000Z"
+                                                        },
+                                                        "order_items": {
+                                                            "type": "array",
+                                                            "items": {
+                                                                "properties": {
+                                                                    "id": {
+                                                                        "type": "integer",
+                                                                        "example": 168
+                                                                    },
+                                                                    "order_id": {
+                                                                        "type": "integer",
+                                                                        "example": 37
+                                                                    },
+                                                                    "product_variant_id": {
+                                                                        "type": "integer",
+                                                                        "example": 116
+                                                                    },
+                                                                    "amazing_sale_id": {
+                                                                        "type": "integer",
+                                                                        "example": null,
+                                                                        "nullable": true
+                                                                    },
+                                                                    "quantity": {
+                                                                        "type": "integer",
+                                                                        "example": 1
+                                                                    },
+                                                                    "product_snapshot": {
+                                                                        "type": "object"
+                                                                    },
+                                                                    "amazing_sale_snapshot": {
+                                                                        "type": "object",
+                                                                        "nullable": true
+                                                                    },
+                                                                    "amazing_sale_discount_amount": {
+                                                                        "type": "number",
+                                                                        "example": 0
+                                                                    },
+                                                                    "final_product_price": {
+                                                                        "type": "number",
+                                                                        "example": 100
+                                                                    },
+                                                                    "final_total_price": {
+                                                                        "type": "number",
+                                                                        "example": 100
+                                                                    }
+                                                                },
+                                                                "type": "object"
+                                                            }
+                                                        }
+                                                    },
+                                                    "type": "object"
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthenticated",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/401ResponseSchema"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/422ResponseSchema"
+                                }
+                            }
+                        }
+                    },
+                    "429": {
+                        "description": "Too many requests",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/429ResponseSchema"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
         "/api/like/{type}/{id}": {
             "post": {
                 "tags": [
@@ -2666,6 +3026,9 @@
         {
             "name": "Cart",
             "description": "Operations attributed to the users shoping cart"
+        },
+        {
+            "name": "Payment"
         },
         {
             "name": "Like"
