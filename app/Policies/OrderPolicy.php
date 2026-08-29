@@ -5,7 +5,7 @@ namespace App\Policies;
 use App\Models\Market\Order;
 use App\Models\User;
 
-class OrderDetailPolicy
+class OrderPolicy
 {
     /**
      * Create a new policy instance.

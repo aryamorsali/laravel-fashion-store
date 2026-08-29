@@ -11,11 +11,11 @@
                  </div>
 
                  <div class="right-top-bar flex-w h-full">
-                     <a href="{{route('customer.content.faq')}}" class="flex-c-m trans-04 p-lr-25">
+                     <a href="{{ route('customer.content.faq') }}" class="flex-c-m trans-04 p-lr-25">
                          Help & FAQs
                      </a>
 
-                     <a href="{{route('customer.profile.profile')}}" class="flex-c-m trans-04 p-lr-25">
+                     <a href="{{ route('customer.profile.profile') }}" class="flex-c-m trans-04 p-lr-25">
                          My Account
                      </a>
                  </div>
@@ -83,15 +83,15 @@
                              <div class="dropdown-menu dropdown-menu-end mt-2 w-48 bg-white border border-gray-200 rounded-lg shadow-xl py-1"
                                  aria-labelledby="dropdownMenuButton1">
                                  <a class="dropdown-item flex items-center px-4 py-2 text-gray-700 hover:bg-gray-100"
-                                     href="{{route('customer.profile.profile')}}">
+                                     href="{{ route('customer.profile.profile') }}">
                                      <i class="zmdi zmdi-account text-base mr-2"></i>User Profile
                                  </a>
                                  <a class="dropdown-item flex items-center px-4 py-2 text-gray-700 hover:bg-gray-100"
-                                     href="{{route('customer.profile.my-orders')}}">
+                                     href="{{ route('customer.profile.my-orders') }}">
                                      <i class="zmdi zmdi-case text-base mr-2"></i>Orders
                                  </a>
                                  <a class="dropdown-item flex items-center px-4 py-2 text-gray-700 hover:bg-gray-100"
-                                     href="#">
+                                     href="{{ route('customer.profile.my-favorites') }}">
                                      <i class="zmdi zmdi-favorite-outline text-base mr-2"></i>Wishlist
                                  </a>
                                  <hr class="border-t border-gray-200 my-1">
@@ -161,11 +161,11 @@
 
              <li>
                  <div class="right-top-bar flex-w h-full">
-                     <a href="#" class="flex-c-m p-lr-10 trans-04">
+                     <a href="{{ route('customer.content.faq') }}" class="flex-c-m p-lr-10 trans-04">
                          Help & FAQs
                      </a>
 
-                     <a href="{{route('customer.profile.profile')}}" class="flex-c-m p-lr-10 trans-04">
+                     <a href="{{ route('customer.profile.profile') }}" class="flex-c-m p-lr-10 trans-04">
                          My Account
                      </a>
 
@@ -189,16 +189,16 @@
                  <a href="{{ route('customer.market.shop') }}">Shop</a>
              </li>
 
-             <li>
-                 <a href="blog.html">Blog</a>
+             <li class="{{ Route::is('customer.content.blogs') ? 'active-menu' : '' }}">
+                 <a href="{{ route('customer.content.blogs') }}">Blog</a>
              </li>
 
-             <li>
-                 <a href="about.html">About</a>
+             <li class="{{ Route::is('customer.content.about') ? 'active-menu' : '' }}">
+                 <a href="{{ route('customer.content.about') }}">About</a>
              </li>
 
-             <li>
-                 <a href="contact.html">Contact</a>
+             <li class="{{ Route::is('customer.content.contact') ? 'active-menu' : '' }}">
+                 <a href="{{ route('customer.content.contact') }}">Contact</a>
              </li>
          </ul>
      </div>

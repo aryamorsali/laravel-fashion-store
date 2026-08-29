@@ -19,7 +19,7 @@
                    Profile Details
                </a>
 
-               <a href="{{route('customer.profile.my-orders')}}" class="profile-menu-item">
+               <a href="{{route('customer.profile.my-orders')}}" class="profile-menu-item {{ Route::is('customer.profile.my-orders') ? 'active' : '' }}">
                    <i class="zmdi zmdi-shopping-basket"></i>
                    My Orders
                </a>
@@ -29,7 +29,7 @@
                    My Addresses
                </a>
 
-               <a href="{{route('customer.profile.ticket.index')}}" class="profile-menu-item">
+               <a href="{{route('customer.profile.ticket.index')}}" class="profile-menu-item {{ Route::is('customer.profile.ticket.index') ? 'active' : '' }}">
                    <i class="zmdi zmdi-headset-mic"></i>
                    My Tickets
                </a>
@@ -39,7 +39,7 @@
                    Wishlist
                </a>
 
-               <form action="{{ route('logout') }}" method="POST">
+               <form action="{{ route('logout') }}" method="GET">
                    @csrf
 
                    <button type="submit" class="profile-menu-item profile-logout">
