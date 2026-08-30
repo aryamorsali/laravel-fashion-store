@@ -2819,6 +2819,391 @@
                 ]
             }
         },
+        "/api/payment-callback/{order}/{payment}": {
+            "get": {
+                "tags": [
+                    "Payment"
+                ],
+                "summary": "Handle payment gateway callback",
+                "description": "Verify payment transaction from Zarinpal gateway, finalize order status, allocate warehouse stock, and return full order details",
+                "operationId": "80804ac90f9852e1677260019689850e",
+                "parameters": [
+                    {
+                        "name": "order",
+                        "in": "path",
+                        "description": "The ID of the order",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "example": 39
+                        }
+                    },
+                    {
+                        "name": "payment",
+                        "in": "path",
+                        "description": "The ID of the payment transaction",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "example": 62
+                        }
+                    },
+                    {
+                        "name": "Authority",
+                        "in": "query",
+                        "description": "Payment gateway transaction authority code",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "example": "S00000000000000000000000000000wrg62y"
+                        }
+                    },
+                    {
+                        "name": "Status",
+                        "in": "query",
+                        "description": "Gateway callback status (OK for successful payment, NOK for canceled or failed)",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "example": "OK",
+                            "enum": [
+                                "OK",
+                                "NOK"
+                            ]
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Payment verified successfully, already processed, or canceled by user",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status": {
+                                            "type": "string",
+                                            "example": "success"
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "This order has already been successfully paid and registered."
+                                        },
+                                        "data": {
+                                            "properties": {
+                                                "order": {
+                                                    "properties": {
+                                                        "id": {
+                                                            "type": "integer",
+                                                            "example": 39
+                                                        },
+                                                        "status": {
+                                                            "properties": {
+                                                                "order_status": {
+                                                                    "type": "string",
+                                                                    "example": "confirmed"
+                                                                },
+                                                                "payment_status": {
+                                                                    "type": "string",
+                                                                    "example": "paid"
+                                                                },
+                                                                "delivery_status": {
+                                                                    "type": "string",
+                                                                    "example": "sending"
+                                                                }
+                                                            },
+                                                            "type": "object"
+                                                        },
+                                                        "pricing": {
+                                                            "properties": {
+                                                                "final_amount": {
+                                                                    "type": "number",
+                                                                    "example": 128
+                                                                },
+                                                                "total_products_discount": {
+                                                                    "type": "number",
+                                                                    "example": 0
+                                                                },
+                                                                "total_discount": {
+                                                                    "type": "number",
+                                                                    "example": 28
+                                                                },
+                                                                "coupon_discount": {
+                                                                    "type": "number",
+                                                                    "example": 13
+                                                                },
+                                                                "common_discount": {
+                                                                    "type": "number",
+                                                                    "example": 15
+                                                                },
+                                                                "delivery_amount": {
+                                                                    "type": "number",
+                                                                    "example": 7
+                                                                }
+                                                            },
+                                                            "type": "object"
+                                                        },
+                                                        "snapshots": {
+                                                            "properties": {
+                                                                "address": {
+                                                                    "properties": {
+                                                                        "province": {
+                                                                            "type": "string",
+                                                                            "example": "Isfahan"
+                                                                        },
+                                                                        "city": {
+                                                                            "type": "string",
+                                                                            "example": "Isfahan"
+                                                                        },
+                                                                        "address": {
+                                                                            "type": "string",
+                                                                            "example": "tehran valiasr street"
+                                                                        },
+                                                                        "postal_code": {
+                                                                            "type": "string",
+                                                                            "example": "1234567890"
+                                                                        },
+                                                                        "receiver": {
+                                                                            "type": "string",
+                                                                            "example": "abbas nasiri"
+                                                                        },
+                                                                        "mobile": {
+                                                                            "type": "string",
+                                                                            "example": "09121234567"
+                                                                        },
+                                                                        "unit": {
+                                                                            "type": "string",
+                                                                            "example": "3"
+                                                                        },
+                                                                        "no": {
+                                                                            "type": "string",
+                                                                            "example": "12"
+                                                                        }
+                                                                    },
+                                                                    "type": "object"
+                                                                },
+                                                                "delivery": {
+                                                                    "properties": {
+                                                                        "name": {
+                                                                            "type": "string",
+                                                                            "example": "motor peyck"
+                                                                        },
+                                                                        "delivery_cost": {
+                                                                            "type": "string",
+                                                                            "example": "7.000"
+                                                                        },
+                                                                        "delivery_days": {
+                                                                            "type": "integer",
+                                                                            "example": 5
+                                                                        }
+                                                                    },
+                                                                    "type": "object"
+                                                                },
+                                                                "coupon": {
+                                                                    "properties": {
+                                                                        "code": {
+                                                                            "type": "string",
+                                                                            "example": "testy"
+                                                                        },
+                                                                        "amount": {
+                                                                            "type": "string",
+                                                                            "example": "10.00"
+                                                                        },
+                                                                        "amount_type": {
+                                                                            "type": "integer",
+                                                                            "example": 0
+                                                                        },
+                                                                        "discount_ceiling": {
+                                                                            "type": "number",
+                                                                            "example": null,
+                                                                            "nullable": true
+                                                                        },
+                                                                        "type": {
+                                                                            "type": "integer",
+                                                                            "example": 0
+                                                                        },
+                                                                        "user_id": {
+                                                                            "type": "integer",
+                                                                            "example": null,
+                                                                            "nullable": true
+                                                                        },
+                                                                        "status": {
+                                                                            "type": "integer",
+                                                                            "example": 1
+                                                                        },
+                                                                        "start_date": {
+                                                                            "type": "string",
+                                                                            "example": "2026-08-09 12:00:00"
+                                                                        },
+                                                                        "end_date": {
+                                                                            "type": "string",
+                                                                            "example": "2026-09-30 12:00:00"
+                                                                        }
+                                                                    },
+                                                                    "type": "object",
+                                                                    "nullable": true
+                                                                },
+                                                                "common_discount": {
+                                                                    "properties": {
+                                                                        "title": {
+                                                                            "type": "string",
+                                                                            "example": "روز کارگر"
+                                                                        },
+                                                                        "status": {
+                                                                            "type": "integer",
+                                                                            "example": 1
+                                                                        },
+                                                                        "start_date": {
+                                                                            "type": "string",
+                                                                            "example": "2025-11-02 16:00:00"
+                                                                        },
+                                                                        "end_date": {
+                                                                            "type": "string",
+                                                                            "example": "2026-08-31 14:00:00"
+                                                                        },
+                                                                        "percentage": {
+                                                                            "type": "integer",
+                                                                            "example": 10
+                                                                        },
+                                                                        "discount_ceiling": {
+                                                                            "type": "number",
+                                                                            "example": 15
+                                                                        },
+                                                                        "minimal_order_amount": {
+                                                                            "type": "number",
+                                                                            "example": 100
+                                                                        }
+                                                                    },
+                                                                    "type": "object",
+                                                                    "nullable": true
+                                                                }
+                                                            },
+                                                            "type": "object"
+                                                        },
+                                                        "delivery_date": {
+                                                            "type": "string",
+                                                            "example": "2026-09-04 22:47:14"
+                                                        },
+                                                        "created_at": {
+                                                            "type": "string",
+                                                            "example": "2026-08-30T19:17:14.000000Z"
+                                                        },
+                                                        "order_items": {
+                                                            "type": "array",
+                                                            "items": {
+                                                                "properties": {
+                                                                    "id": {
+                                                                        "type": "integer",
+                                                                        "example": 168
+                                                                    },
+                                                                    "order_id": {
+                                                                        "type": "integer",
+                                                                        "example": 37
+                                                                    },
+                                                                    "product_variant_id": {
+                                                                        "type": "integer",
+                                                                        "example": 116
+                                                                    },
+                                                                    "amazing_sale_id": {
+                                                                        "type": "integer",
+                                                                        "example": null,
+                                                                        "nullable": true
+                                                                    },
+                                                                    "quantity": {
+                                                                        "type": "integer",
+                                                                        "example": 1
+                                                                    },
+                                                                    "product_snapshot": {
+                                                                        "type": "object"
+                                                                    },
+                                                                    "amazing_sale_snapshot": {
+                                                                        "type": "object",
+                                                                        "nullable": true
+                                                                    },
+                                                                    "amazing_sale_discount_amount": {
+                                                                        "type": "number",
+                                                                        "example": 0
+                                                                    },
+                                                                    "final_product_price": {
+                                                                        "type": "number",
+                                                                        "example": 100
+                                                                    },
+                                                                    "final_total_price": {
+                                                                        "type": "number",
+                                                                        "example": 100
+                                                                    }
+                                                                },
+                                                                "type": "object"
+                                                            }
+                                                        }
+                                                    },
+                                                    "type": "object"
+                                                },
+                                                "transaction_id": {
+                                                    "type": "string",
+                                                    "example": "S00000000000000000000000000000wrg62y"
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Payment verification failed or invalid authority code",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status": {
+                                            "type": "string",
+                                            "example": "verification_failed"
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Payment confirmation failed: Transaction is invalid."
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "409": {
+                        "description": "Order and payment mismatch conflict",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status": {
+                                            "type": "string",
+                                            "example": "error"
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Payment information does not match the order."
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/422ResponseSchema"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
         "/api/like/{type}/{id}": {
             "post": {
                 "tags": [
@@ -3028,7 +3413,8 @@
             "description": "Operations attributed to the users shoping cart"
         },
         {
-            "name": "Payment"
+            "name": "Payment",
+            "description": "Payment, payment callback"
         },
         {
             "name": "Like"

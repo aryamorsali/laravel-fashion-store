@@ -85,7 +85,7 @@ class PaymentService
         if (empty($authority)) {
             return [
                 'status'  => 'invalid_authority',
-                'message' => 'کد مرجع تراکنش (Authority) نامعتبر یا خالی است.',
+                'message' => 'The transaction authority code (Authority) is invalid or empty.',
             ];
         }
 
@@ -93,14 +93,14 @@ class PaymentService
         if ($payment->transaction_id && !hash_equals((string) $payment->transaction_id, $authority)) {
             return [
                 'status'  => 'mismatched_authority',
-                'message' => 'شناسه Authority با تراکنش ثبت‌ شده مطابقت ندارد.',
+                'message' => 'The Authority ID does not match the registered transaction.',
             ];
         }
 
         if ($request->input('Status') !== 'OK') {
             return [
                 'status'  => 'canceled_by_user',
-                'message' => 'پرداخت توسط کاربر لغو شد.',
+                'message' => 'Payment canceled by user.',
                 'payload' => [
                     'status'     => $request->input('Status'),
                     'authority'  => $authority,
@@ -120,7 +120,7 @@ class PaymentService
 
             return [
                 'status'       => 'success',
-                'message'      => 'پرداخت با موفقیت تایید شد.',
+                'message'      => 'Payment successfully confirmed.',
                 'reference_id' => $receipt->getReferenceId(),
                 'driver'       => $receipt->getDriver(),
                 'details'      => $receipt->getDetails(),
@@ -128,7 +128,14 @@ class PaymentService
         } catch (\Exception $e) {
             return [
                 'status'  => 'verification_failed',
-                'message' => 'تایید پرداخت ناموفق بود: ' . $e->getMessage(),
+                'message' => 'Payment confirmation failed: ' . $e->getMessage(),
+                'payload' => [
+                    'status'     => $request->input('Status'),
+                    'authority'  => $authority,
+                    'time'       => now()->toDateTimeString(),
+                    'ip'         => $request->ip(),
+                    'user_agent' => $request->userAgent(),
+                ]
             ];
         }
     }

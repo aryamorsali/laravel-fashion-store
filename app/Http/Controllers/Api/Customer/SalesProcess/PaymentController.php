@@ -3,24 +3,27 @@
 namespace App\Http\Controllers\Api\Customer\SalesProcess;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Api\Payment\PaymentCallbackRequest;
 use App\Http\Requests\Api\Payment\PaymentRequest;
 use App\Http\Resources\OrderResource;
 use App\Services\CartCalculator;
 use App\Http\Services\Payment\PaymentService;
-use App\Services\PaymentService as payService;
+use App\Models\Market\Order;
+use App\Models\Market\Payment;
+use App\Services\PaymentCalculationService;
 use Illuminate\Http\Request;
 use OpenApi\Attributes as OA;
 
 #[OA\Tag(
     name: 'Payment',
-    description: 'Operations related to final order registration, calculating amounts, and directing the user to the payment gateway'
+    description: 'Payment, payment callback'
 )]
 
 class PaymentController extends Controller
 {
     protected $paymentService, $paymentCalculationService;
 
-    public function __construct(PaymentService $paymentService, payService $paymentCalculationService)
+    public function __construct(PaymentService $paymentService, PaymentCalculationService $paymentCalculationService)
     {
         $this->paymentService = $paymentService;
         $this->paymentCalculationService = $paymentCalculationService;
@@ -238,5 +241,203 @@ class PaymentController extends Controller
                 'order' => new OrderResource($result['order']),
             ]
         ]);
+    }
+
+    #[OA\Get(
+        path: '/api/payment-callback/{order}/{payment}',
+        summary: 'Handle payment gateway callback',
+        description: 'Verify payment transaction from Zarinpal gateway, finalize order status, allocate warehouse stock, and return full order details',
+        tags: ['Payment'],
+        parameters: [
+            new OA\Parameter(
+                name: 'order',
+                in: 'path',
+                required: true,
+                description: 'The ID of the order',
+                schema: new OA\Schema(type: 'integer', example: 39)
+            ),
+            new OA\Parameter(
+                name: 'payment',
+                in: 'path',
+                required: true,
+                description: 'The ID of the payment transaction',
+                schema: new OA\Schema(type: 'integer', example: 62)
+            ),
+            new OA\Parameter(
+                name: 'Authority',
+                in: 'query',
+                required: true,
+                description: 'Payment gateway transaction authority code',
+                schema: new OA\Schema(type: 'string', example: 'S00000000000000000000000000000wrg62y')
+            ),
+            new OA\Parameter(
+                name: 'Status',
+                in: 'query',
+                required: true,
+                description: 'Gateway callback status (OK for successful payment, NOK for canceled or failed)',
+                schema: new OA\Schema(type: 'string', enum: ['OK', 'NOK'], example: 'OK')
+            ),
+        ],
+        responses: [
+            new OA\Response(
+                response: 200,
+                description: 'Payment verified successfully, already processed, or canceled by user',
+                content: new OA\JsonContent(
+                    properties: [
+                        new OA\Property(property: 'status', type: 'string', example: 'success'),
+                        new OA\Property(property: 'message', type: 'string', example: 'This order has already been successfully paid and registered.'),
+                        new OA\Property(
+                            property: 'data',
+                            type: 'object',
+                            properties: [
+                                new OA\Property(
+                                    property: 'order',
+                                    type: 'object',
+                                    properties: [
+                                        new OA\Property(property: 'id', type: 'integer', example: 39),
+                                        new OA\Property(
+                                            property: 'status',
+                                            type: 'object',
+                                            properties: [
+                                                new OA\Property(property: 'order_status', type: 'string', example: 'confirmed'),
+                                                new OA\Property(property: 'payment_status', type: 'string', example: 'paid'),
+                                                new OA\Property(property: 'delivery_status', type: 'string', example: 'sending'),
+                                            ]
+                                        ),
+                                        new OA\Property(
+                                            property: 'pricing',
+                                            type: 'object',
+                                            properties: [
+                                                new OA\Property(property: 'final_amount', type: 'number', example: 128),
+                                                new OA\Property(property: 'total_products_discount', type: 'number', example: 0),
+                                                new OA\Property(property: 'total_discount', type: 'number', example: 28),
+                                                new OA\Property(property: 'coupon_discount', type: 'number', example: 13),
+                                                new OA\Property(property: 'common_discount', type: 'number', example: 15),
+                                                new OA\Property(property: 'delivery_amount', type: 'number', example: 7),
+                                            ]
+                                        ),
+                                        new OA\Property(
+                                            property: 'snapshots',
+                                            type: 'object',
+                                            properties: [
+                                                new OA\Property(
+                                                    property: 'address',
+                                                    type: 'object',
+                                                    properties: [
+                                                        new OA\Property(property: 'province', type: 'string', example: 'Isfahan'),
+                                                        new OA\Property(property: 'city', type: 'string', example: 'Isfahan'),
+                                                        new OA\Property(property: 'address', type: 'string', example: 'tehran valiasr street'),
+                                                        new OA\Property(property: 'postal_code', type: 'string', example: '1234567890'),
+                                                        new OA\Property(property: 'receiver', type: 'string', example: 'abbas nasiri'),
+                                                        new OA\Property(property: 'mobile', type: 'string', example: '09121234567'),
+                                                        new OA\Property(property: 'unit', type: 'string', example: '3'),
+                                                        new OA\Property(property: 'no', type: 'string', example: '12'),
+                                                    ]
+                                                ),
+                                                new OA\Property(
+                                                    property: 'delivery',
+                                                    type: 'object',
+                                                    properties: [
+                                                        new OA\Property(property: 'name', type: 'string', example: 'motor peyck'),
+                                                        new OA\Property(property: 'delivery_cost', type: 'string', example: '7.000'),
+                                                        new OA\Property(property: 'delivery_days', type: 'integer', example: 5),
+                                                    ]
+                                                ),
+                                                new OA\Property(
+                                                    property: 'coupon',
+                                                    type: 'object',
+                                                    nullable: true,
+                                                    properties: [
+                                                        new OA\Property(property: 'code', type: 'string', example: 'testy'),
+                                                        new OA\Property(property: 'amount', type: 'string', example: '10.00'),
+                                                        new OA\Property(property: 'amount_type', type: 'integer', example: 0),
+                                                        new OA\Property(property: 'discount_ceiling', type: 'number', nullable: true, example: null),
+                                                        new OA\Property(property: 'type', type: 'integer', example: 0),
+                                                        new OA\Property(property: 'user_id', type: 'integer', nullable: true, example: null),
+                                                        new OA\Property(property: 'status', type: 'integer', example: 1),
+                                                        new OA\Property(property: 'start_date', type: 'string', example: '2026-08-09 12:00:00'),
+                                                        new OA\Property(property: 'end_date', type: 'string', example: '2026-09-30 12:00:00'),
+                                                    ]
+                                                ),
+                                                new OA\Property(
+                                                    property: 'common_discount',
+                                                    type: 'object',
+                                                    nullable: true,
+                                                    properties: [
+                                                        new OA\Property(property: 'title', type: 'string', example: 'روز کارگر'),
+                                                        new OA\Property(property: 'status', type: 'integer', example: 1),
+                                                        new OA\Property(property: 'start_date', type: 'string', example: '2025-11-02 16:00:00'),
+                                                        new OA\Property(property: 'end_date', type: 'string', example: '2026-08-31 14:00:00'),
+                                                        new OA\Property(property: 'percentage', type: 'integer', example: 10),
+                                                        new OA\Property(property: 'discount_ceiling', type: 'number', example: 15),
+                                                        new OA\Property(property: 'minimal_order_amount', type: 'number', example: 100),
+                                                    ]
+                                                ),
+                                            ]
+                                        ),
+                                        new OA\Property(property: 'delivery_date', type: 'string', example: '2026-09-04 22:47:14'),
+                                        new OA\Property(property: 'created_at', type: 'string', example: '2026-08-30T19:17:14.000000Z'),
+                                        new OA\Property(
+                                            property: 'order_items',
+                                            type: 'array',
+                                            items: new OA\Items(
+                                                type: 'object',
+                                                properties: [
+                                                    new OA\Property(property: 'id', type: 'integer', example: 168),
+                                                    new OA\Property(property: 'order_id', type: 'integer', example: 37),
+                                                    new OA\Property(property: 'product_variant_id', type: 'integer', example: 116),
+                                                    new OA\Property(property: 'amazing_sale_id', type: 'integer', nullable: true, example: null),
+                                                    new OA\Property(property: 'quantity', type: 'integer', example: 1),
+                                                    new OA\Property(property: 'product_snapshot', type: 'object'),
+                                                    new OA\Property(property: 'amazing_sale_snapshot', type: 'object', nullable: true),
+                                                    new OA\Property(property: 'amazing_sale_discount_amount', type: 'number', example: 0),
+                                                    new OA\Property(property: 'final_product_price', type: 'number', example: 100),
+                                                    new OA\Property(property: 'final_total_price', type: 'number', example: 100)
+                                                ]
+                                            )
+                                        )
+                                    ]
+                                ),
+                                new OA\Property(property: 'transaction_id', type: 'string', example: 'S00000000000000000000000000000wrg62y'),
+                            ]
+                        ),
+                    ]
+                )
+            ),
+            new OA\Response(
+                response: 400,
+                description: 'Payment verification failed or invalid authority code',
+                content: new OA\JsonContent(
+                    properties: [
+                        new OA\Property(property: 'status', type: 'string', example: 'verification_failed'),
+                        new OA\Property(property: 'message', type: 'string', example: 'Payment confirmation failed: Transaction is invalid.'),
+                    ]
+                )
+            ),
+            new OA\Response(
+                response: 409,
+                description: 'Order and payment mismatch conflict',
+                content: new OA\JsonContent(
+                    properties: [
+                        new OA\Property(property: 'status', type: 'string', example: 'error'),
+                        new OA\Property(property: 'message', type: 'string', example: 'Payment information does not match the order.'),
+                    ]
+                )
+            ),
+            new OA\Response(
+                response: 422,
+                description: 'Validation error',
+                content: new OA\JsonContent(
+                    ref: '#/components/schemas/422ResponseSchema'
+                )
+            ),
+        ]
+    )]
+
+
+
+    public function paymentCallBack(PaymentCallbackRequest $request, Order $order, Payment $payment)
+    {
+        return $this->paymentCalculationService->paymentCallBack($request, $order, $payment);
     }
 }

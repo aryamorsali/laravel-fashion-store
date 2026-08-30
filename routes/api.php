@@ -24,8 +24,6 @@ Route::middleware('guest')->group(function () {
 // product detail
 Route::get('/product/{product:slug}', [ProductController::class, 'product']);
 
-
-
 Route::middleware('auth:sanctum')->group(function () {
 
     Route::get('/logout', [LoginRegisterController::class, 'logout']);
@@ -53,3 +51,6 @@ Route::middleware('auth:sanctum')->group(function () {
     // payment
     Route::post('/payment', [PaymentController::class, 'payment'])->middleware('throttle:payment');
 });
+
+// payment calback
+Route::get('/payment-callback/{order}/{payment}', [PaymentController::class, 'paymentCallBack']);

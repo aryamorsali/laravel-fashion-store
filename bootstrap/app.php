@@ -35,7 +35,7 @@ return Application::configure(basePath: dirname(__DIR__))
             Request $request
         ) {
             if (! $request->expectsJson()) {
-                return null;
+                return redirect()->back()->with('toast-error', $exception->getMessage());
             }
 
             return response()->json([
@@ -93,5 +93,4 @@ return Application::configure(basePath: dirname(__DIR__))
                 'errors' => $errors,
             ], 422);
         });
-
     })->create();

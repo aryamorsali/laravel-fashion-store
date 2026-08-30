@@ -4,6 +4,8 @@
 namespace App\Services;
 
 use App\Exceptions\EmptyCartException;
+use App\Http\Resources\OrderResource;
+use App\Http\Services\Payment\PaymentService;
 use App\Models\Market\CommonDiscount;
 use App\Models\Market\Order;
 use App\Models\Market\Payment;
@@ -20,8 +22,13 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
 
-class PaymentService
+class PaymentCalculationService
 {
+    protected $paymentService;
+    public function __construct(PaymentService $paymentService)
+    {
+        $this->paymentService = $paymentService;
+    }
 
     public function payment($inputs, $cartCalculator, $couponCode = null)
     {
@@ -251,5 +258,198 @@ class PaymentService
             'order' => $result['order'],
             'payment' => $result['payment'],
         ];
+    }
+
+    public function paymentCallBack($request, $order, $payment)
+    {
+
+        if ($payment->order_id !== $order->id) {
+            throw new \DomainException('Payment information does not match the order.');
+        }
+
+        $result = $this->paymentService->zarinpalVerify($request, $payment);
+
+        // اگر پرداخت موفقیت آمیز بود
+
+        return DB::transaction(function () use ($order, $payment, $result, $request) {
+
+            $order = Order::lockForUpdate()->findOrFail($order->id);
+            $payment = Payment::lockForUpdate()->findOrFail($payment->id);
+
+            // already_paid
+            if ($order->order_status === 'confirmed' && $order->payment_status === 'paid' && $payment->status === 'paid') {
+                // قبلا سفارش پردازش شده است
+                if ($request->expectsJson()) {
+                    return response()->json([
+                        'status' => 'success',
+                        'message' => 'This order has already been successfully paid and registered.',
+                        'data' => [
+                            'order' => new OrderResource($order->load('orderItems')),
+                            'transaction_id' => $payment->transaction_id,
+                        ],
+                    ], 200);
+                }
+                return redirect()->route('customer.home')->with(
+                    'toast-success',
+                    $result['message']
+                );
+            }
+
+            $order->load('orderItems.allocations.cartItem');
+
+            // ----------------------------------
+            // اگر پرداخت موفق بود
+            // ----------------------------------
+            if ($result['status'] === 'success') {
+
+                // بروزرسانی تراکنش پرداخت
+                $payment->update([
+                    'status' => 'paid',
+                    'second_response' => [
+                        'reference_id' => $result['reference_id'],
+                        'driver'       => $result['driver'],
+                        'amount'       => (int) $payment->amount,
+                        'details'      => $result['details'],
+                    ],
+                    'paid_at' => now(),
+                ]);
+
+                foreach ($order->orderItems as $orderItem) {
+
+                    // کم کردن موجودی و ثبت تراکنش
+                    foreach ($orderItem->allocations as $allocation) {
+                        $warehouseVariant = WarehouseVariant::query()
+                            ->lockForUpdate()
+                            ->findOrFail($allocation->warehouse_variant_id);
+
+                        // درست کردن موجودی انبار و واریانت
+                        $warehouseVariant->stock -= $allocation->quantity;
+                        $warehouseVariant->reserved = max(0, $warehouseVariant->reserved - $allocation->quantity);
+                        $warehouseVariant->sold += $allocation->quantity;
+                        $warehouseVariant->save();
+
+                        // ثبت تراکنش
+                        WarehouseTransaction::create([
+                            'warehouse_id' => $warehouseVariant->warehouse_id,
+                            'product_variant_id' => $orderItem->product_variant_id,
+                            'type' => 'out',
+                            'quantity' => $allocation->quantity,
+                            'unit_price' => $orderItem->final_product_price,
+                        ]);
+                    }
+                    // حذف تخصیص داده شده ها و آیتم سبد کاربر
+                    $cartItemIds = $orderItem->allocations->pluck('cart_item_id')->unique()->filter();
+
+                    $orderItem->allocations()->delete();
+
+                    if ($cartItemIds->isNotEmpty()) {
+                        CartItem::query()
+                            ->whereIn('id', $cartItemIds)
+                            ->delete();
+                    }
+                }
+
+                // اگر کاربر از کوپن استفاده کرده بود
+                if ($order->coupon_id) {
+                    CouponUser::create([
+                        'user_id' => $order->user_id,
+                        'coupon_id' => $order->coupon_id,
+                        'order_id' => $order->id,
+                        'used_at' => now(),
+                    ]);
+                }
+
+                $order->update([
+                    'order_status' => 'confirmed',
+                    'payment_status' => 'paid',
+                ]);
+
+                if ($request->expectsJson()) {
+                    return response()->json([
+                        'status' => 'success',
+                        'message' => $result['message'],
+                        'data' => [
+                            'order' => new OrderResource($order->fresh()->load('orderItems')),
+                            'reference_id' => $result['reference_id'],
+                        ],
+                    ], 200);
+                }
+
+                return redirect()->route('customer.home')->with(
+                    'toast-success',
+                    $result['message']
+                );
+            }
+
+
+            // ----------------------------------
+            // اگر پرداخت ناموفق یا کنسل شده بود
+            // ---------------------------------
+
+            // invalid_authority
+            if (in_array($result['status'], [
+                'invalid_authority',
+                'mismatched_authority',
+            ], true)) {
+                return $request->expectsJson()
+                    ? response()->json([
+                        'status' => $result['status'],
+                        'message' => $result['message'],
+                    ], 400)
+                    : redirect()->route('customer.home')->with('toast-error', $result['message']);
+            }
+
+            // شده failed
+            if ($result['status'] === 'verification_failed') {
+                $payment->update([
+                    'status' =>  'failed',
+                    'second_response' => $result['payload'],
+                ]);
+                $order->update([
+                    'payment_status' =>  'failed',
+                    'order_status'   =>  'awaiting_confirmation',
+                ]);
+
+
+                if ($request->expectsJson()) {
+                    return response()->json([
+                        'status' => $result['status'],
+                        'message' => $result['message'],
+                    ], 400);
+                }
+                return redirect()->route('customer.home')->with('toast-error', $result['message']);
+            }
+
+            // کنسل شده توسط کاربر
+            if ($result['status'] === 'canceled_by_user') {
+                $payment->update([
+                    'status' =>  'unpaid',
+                    'second_response' => $result['payload'],
+                ]);
+
+                $order->update([
+                    'payment_status' => 'unpaid',
+                    'order_status'   => 'canceled',
+                ]);
+
+                // آزاد کردن سبد کاربر برای حذف
+                foreach ($order->orderItems as $orderItem) {
+                    foreach ($orderItem->allocations as $allocation) {
+                        $allocation->update([
+                            'order_item_id' => null
+                        ]);
+                    }
+                }
+                if ($request->expectsJson()) {
+                    return response()->json([
+                        'status' => $result['status'],
+                        'message' => $result['message'],
+                    ], 200);
+                }
+                return redirect()->route('customer.home')->with('toast-error', $result['message']);
+            }
+
+
+        });
     }
 }
