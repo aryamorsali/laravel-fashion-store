@@ -20,11 +20,16 @@ Route::middleware('guest')->group(function () {
 });
 
 
+// shop
+Route::get('/shop/{category:slug?}', [ShopController::class, 'shop']);
 
 // product detail
 Route::get('/product/{product:slug}', [ProductController::class, 'product']);
 
 Route::middleware('auth:sanctum')->group(function () {
+
+    // product add comment
+    Route::post('/product/{product:slug}/add-comment', [ProductController::class, 'addComment'])->middleware('throttle:add-comment');
 
     Route::get('/logout', [LoginRegisterController::class, 'logout']);
 
@@ -37,9 +42,6 @@ Route::middleware('auth:sanctum')->group(function () {
 
     // like
     Route::post('/like/{type}/{id}', [LikeController::class, 'toggle'])->middleware('throttle:like');
-
-    // product add comment
-    Route::post('/product/{product:slug}/add-comment', [ProductController::class, 'addComment'])->middleware('throttle:add-comment');
 
     //address
     Route::get('/address-and-delivery', [AddressController::class, 'addressAndDelivery']);
