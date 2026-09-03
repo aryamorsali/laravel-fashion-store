@@ -167,6 +167,12 @@ class ProductFilterService
 
         $products = $query->paginate(16);
 
+        // انتخاب واریانت نماینده
+        foreach ($products as $product) {
+            $product->representativeVariant = $this->getRepresentativeVariant($product);
+        }
+
+
         // تعداد فیلترهای فعال
         $activeFiltersCount = collect([
             !empty($data['colors']),
@@ -373,4 +379,37 @@ class ProductFilterService
             },
         ]);
     }
+
+
+
+    // انتخاب واریانت نماینده بر اساس فیلتر های اعمال‌ شده
+
+    private function getRepresentativeVariant($product)
+    {
+        $variants = $product->variants;
+
+        $pool =  $variants;
+
+        if ($pool->isEmpty()) {
+            return null;
+        }
+
+        // اولویت با موجودهاست، مگر اینکه کاربر فقط out_of_stock زده باشد
+        $inStockPool = $pool->filter(fn($v) => $v->availableStock() > 0);
+
+        $pool = $inStockPool->isNotEmpty() ? $inStockPool : $pool;
+
+        $variant = $pool->sortBy('final_price')->first();
+
+        $isVariantAvailable = $variant?->availableStock() > 0;
+
+        $isProductAvailable = $product->variants->sum(fn($v) => $v->availableStock()) > 0;
+
+        return [
+            'variant' => $variant,
+            'isVariantAvailable' => $isVariantAvailable,
+            'isProductAvailable' => $isProductAvailable
+        ];
+    }
+
 }

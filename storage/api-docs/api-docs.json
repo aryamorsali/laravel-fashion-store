@@ -980,6 +980,408 @@
                 ]
             }
         },
+        "/api/shop/{category}": {
+            "get": {
+                "tags": [
+                    "Product"
+                ],
+                "summary": "List and filter products",
+                "description": "Retrieve a paginated list of products with smart filtering by search, price range, brands, colors, sizes, tags and stock status.",
+                "operationId": "41329852393be764dfb8b1fbb0077ec2",
+                "parameters": [
+                    {
+                        "name": "category",
+                        "in": "path",
+                        "description": "Optional category slug to filter products by category",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "example": "men-clothes"
+                        }
+                    },
+                    {
+                        "name": "search",
+                        "in": "query",
+                        "description": "Search term matched against product name",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "example": "shirt"
+                        }
+                    },
+                    {
+                        "name": "min_price",
+                        "in": "query",
+                        "description": "Minimum price of product variants",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "example": 50,
+                            "minimum": 0
+                        }
+                    },
+                    {
+                        "name": "max_price",
+                        "in": "query",
+                        "description": "Maximum price of product variants",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "example": 200,
+                            "minimum": 0
+                        }
+                    },
+                    {
+                        "name": "brands[]",
+                        "in": "query",
+                        "description": "Array of brand slugs",
+                        "required": false,
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "type": "string",
+                                "example": "nike"
+                            }
+                        }
+                    },
+                    {
+                        "name": "colors[]",
+                        "in": "query",
+                        "description": "Array of color slugs",
+                        "required": false,
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "type": "string",
+                                "example": "red"
+                            }
+                        }
+                    },
+                    {
+                        "name": "sizes[]",
+                        "in": "query",
+                        "description": "Array of size slugs",
+                        "required": false,
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "type": "string",
+                                "example": "38"
+                            }
+                        }
+                    },
+                    {
+                        "name": "tag",
+                        "in": "query",
+                        "description": "Tag slug to filter products",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "example": "summer"
+                        }
+                    },
+                    {
+                        "name": "sort",
+                        "in": "query",
+                        "description": "Sorting order of the results",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "example": "most_expensive",
+                            "enum": [
+                                "newest",
+                                "most_expensive",
+                                "cheapest",
+                                "best_selling",
+                                "trending",
+                                "top_rated"
+                            ]
+                        }
+                    },
+                    {
+                        "name": "in_stock",
+                        "in": "query",
+                        "description": "Only include products having in-stock variants",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "example": 0,
+                            "enum": [
+                                0,
+                                1
+                            ]
+                        }
+                    },
+                    {
+                        "name": "out_of_stock",
+                        "in": "query",
+                        "description": "Only include products having out-of-stock variants",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "example": 0,
+                            "enum": [
+                                0,
+                                1
+                            ]
+                        }
+                    },
+                    {
+                        "name": "on_sale",
+                        "in": "query",
+                        "description": "Only include products with an active amazing sale on variants",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "example": 1,
+                            "enum": [
+                                0,
+                                1
+                            ]
+                        }
+                    },
+                    {
+                        "name": "big_deals",
+                        "in": "query",
+                        "description": "Only include products with big deal discounts",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "example": 1,
+                            "enum": [
+                                0,
+                                1
+                            ]
+                        }
+                    },
+                    {
+                        "name": "page",
+                        "in": "query",
+                        "description": "Page number for pagination",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "example": 1,
+                            "minimum": 1
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Products successfully found",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status": {
+                                            "type": "string",
+                                            "example": "success"
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Products were successfully found."
+                                        },
+                                        "data": {
+                                            "properties": {
+                                                "products": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "properties": {
+                                                            "id": {
+                                                                "type": "integer",
+                                                                "example": 30
+                                                            },
+                                                            "name": {
+                                                                "type": "string",
+                                                                "example": "beautiful lady"
+                                                            },
+                                                            "slug": {
+                                                                "type": "string",
+                                                                "example": "similique-ut-dignissimos-ex-provident-dolores"
+                                                            },
+                                                            "image": {
+                                                                "type": "string",
+                                                                "format": "url",
+                                                                "example": "http://127.0.0.1:8000/images/product/2026/04/30/1777579690_main.jpg"
+                                                            },
+                                                            "is_liked": {
+                                                                "type": "boolean",
+                                                                "example": false
+                                                            },
+                                                            "total_sold": {
+                                                                "type": "integer",
+                                                                "example": 0
+                                                            },
+                                                            "matched_variants": {
+                                                                "description": "Representative variant (cheapest in-stock variant matching the active filters)",
+                                                                "properties": {
+                                                                    "id": {
+                                                                        "type": "integer",
+                                                                        "example": 119
+                                                                    },
+                                                                    "price": {
+                                                                        "type": "number",
+                                                                        "example": 68
+                                                                    },
+                                                                    "color": {
+                                                                        "properties": {
+                                                                            "id": {
+                                                                                "type": "integer",
+                                                                                "example": 5
+                                                                            },
+                                                                            "name": {
+                                                                                "type": "string",
+                                                                                "example": "red"
+                                                                            },
+                                                                            "slug": {
+                                                                                "type": "string",
+                                                                                "example": "red"
+                                                                            },
+                                                                            "hex_code": {
+                                                                                "type": "string",
+                                                                                "example": "#ff2424"
+                                                                            }
+                                                                        },
+                                                                        "type": "object",
+                                                                        "nullable": true
+                                                                    },
+                                                                    "size": {
+                                                                        "properties": {
+                                                                            "id": {
+                                                                                "type": "integer",
+                                                                                "example": 7
+                                                                            },
+                                                                            "name": {
+                                                                                "type": "string",
+                                                                                "example": "39"
+                                                                            },
+                                                                            "slug": {
+                                                                                "type": "string",
+                                                                                "example": "39"
+                                                                            },
+                                                                            "type": {
+                                                                                "type": "string",
+                                                                                "example": "shoes",
+                                                                                "nullable": true
+                                                                            }
+                                                                        },
+                                                                        "type": "object",
+                                                                        "nullable": true
+                                                                    },
+                                                                    "amazing_sale": {
+                                                                        "properties": {
+                                                                            "id": {
+                                                                                "type": "integer",
+                                                                                "example": 39
+                                                                            },
+                                                                            "percentage": {
+                                                                                "type": "integer",
+                                                                                "example": 98
+                                                                            },
+                                                                            "start_date": {
+                                                                                "type": "string",
+                                                                                "example": "2026-09-03 12:00:00"
+                                                                            },
+                                                                            "end_date": {
+                                                                                "type": "string",
+                                                                                "example": "2026-09-30 12:00:00"
+                                                                            },
+                                                                            "is_active": {
+                                                                                "type": "integer",
+                                                                                "example": 1
+                                                                            },
+                                                                            "product_variant_id": {
+                                                                                "type": "integer",
+                                                                                "example": 119
+                                                                            }
+                                                                        },
+                                                                        "type": "object",
+                                                                        "nullable": true
+                                                                    },
+                                                                    "final_price": {
+                                                                        "type": "number",
+                                                                        "example": 1.36
+                                                                    },
+                                                                    "stock": {
+                                                                        "type": "integer",
+                                                                        "example": 110
+                                                                    }
+                                                                },
+                                                                "type": "object",
+                                                                "nullable": true
+                                                            }
+                                                        },
+                                                        "type": "object"
+                                                    }
+                                                },
+                                                "active_filters_count": {
+                                                    "description": "Number of currently active filters",
+                                                    "type": "integer",
+                                                    "example": 1
+                                                },
+                                                "pagination": {
+                                                    "properties": {
+                                                        "current_page": {
+                                                            "type": "integer",
+                                                            "example": 1
+                                                        },
+                                                        "last_page": {
+                                                            "type": "integer",
+                                                            "example": 1
+                                                        },
+                                                        "per_page": {
+                                                            "type": "integer",
+                                                            "example": 16
+                                                        },
+                                                        "total": {
+                                                            "type": "integer",
+                                                            "example": 4
+                                                        },
+                                                        "from": {
+                                                            "type": "integer",
+                                                            "example": 1,
+                                                            "nullable": true
+                                                        },
+                                                        "to": {
+                                                            "type": "integer",
+                                                            "example": 4,
+                                                            "nullable": true
+                                                        },
+                                                        "next_page_url": {
+                                                            "type": "string",
+                                                            "example": "http://127.0.0.1:8000/api/shop?page=2",
+                                                            "nullable": true
+                                                        },
+                                                        "prev_page_url": {
+                                                            "type": "string",
+                                                            "example": null,
+                                                            "nullable": true
+                                                        }
+                                                    },
+                                                    "type": "object"
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/422ResponseSchema"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
         "/api/address-and-delivery": {
             "get": {
                 "tags": [

@@ -20,7 +20,7 @@ class ProductVariantResource extends JsonResource
             'product' => new ProductResource($this->whenLoaded('product')),
             'color' => new ColorResource($this->whenLoaded('color')),
             'size' => new SizeResource($this->whenLoaded('size')),
-            'amazing_sale' => new AmazingSaleResource($this->whenLoaded('amazingSale')),
+            'amazing_sale' => new AmazingSaleResource($this->whenLoaded('activeAmazingSale')),
             'final_price' => (float) $this->final_price,
             'stock' => $this->availableStock(),
         ];

@@ -24,7 +24,7 @@ class ProductListResource extends JsonResource
             'brand' => new BrandResource($this->whenLoaded('brand')),
             'is_liked' => $this->isLikedByUser(),
             'total_sold' => (int) ($this->total_sold ?? 0),
-            'matched_variants' => ProductVariantResource::collection($this->whenLoaded('variants')),
+            'matched_variants' =>  $this->representativeVariant ? new ProductVariantResource($this->representativeVariant['variant']) : null,
         ];
     }
 }

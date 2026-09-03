@@ -548,109 +548,10 @@
                             <div class="block2-pic hov-img0">
 
                                 @php
-                                    // -----------------------------
-                                    //  دریافت فیلترهای کاربر
-                                    // -----------------------------
-                                    $fColors = request()->colors ?? [];
-                                    $fSizes = request()->sizes ?? [];
-                                    $fMinPrice = request()->min_price;
-                                    $fMaxPrice = request()->max_price;
-                                    $fOnSale = request()->on_sale == 1;
-                                    $fBigDeals = request()->big_deals == 1;
-                                    $fInStock = request()->in_stock == 1;
-                                    $fOutOfStock = request()->out_of_stock == 1;
-                                    $sortBy = request()->sort;
-
-                                    $isAnyFilterActive =
-                                        !empty($fColors) ||
-                                        !empty($fSizes) ||
-                                        $fMinPrice ||
-                                        $fMaxPrice ||
-                                        $fOnSale ||
-                                        $fBigDeals ||
-                                        $fInStock ||
-                                        $fOutOfStock;
-
-                                    // ------------------------------------------------------
-                                    //  فیلتر کردن واریانت‌ها بر اساس فیلترهای کاربر
-                                    // ------------------------------------------------------
-                                    $filteredVariants = $product->variants->filter(function ($v) use (
-                                        $fColors,
-                                        $fSizes,
-                                        $fMinPrice,
-                                        $fMaxPrice,
-                                        $fOnSale,
-                                        $fBigDeals,
-                                        $fInStock,
-                                        $fOutOfStock,
-                                    ) {
-                                        // فیلتر رنگ
-                                        if ($fColors && !in_array(optional($v->color)->slug, $fColors)) {
-                                            return false;
-                                        }
-
-                                        // فیلتر سایز
-                                        if ($fSizes && !in_array(optional($v->size)->slug, $fSizes)) {
-                                            return false;
-                                        }
-
-                                        // فیلتر قیمت
-                                        if ($fMinPrice && $v->final_price < $fMinPrice) {
-                                            return false;
-                                        }
-                                        if ($fMaxPrice && $v->final_price > $fMaxPrice) {
-                                            return false;
-                                        }
-
-                                        // اگر کاربر یکی از این دوتا رو زده بود
-                                        if ($fInStock || $fOutOfStock) {
-                                            // فیلتر موجودی
-                                            if ($fInStock && !$fOutOfStock && $v->availableStock() <= 0) {
-                                                return false;
-                                            }
-
-                                            // فیلتر ناموجودی
-                                            if ($fOutOfStock && !$fInStock && $v->availableStock() > 0) {
-                                                return false;
-                                            }
-                                        }
-
-                                        // فیلتر تخفیف
-                                        if ($fOnSale || $fBigDeals) {
-                                            // اگر تخفیف فعال ندارد رد کن
-                                            if (!$v->activeAmazingSale) {
-                                                return false;
-                                            }
-
-                                            // اگر فقط Big deals 30٪
-                                            if ($fBigDeals && !$fOnSale && $v->activeAmazingSale->percentage < 30) {
-                                                return false;
-                                            }
-                                        }
-
-                                        return true;
-                                    });
-
-                                    // --------------------------------------------
-                                    //  انتخاب واریانت مناسب بر اساس شرایط
-                                    // --------------------------------------------
-                                    $variant = null;
-
-                                    $basePool = $isAnyFilterActive ? $filteredVariants : $product->variants;
-
-                                    if ($basePool->isNotEmpty()) {
-                                        // اولویت با موجودهاست، مگر اینکه کاربر فقط out_of_stock زده باشد
-                                        $inStockPool = $basePool->filter(fn($v) => $v->availableStock() > 0);
-
-                                        $pool = $inStockPool->isNotEmpty() ? $inStockPool : $basePool;
-
-                                        $variant = $pool->sortBy('final_price')->first();
-                                    }
-
-                                    $isVariantAvailable = $variant?->availableStock() > 0;
-
-                                    $isProductAvailable = $product->variants->sum(fn($v) => $v->availableStock()) > 0;
-
+                                    $rep = $product->representativeVariant;
+                                    $variant = $rep['variant'] ?? null;
+                                    $isVariantAvailable = $rep['isVariantAvailable'] ?? false;
+                                    $isProductAvailable = $rep['isProductAvailable'] ?? false;
                                 @endphp
 
 
@@ -1013,7 +914,7 @@
 
             const existingToast = document.querySelector('.custom-toast');
             if (existingToast) {
-                existingToast.remove(); 
+                existingToast.remove();
             }
 
             // ایجاد المان اصلی توست
