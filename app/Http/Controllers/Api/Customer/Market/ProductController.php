@@ -12,7 +12,7 @@ use App\Services\ProductService;
 use OpenApi\Attributes as OA;
 
 
-#[OA\Tag(name: 'Product', description: 'Product details, add comments')]
+#[OA\Tag(name: 'Product', description: 'Product details, Add comments, Shop')]
 
 class ProductController extends Controller
 {

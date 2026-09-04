@@ -3,8 +3,10 @@
 use App\Http\Controllers\Api\Auth\LoginRegisterController;
 use App\Http\Controllers\Api\Customer\Market\ProductController;
 use App\Http\Controllers\Api\Customer\Market\ShopController;
+use App\Http\Controllers\Api\Customer\Profile\ProfileController;
 use App\Http\Controllers\Api\Customer\SalesProcess\AddressController;
 use App\Http\Controllers\Api\Customer\SalesProcess\CartController;
+use App\Http\Controllers\Api\Customer\SalesProcess\PaymentController;
 use App\Http\Controllers\LikeController;
 use Illuminate\Support\Facades\Route;
 
@@ -19,13 +21,16 @@ Route::middleware('guest')->group(function () {
 });
 
 
+// shop
+Route::get('/shop/{category:slug?}', [ShopController::class, 'shop']);
 
 // product detail
 Route::get('/product/{product:slug}', [ProductController::class, 'product']);
 
-
-
 Route::middleware('auth:sanctum')->group(function () {
+
+    // product add comment
+    Route::post('/product/{product:slug}/add-comment', [ProductController::class, 'addComment'])->middleware('throttle:add-comment');
 
     Route::get('/logout', [LoginRegisterController::class, 'logout']);
 
@@ -39,13 +44,21 @@ Route::middleware('auth:sanctum')->group(function () {
     // like
     Route::post('/like/{type}/{id}', [LikeController::class, 'toggle'])->middleware('throttle:like');
 
-    // product add comment
-    Route::post('/product/{product:slug}/add-comment', [ProductController::class, 'addComment'])->middleware('throttle:add-comment');
+    Route::namespace('Profile')->group(function () {
+        Route::get('/my-orders', [ProfileController::class, 'myOrders']);
+        Route::get('/my-orders/detail/{order}', [ProfileController::class, 'myOrdersDetail'])->middleware('can:view,order');
+    });
 
     //address
     Route::get('/address-and-delivery', [AddressController::class, 'addressAndDelivery']);
     Route::post('/store-address', [AddressController::class, 'storeAddress'])->middleware('throttle:address');
     Route::put('/update-address/{address}', [AddressController::class, 'updateAddress'])->middleware(['throttle:address', 'can:update,address']);
-    
+
     Route::get('/provinces/{province}/cities', [AddressController::class, 'getCities']);
+
+    // payment
+    Route::post('/payment', [PaymentController::class, 'payment'])->middleware('throttle:payment');
 });
+
+// payment calback
+Route::get('/payment-callback/{order}/{payment}', [PaymentController::class, 'paymentCallBack']);

@@ -58,10 +58,6 @@ class Product extends Model
         return $this->hasManyThrough(
             OrderItem::class,
             ProductVariant::class,
-            'product_id',
-            'product_variant_id',
-            'id',
-            'id'
         );
     }
 
