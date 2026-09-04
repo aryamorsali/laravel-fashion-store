@@ -16,7 +16,7 @@ use OpenApi\Attributes as OA;
 
 #[OA\Tag(
     name: 'Payment',
-    description: 'Payment, payment callback'
+    description: 'Payment, Payment callback'
 )]
 
 class PaymentController extends Controller

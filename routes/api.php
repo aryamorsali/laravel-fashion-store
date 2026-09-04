@@ -44,6 +44,11 @@ Route::middleware('auth:sanctum')->group(function () {
     // like
     Route::post('/like/{type}/{id}', [LikeController::class, 'toggle'])->middleware('throttle:like');
 
+    Route::namespace('Profile')->group(function () {
+        // user orders
+        Route::get('/my-orders', [ProfileController::class, 'myOrders']);
+    });
+
     //address
     Route::get('/address-and-delivery', [AddressController::class, 'addressAndDelivery']);
     Route::post('/store-address', [AddressController::class, 'storeAddress'])->middleware('throttle:address');

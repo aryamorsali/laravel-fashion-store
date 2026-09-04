@@ -207,22 +207,23 @@ class ShopController extends Controller
                                     )
                                 ),
                                 new OA\Property(property: 'active_filters_count', type: 'integer', description: 'Number of currently active filters', example: 1),
-                                new OA\Property(
-                                    property: 'pagination',
-                                    type: 'object',
-                                    properties: [
-                                        new OA\Property(property: 'current_page', type: 'integer', example: 1),
-                                        new OA\Property(property: 'last_page', type: 'integer', example: 1),
-                                        new OA\Property(property: 'per_page', type: 'integer', example: 16),
-                                        new OA\Property(property: 'total', type: 'integer', example: 4),
-                                        new OA\Property(property: 'from', type: 'integer', nullable: true, example: 1),
-                                        new OA\Property(property: 'to', type: 'integer', nullable: true, example: 4),
-                                        new OA\Property(property: 'next_page_url', type: 'string', nullable: true, example: 'http://127.0.0.1:8000/api/shop?page=2'),
-                                        new OA\Property(property: 'prev_page_url', type: 'string', nullable: true, example: null),
-                                    ]
-                                ),
+
                             ]
-                        )
+                        ),
+                        new OA\Property(
+                            property: 'pagination',
+                            type: 'object',
+                            properties: [
+                                new OA\Property(property: 'current_page', type: 'integer', example: 1),
+                                new OA\Property(property: 'last_page', type: 'integer', example: 1),
+                                new OA\Property(property: 'per_page', type: 'integer', example: 16),
+                                new OA\Property(property: 'total', type: 'integer', example: 4),
+                                new OA\Property(property: 'from', type: 'integer', nullable: true, example: 1),
+                                new OA\Property(property: 'to', type: 'integer', nullable: true, example: 4),
+                                new OA\Property(property: 'next_page_url', type: 'string', nullable: true, example: 'http://127.0.0.1:8000/api/shop?page=2'),
+                                new OA\Property(property: 'prev_page_url', type: 'string', nullable: true, example: null),
+                            ]
+                        ),
                     ]
                 )
             ),
@@ -252,16 +253,16 @@ class ShopController extends Controller
             'data' => [
                 'products' => ProductListResource::collection($result['products']->items()),
                 'active_filters_count' => $result['activeFiltersCount'],
-                'pagination' => [
-                    'current_page' => $result['products']->currentPage(),
-                    'last_page' => $result['products']->lastPage(),
-                    'per_page' => $result['products']->perPage(),
-                    'total' => $result['products']->total(),
-                    'from' => $result['products']->firstItem(),
-                    'to' => $result['products']->lastItem(),
-                    'next_page_url' => $result['products']->nextPageUrl(),
-                    'prev_page_url' => $result['products']->previousPageUrl(),
-                ],
+            ],
+            'pagination' => [
+                'current_page' => $result['products']->currentPage(),
+                'last_page' => $result['products']->lastPage(),
+                'per_page' => $result['products']->perPage(),
+                'total' => $result['products']->total(),
+                'from' => $result['products']->firstItem(),
+                'to' => $result['products']->lastItem(),
+                'next_page_url' => $result['products']->nextPageUrl(),
+                'prev_page_url' => $result['products']->previousPageUrl(),
             ],
         ]);
     }

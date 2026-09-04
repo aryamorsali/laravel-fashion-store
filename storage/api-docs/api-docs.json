@@ -996,7 +996,7 @@
                         "required": false,
                         "schema": {
                             "type": "string",
-                            "example": " "
+                            "example": "men"
                         }
                     },
                     {
@@ -1318,47 +1318,47 @@
                                                     "description": "Number of currently active filters",
                                                     "type": "integer",
                                                     "example": 1
+                                                }
+                                            },
+                                            "type": "object"
+                                        },
+                                        "pagination": {
+                                            "properties": {
+                                                "current_page": {
+                                                    "type": "integer",
+                                                    "example": 1
                                                 },
-                                                "pagination": {
-                                                    "properties": {
-                                                        "current_page": {
-                                                            "type": "integer",
-                                                            "example": 1
-                                                        },
-                                                        "last_page": {
-                                                            "type": "integer",
-                                                            "example": 1
-                                                        },
-                                                        "per_page": {
-                                                            "type": "integer",
-                                                            "example": 16
-                                                        },
-                                                        "total": {
-                                                            "type": "integer",
-                                                            "example": 4
-                                                        },
-                                                        "from": {
-                                                            "type": "integer",
-                                                            "example": 1,
-                                                            "nullable": true
-                                                        },
-                                                        "to": {
-                                                            "type": "integer",
-                                                            "example": 4,
-                                                            "nullable": true
-                                                        },
-                                                        "next_page_url": {
-                                                            "type": "string",
-                                                            "example": "http://127.0.0.1:8000/api/shop?page=2",
-                                                            "nullable": true
-                                                        },
-                                                        "prev_page_url": {
-                                                            "type": "string",
-                                                            "example": null,
-                                                            "nullable": true
-                                                        }
-                                                    },
-                                                    "type": "object"
+                                                "last_page": {
+                                                    "type": "integer",
+                                                    "example": 1
+                                                },
+                                                "per_page": {
+                                                    "type": "integer",
+                                                    "example": 16
+                                                },
+                                                "total": {
+                                                    "type": "integer",
+                                                    "example": 4
+                                                },
+                                                "from": {
+                                                    "type": "integer",
+                                                    "example": 1,
+                                                    "nullable": true
+                                                },
+                                                "to": {
+                                                    "type": "integer",
+                                                    "example": 4,
+                                                    "nullable": true
+                                                },
+                                                "next_page_url": {
+                                                    "type": "string",
+                                                    "example": "http://127.0.0.1:8000/api/shop?page=2",
+                                                    "nullable": true
+                                                },
+                                                "prev_page_url": {
+                                                    "type": "string",
+                                                    "example": null,
+                                                    "nullable": true
                                                 }
                                             },
                                             "type": "object"
@@ -1378,8 +1378,172 @@
                                 }
                             }
                         }
+                    },
+                    "404": {
+                        "description": "Category not found",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/404ResponseSchema"
+                                }
+                            }
+                        }
                     }
                 }
+            }
+        },
+        "/api/my-orders": {
+            "get": {
+                "tags": [
+                    "Order"
+                ],
+                "summary": "Get user orders list",
+                "description": "Retrieve a lightweight paginated list of orders placed by the authenticated user.",
+                "operationId": "e5796bf997f04ba6c59b50955368410b",
+                "parameters": [
+                    {
+                        "name": "page",
+                        "in": "query",
+                        "description": "Page number for pagination",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "example": 1,
+                            "default": 1
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "User orders successfully retrieved",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status": {
+                                            "type": "string",
+                                            "example": "success"
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "User orders successfully found"
+                                        },
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "properties": {
+                                                    "id": {
+                                                        "type": "integer",
+                                                        "example": 41
+                                                    },
+                                                    "status": {
+                                                        "properties": {
+                                                            "order_status": {
+                                                                "type": "string",
+                                                                "example": "canceled"
+                                                            },
+                                                            "payment_status": {
+                                                                "type": "string",
+                                                                "example": "unpaid"
+                                                            },
+                                                            "delivery_status": {
+                                                                "type": "string",
+                                                                "example": "sending"
+                                                            }
+                                                        },
+                                                        "type": "object"
+                                                    },
+                                                    "pricing": {
+                                                        "properties": {
+                                                            "final_amount": {
+                                                                "type": "integer",
+                                                                "example": 51
+                                                            },
+                                                            "total_discount": {
+                                                                "type": "integer",
+                                                                "example": 0
+                                                            },
+                                                            "delivery_amount": {
+                                                                "type": "integer",
+                                                                "example": 7
+                                                            }
+                                                        },
+                                                        "type": "object"
+                                                    },
+                                                    "delivery_date": {
+                                                        "type": "string",
+                                                        "example": "2026-09-04 23:44:56"
+                                                    },
+                                                    "created_at": {
+                                                        "type": "string",
+                                                        "format": "date-time",
+                                                        "example": "2026-08-30T20:14:56.000000Z"
+                                                    }
+                                                },
+                                                "type": "object"
+                                            }
+                                        },
+                                        "pagination": {
+                                            "properties": {
+                                                "current_page": {
+                                                    "type": "integer",
+                                                    "example": 1
+                                                },
+                                                "last_page": {
+                                                    "type": "integer",
+                                                    "example": 2
+                                                },
+                                                "per_page": {
+                                                    "type": "integer",
+                                                    "example": 1
+                                                },
+                                                "total": {
+                                                    "type": "integer",
+                                                    "example": 2
+                                                },
+                                                "from": {
+                                                    "type": "integer",
+                                                    "example": 1
+                                                },
+                                                "to": {
+                                                    "type": "integer",
+                                                    "example": 1
+                                                },
+                                                "next_page_url": {
+                                                    "type": "string",
+                                                    "example": "http://127.0.0.1:8000/api/my-orders?page=2",
+                                                    "nullable": true
+                                                },
+                                                "prev_page_url": {
+                                                    "type": "string",
+                                                    "example": null,
+                                                    "nullable": true
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthenticated",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/401ResponseSchema"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
             }
         },
         "/api/address-and-delivery": {
@@ -3804,7 +3968,11 @@
         },
         {
             "name": "Product",
-            "description": "Product details, add comments, shop"
+            "description": "Product details, Add comments, Shop"
+        },
+        {
+            "name": "Order",
+            "description": "User orders list, Order detail"
         },
         {
             "name": "Address",
@@ -3816,7 +3984,7 @@
         },
         {
             "name": "Payment",
-            "description": "Payment, payment callback"
+            "description": "Payment, Payment callback"
         },
         {
             "name": "Like"
