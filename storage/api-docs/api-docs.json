@@ -1546,6 +1546,339 @@
                 ]
             }
         },
+        "/api/my-orders/detail/{order}": {
+            "get": {
+                "tags": [
+                    "Order"
+                ],
+                "summary": "Get user order details",
+                "description": "Retrieve full details of a specific order belonging to the authenticated user including snapshots and ordered items.",
+                "operationId": "faa03e0aa1256e23afae7465f79c263e",
+                "parameters": [
+                    {
+                        "name": "order",
+                        "in": "path",
+                        "description": "The ID of the order",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "example": 41
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "User order details successfully retrieved",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status": {
+                                            "type": "string",
+                                            "example": "success"
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "User order details"
+                                        },
+                                        "data": {
+                                            "properties": {
+                                                "id": {
+                                                    "type": "integer",
+                                                    "example": 41
+                                                },
+                                                "status": {
+                                                    "properties": {
+                                                        "order_status": {
+                                                            "type": "string",
+                                                            "example": "canceled"
+                                                        },
+                                                        "payment_status": {
+                                                            "type": "string",
+                                                            "example": "unpaid"
+                                                        },
+                                                        "delivery_status": {
+                                                            "type": "string",
+                                                            "example": "sending"
+                                                        }
+                                                    },
+                                                    "type": "object"
+                                                },
+                                                "pricing": {
+                                                    "properties": {
+                                                        "final_amount": {
+                                                            "type": "integer",
+                                                            "example": 51
+                                                        },
+                                                        "total_products_discount": {
+                                                            "type": "integer",
+                                                            "example": 0
+                                                        },
+                                                        "total_discount": {
+                                                            "type": "integer",
+                                                            "example": 0
+                                                        },
+                                                        "coupon_discount": {
+                                                            "type": "integer",
+                                                            "example": 0
+                                                        },
+                                                        "common_discount": {
+                                                            "type": "integer",
+                                                            "example": 0
+                                                        },
+                                                        "delivery_amount": {
+                                                            "type": "integer",
+                                                            "example": 7
+                                                        }
+                                                    },
+                                                    "type": "object"
+                                                },
+                                                "snapshots": {
+                                                    "properties": {
+                                                        "address": {
+                                                            "properties": {
+                                                                "province": {
+                                                                    "type": "string",
+                                                                    "example": "Isfahan"
+                                                                },
+                                                                "city": {
+                                                                    "type": "string",
+                                                                    "example": "Isfahan"
+                                                                },
+                                                                "address": {
+                                                                    "type": "string",
+                                                                    "example": "tehran valiasr street"
+                                                                },
+                                                                "postal_code": {
+                                                                    "type": "string",
+                                                                    "example": "1234567890"
+                                                                },
+                                                                "receiver": {
+                                                                    "type": "string",
+                                                                    "example": "abbas nasiri"
+                                                                },
+                                                                "mobile": {
+                                                                    "type": "string",
+                                                                    "example": "09121234567"
+                                                                },
+                                                                "unit": {
+                                                                    "type": "string",
+                                                                    "example": "3"
+                                                                },
+                                                                "no": {
+                                                                    "type": "string",
+                                                                    "example": "12"
+                                                                }
+                                                            },
+                                                            "type": "object"
+                                                        },
+                                                        "delivery": {
+                                                            "properties": {
+                                                                "name": {
+                                                                    "type": "string",
+                                                                    "example": "motor peyck"
+                                                                },
+                                                                "delivery_cost": {
+                                                                    "type": "string",
+                                                                    "example": "7.000"
+                                                                },
+                                                                "delivery_days": {
+                                                                    "type": "integer",
+                                                                    "example": 5
+                                                                }
+                                                            },
+                                                            "type": "object"
+                                                        },
+                                                        "coupon": {
+                                                            "type": "object",
+                                                            "example": null,
+                                                            "nullable": true
+                                                        },
+                                                        "common_discount": {
+                                                            "properties": {
+                                                                "id": {
+                                                                    "type": "integer",
+                                                                    "example": 185
+                                                                },
+                                                                "order_id": {
+                                                                    "type": "integer",
+                                                                    "example": 41
+                                                                },
+                                                                "product_variant_id": {
+                                                                    "type": "integer",
+                                                                    "example": 128
+                                                                },
+                                                                "amazing_sale_id": {
+                                                                    "type": "integer",
+                                                                    "example": null,
+                                                                    "nullable": true
+                                                                },
+                                                                "quantity": {
+                                                                    "type": "integer",
+                                                                    "example": 1
+                                                                },
+                                                                "product_snapshot": {
+                                                                    "properties": {
+                                                                        "has_color": {
+                                                                            "type": "integer",
+                                                                            "example": 0
+                                                                        },
+                                                                        "has_size": {
+                                                                            "type": "integer",
+                                                                            "example": 1
+                                                                        },
+                                                                        "name": {
+                                                                            "type": "string",
+                                                                            "example": "tenetur accusamus nisi"
+                                                                        },
+                                                                        "slug": {
+                                                                            "type": "string",
+                                                                            "example": "consequuntur-dolorem-eaque-repudiandae-ipsa-nam-est-quae"
+                                                                        },
+                                                                        "description": {
+                                                                            "type": "string",
+                                                                            "example": "<p>Eum voluptate esse ipsam. Quia cupiditate autem est consequatur fuga sit excepturi.</p>"
+                                                                        },
+                                                                        "image": {
+                                                                            "properties": {
+                                                                                "indexArray": {
+                                                                                    "properties": {
+                                                                                        "large": {
+                                                                                            "type": "string",
+                                                                                            "example": "images/product/2026/05/04/1777842780_large.jpg"
+                                                                                        },
+                                                                                        "main": {
+                                                                                            "type": "string",
+                                                                                            "example": "images/product/2026/05/04/1777842780_main.jpg"
+                                                                                        },
+                                                                                        "small": {
+                                                                                            "type": "string",
+                                                                                            "example": "images/product/2026/05/04/1777842780_small.jpg"
+                                                                                        }
+                                                                                    },
+                                                                                    "type": "object"
+                                                                                },
+                                                                                "directory": {
+                                                                                    "type": "string",
+                                                                                    "example": "images/product/2026/05/04"
+                                                                                },
+                                                                                "currentImage": {
+                                                                                    "type": "string",
+                                                                                    "example": "main"
+                                                                                }
+                                                                            },
+                                                                            "type": "object"
+                                                                        },
+                                                                        "base_price": {
+                                                                            "type": "string",
+                                                                            "example": "38.00"
+                                                                        },
+                                                                        "brand_id": {
+                                                                            "type": "integer",
+                                                                            "example": 14
+                                                                        },
+                                                                        "category_id": {
+                                                                            "type": "integer",
+                                                                            "example": 20
+                                                                        },
+                                                                        "status": {
+                                                                            "type": "string",
+                                                                            "example": "published"
+                                                                        },
+                                                                        "published_at": {
+                                                                            "type": "string",
+                                                                            "format": "date-time",
+                                                                            "example": "2026-04-30T19:59:00.000000Z"
+                                                                        },
+                                                                        "created_at": {
+                                                                            "type": "string",
+                                                                            "format": "date-time",
+                                                                            "example": "2026-04-30T19:59:45.000000Z"
+                                                                        },
+                                                                        "updated_at": {
+                                                                            "type": "string",
+                                                                            "format": "date-time",
+                                                                            "example": "2026-06-19T19:35:53.000000Z"
+                                                                        },
+                                                                        "deleted_at": {
+                                                                            "type": "string",
+                                                                            "example": null,
+                                                                            "nullable": true
+                                                                        }
+                                                                    },
+                                                                    "type": "object"
+                                                                },
+                                                                "amazing_sale_snapshot": {
+                                                                    "type": "object",
+                                                                    "example": null,
+                                                                    "nullable": true
+                                                                },
+                                                                "amazing_sale_discount_amount": {
+                                                                    "type": "integer",
+                                                                    "example": 0
+                                                                },
+                                                                "final_product_price": {
+                                                                    "type": "integer",
+                                                                    "example": 44
+                                                                },
+                                                                "final_total_price": {
+                                                                    "type": "integer",
+                                                                    "example": 44
+                                                                }
+                                                            },
+                                                            "type": "object",
+                                                            "nullable": true
+                                                        }
+                                                    },
+                                                    "type": "object"
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthenticated",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/401ResponseSchema"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Unauthorized",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/403ResponseSchema"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Order not found",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/404ResponseSchema"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
         "/api/address-and-delivery": {
             "get": {
                 "tags": [
