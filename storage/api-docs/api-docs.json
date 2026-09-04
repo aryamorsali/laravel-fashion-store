@@ -996,7 +996,7 @@
                         "required": false,
                         "schema": {
                             "type": "string",
-                            "example": "men-clothes"
+                            "example": " "
                         }
                     },
                     {
@@ -3804,7 +3804,7 @@
         },
         {
             "name": "Product",
-            "description": "Product details, add comments"
+            "description": "Product details, add comments, shop"
         },
         {
             "name": "Address",

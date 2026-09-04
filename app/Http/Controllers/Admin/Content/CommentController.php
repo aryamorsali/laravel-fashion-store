@@ -59,7 +59,6 @@ class CommentController extends Controller
             $inputs['commentable_id'] = $comment->commentable_id;
             $inputs['commentable_type'] = $comment->commentable_type;
             $inputs['approved'] = 1;
-            $inputs['status'] = 1;
 
             $comment = Comment::create($inputs);
             return redirect()->route('admin.content.comment.index')->with(
@@ -90,21 +89,6 @@ class CommentController extends Controller
     public function destroy(string $id)
     {
         //
-    }
-
-    public function status(Comment $comment)
-    {
-        $comment->status = $comment->status == 0 ? 1 : 0;
-        $result = $comment->save();
-        if ($result) {
-            if ($comment->status == 0) {
-                return response()->json(['status' => true, 'checked' => false]);
-            } else {
-                return response()->json(['status' => true, 'checked' => true]);
-            }
-        } else {
-            return response()->json(['status' => false]);
-        }
     }
 
     public function approved(Comment $comment)

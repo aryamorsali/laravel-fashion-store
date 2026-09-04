@@ -3,6 +3,7 @@
 use App\Http\Controllers\Api\Auth\LoginRegisterController;
 use App\Http\Controllers\Api\Customer\Market\ProductController;
 use App\Http\Controllers\Api\Customer\Market\ShopController;
+use App\Http\Controllers\Api\Customer\Profile\ProfileController;
 use App\Http\Controllers\Api\Customer\SalesProcess\AddressController;
 use App\Http\Controllers\Api\Customer\SalesProcess\CartController;
 use App\Http\Controllers\Api\Customer\SalesProcess\PaymentController;

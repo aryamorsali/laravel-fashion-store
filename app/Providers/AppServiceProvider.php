@@ -3,6 +3,8 @@
 namespace App\Providers;
 
 use App\Models\Market\CartItem;
+use App\Models\Market\ProductCategory;
+use App\Models\Setting\Setting;
 use App\Models\User;
 use App\Models\User\Permission;
 use Illuminate\Cache\RateLimiting\Limit;
@@ -68,6 +70,10 @@ class AppServiceProvider extends ServiceProvider
             return Limit::perMinute(30)->by($request->ip());
         });
 
+        RateLimiter::for('contactMessage', function (Request $request) {
+            return Limit::perMinute(5)->by($request->user()?->id ?: $request->ip());
+        });
+
         // برای هدر این مقادیر ارسال میشود
         view()->composer('customer.layouts.header', function ($view) {
             if (Auth::check()) {
@@ -82,5 +88,20 @@ class AppServiceProvider extends ServiceProvider
                 return $user->hasPermissionTo($permission) || $user->is_owner;
             });
         }
+
+
+        // این متغیرها فقط و فقط به فایل layouts.app و فایل‌های داخل پوشه customer فرستاده می‌شوند
+        View::composer(['customer.layouts.app', 'customer.content', 'customer.content.contact'], function ($view) {
+
+            // array
+            $settings = Setting::where('status', 1)->pluck('value', 'key')->toArray();
+
+            $categories = ProductCategory::where('parent_id', null)->where('status', 1)->get();
+
+            $view->with([
+                'settings' => $settings,
+                'categories' => $categories,
+            ]);
+        });
     }
 }

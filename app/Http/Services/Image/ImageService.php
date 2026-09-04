@@ -88,6 +88,31 @@ class ImageService extends ImageToolsService
     }
 
 
+    public function createAvatarAndSave($image): string|false
+    {
+        $this->setImage($image);
+
+        $this->getImageDirectory()
+            ?? $this->setImageDirectory(
+                date('Y') . DIRECTORY_SEPARATOR . date('m') . DIRECTORY_SEPARATOR . date('d')
+            );
+
+        $this->getImageName() ?? $this->setImageName(time() . '_avatar');
+
+        $this->provider();
+
+        $result = Image::make($image->getRealPath())
+            ->fit(300, 300)
+            ->save(
+                public_path($this->getImageAddress()),
+                null,
+                $this->getImageFormat()
+            );
+
+        return $result ? $this->getImageAddress() : false;
+    }
+
+
     public function createBlogImagesAndSave($image)
     {
         $imageSizes = Config::get('image.blog-image-sizes');

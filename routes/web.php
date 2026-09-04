@@ -1,9 +1,11 @@
 <?php
 
 use App\Http\Controllers\Admin\AdminDashboardController;
+use App\Http\Controllers\Admin\Content\AboutController;
 use App\Http\Controllers\Admin\Content\BannerController;
 use App\Http\Controllers\Admin\Content\CategoryController as ContentCategoryController;
 use App\Http\Controllers\Admin\Content\CommentController as ContentCommentController;
+use App\Http\Controllers\Admin\Content\ContactMesseageController;
 use App\Http\Controllers\Admin\Content\FAQController;
 use App\Http\Controllers\Admin\Market\HomeBoxController;
 use App\Http\Controllers\Admin\Content\MenuController;
@@ -29,6 +31,9 @@ use App\Http\Controllers\Admin\Market\WarehouseController;
 use App\Http\Controllers\Admin\Market\WarehouseTransactionController;
 use App\Http\Controllers\Admin\Market\WarehouseVariantController;
 use App\Http\Controllers\Admin\Setting\SettingController;
+use App\Http\Controllers\Admin\Notification\EmailController;
+use App\Http\Controllers\Admin\Notification\EmailFileController;
+use App\Http\Controllers\Admin\Notification\SMSController;
 use App\Http\Controllers\Admin\Ticket\AdminTicketController;
 use App\Http\Controllers\Admin\Ticket\TicketCategoryController;
 use App\Http\Controllers\Admin\Ticket\TicketController;
@@ -37,14 +42,17 @@ use App\Http\Controllers\Admin\User\AdminUserController;
 use App\Http\Controllers\Admin\User\CustomerController;
 use App\Http\Controllers\Admin\User\PermissionController;
 use App\Http\Controllers\Admin\User\RoleController;
+use App\Http\Controllers\Customer\Content\ContentController;
 use App\Http\Controllers\Customer\HomeController;
-use App\Http\Controllers\Customer\Market\ProductController as MarketProductController;
 use App\Http\Controllers\Customer\Market\ShopController;
+use App\Http\Controllers\Customer\Profile\ProfileController;
+use App\Http\Controllers\Customer\Profile\ProfileTiketController;
+use App\Http\Controllers\Customer\Market\ProductController as MarketProductController;
 use App\Http\Controllers\Customer\SalesProcess\AddressController;
 use App\Http\Controllers\Customer\SalesProcess\CartController;
-use App\Http\Controllers\Customer\SalesProcess\PaymentController as SalesProcessPaymentController;
 use App\Http\Controllers\LikeController;
-use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\Customer\SalesProcess\PaymentController as SalesProcessPaymentController;
+
 use Illuminate\Support\Facades\Route;
 
 // admin
@@ -308,6 +316,42 @@ Route::prefix('admin')->middleware(['auth', 'can:access-admin-panel'])->group(fu
         });
     });
 
+    // notification 
+    Route::prefix('notification')->group(function () {
+        // email
+        Route::prefix('email')->group(function () {
+
+            Route::get('/', [EmailController::class, 'index'])->name('admin.notification.email.index')->middleware('can:view-email-notification');
+            Route::get('/create', [EmailController::class, 'create'])->name('admin.notification.email.create')->middleware('can:create-email-notification');
+            Route::post('/store', [EmailController::class, 'store'])->name('admin.notification.email.store')->middleware('can:create-email-notification');
+            Route::get('/{email}/edit', [EmailController::class, 'edit'])->name('admin.notification.email.edit')->middleware('can:update-email-notification');
+            Route::put('/{email}/update', [EmailController::class, 'update'])->name('admin.notification.email.update')->middleware('can:update-email-notification');
+            Route::delete('/{email}/destroy', [EmailController::class, 'destroy'])->name('admin.notification.email.destroy')->middleware('can:delete-email-notification');
+            Route::get('/{email}/send', [EmailController::class, 'send'])->name('admin.notification.email.send')->middleware('can:send-email-notification');
+
+            // email files
+            Route::prefix('{email}/file')->middleware('can:manage-email-notification-file')->group(function () {
+                Route::get('/', [EmailFileController::class, 'index'])->name('admin.notification.email.file.index');
+                Route::get('/create', [EmailFileController::class, 'create'])->name('admin.notification.email.file.create');
+                Route::post('/store', [EmailFileController::class, 'store'])->name('admin.notification.email.file.store');
+                Route::get('/{file}/edit', [EmailFileController::class, 'edit'])->name('admin.notification.email.file.edit');
+                Route::put('/{file}/update', [EmailFileController::class, 'update'])->name('admin.notification.email.file.update');
+                Route::delete('/{file}/destroy', [EmailFileController::class, 'destroy'])->name('admin.notification.email.file.destroy');
+            });
+        });
+        // sms
+        Route::prefix('sms')->group(function () {
+
+            Route::get('/', [SMSController::class, 'index'])->name('admin.notification.sms.index')->middleware('can:view-sms-notification');
+            Route::get('/create', [SMSController::class, 'create'])->name('admin.notification.sms.create')->middleware('can:create-sms-notification');
+            Route::post('/store', [SMSController::class, 'store'])->name('admin.notification.sms.store')->middleware('can:create-sms-notification');
+            Route::get('/{sms}/edit', [SMSController::class, 'edit'])->name('admin.notification.sms.edit')->middleware('can:update-sms-notification');
+            Route::put('/{sms}/update', [SMSController::class, 'update'])->name('admin.notification.sms.update')->middleware('can:update-sms-notification');
+            Route::delete('/{sms}/destroy', [SMSController::class, 'destroy'])->name('admin.notification.sms.destroy')->middleware('can:delete-sms-notification');
+            Route::get('/{sms}/send', [SMSController::class, 'send'])->name('admin.notification.sms.send')->middleware('can:send-sms-notification');
+        });
+    });
+
 
     // tickets
     Route::prefix('/ticket')->middleware('can:manage-tickets')->group(function () {
@@ -337,16 +381,6 @@ Route::prefix('admin')->middleware(['auth', 'can:access-admin-panel'])->group(fu
             Route::put('/update/{priority}', [TicketPriorityController::class, 'update'])->name('admin.ticket.priority.update');
             Route::delete('/destroy/{priority}', [TicketPriorityController::class, 'destroy'])->name('admin.ticket.priority.destroy');
             Route::get('/status/{priority}', [TicketPriorityController::class, 'status'])->name('admin.ticket.priority.status');
-        });
-
-        // ticket admin
-        Route::prefix('/admin')->group(function () {
-            Route::get('/', [AdminTicketController::class, 'index'])->name('admin.ticket.admin.index');
-            Route::get('/create', [AdminTicketController::class, 'create'])->name('admin.ticket.admin.create');
-            Route::post('/store', [AdminTicketController::class, 'store'])->name('admin.ticket.admin.store');
-            Route::get('/edit/{adminTicket}', [AdminTicketController::class, 'edit'])->name('admin.ticket.admin.edit');
-            Route::put('/update/{adminTicket}', [AdminTicketController::class, 'update'])->name('admin.ticket.admin.update');
-            Route::delete('/destroy/{adminTicket}', [AdminTicketController::class, 'destroy'])->name('admin.ticket.admin.destroy');
         });
     });
 
@@ -427,6 +461,18 @@ Route::prefix('admin')->middleware(['auth', 'can:access-admin-panel'])->group(fu
             Route::delete('/destroy/{banner}', [BannerController::class, 'destroy'])->name('admin.content.banner.destroy')->middleware('can:delete-banner');
             Route::get('/status/{banner}', [BannerController::class, 'status'])->name('admin.content.banner.status')->middleware('can:update-banner');
         });
+        // about
+        Route::prefix('about')->group(function () {
+            Route::get('/', [AboutController::class, 'index'])->name('admin.content.about.index')->middleware('can:view-about');
+            Route::get('/edit/{about}', [AboutController::class, 'edit'])->name('admin.content.about.edit')->middleware('can:update-about');
+            Route::put('/update/{about}', [AboutController::class, 'update'])->name('admin.content.about.update')->middleware('can:update-about');
+        });
+
+        // contact message
+        Route::prefix('contact')->middleware('can:view-contact-message')->group(function () {
+            Route::get('/', [ContactMesseageController::class, 'index'])->name('admin.content.contact.index');
+            Route::get('/show/{contact}', [ContactMesseageController::class, 'show'])->name('admin.content.contact.show');
+        });
     });
 
     // settings
@@ -442,47 +488,75 @@ require __DIR__ . '/auth.php';
 
 
 // -------------------------------------------------------------------------
-// view shop
-Route::get('/', [HomeController::class, 'home'])->name('customer.home');
-Route::get('/shop/{category:slug?}', [ShopController::class, 'shop'])->name('customer.market.shop');
+Route::namespace('customer')->middleware('CheckMaintenanceMode')->group(function () {
 
+    // view shop
+    Route::get('/', [HomeController::class, 'home'])->name('customer.home');
+    Route::get('/shop/{category:slug?}', [ShopController::class, 'shop'])->name('customer.market.shop');
 
-// product detail
-Route::prefix('/product')->group(function () {
-    Route::get('/{product:slug}', [MarketProductController::class, 'product'])->name('customer.market.product');
-    Route::post('/{product:slug}/add-comment', [MarketProductController::class, 'addComment'])->name('customer.market.add-comment')->middleware(['auth', 'throttle:add-comment']);
-});
-
-// sales process
-Route::namespace('SalesProcess')->group(function () {
-    Route::middleware('auth')->group(function () {
-
-        //cart
-        Route::get('/shoping-cart', [CartController::class, 'shopingCart'])->name('customer.sales-process.shoping-cart');
-        Route::post('/add-to-cart', [CartController::class, 'addToCart'])->name('customer.sales-process.add-to-cart')->middleware('throttle:cart');
-        Route::get('/remove-from-cart/{cartItem}', [CartController::class, 'removeFromCart'])->name('customer.sales-process.remove-from-cart')->middleware(['throttle:cart', 'can:delete,cartItem']);
-        Route::post('/shoping-cart/update', [CartController::class, 'updateCart'])->name('customer.sales-process.update-shoping-cart');
-        Route::post('/shoping-cart/coupon', [CartController::class, 'coupon'])->name('customer.sales-process.coupon')->middleware('throttle:coupon');
-        Route::get('/update-header-cart', [CartController::class, 'updateHeaderCart'])->name('customer.sales-process.update-header-cart');
-
-        //address
-        Route::get('/address-and-delivery', [AddressController::class, 'addressAndDelivery'])->name('customer.sales-process.address-and-delivery');
-        Route::post('/store-address', [AddressController::class, 'storeAddress'])->name('customer.sales-process.store-address')->middleware('throttle:address');
-        Route::put('/update-address/{address}', [AddressController::class, 'updateAddress'])->name('customer.sales-process.update-address')->middleware(['throttle:address', 'can:update,address']);
-        Route::get('/provinces/{province}/cities', [AddressController::class, 'getCities']);
-
-        // payment
-        Route::post('/payment', [SalesProcessPaymentController::class, 'payment'])->name('customer.sales-process.payment')->middleware('throttle:payment');
+    // product detail
+    Route::prefix('/product')->group(function () {
+        Route::get('/{product:slug}', [MarketProductController::class, 'product'])->name('customer.market.product');
+        Route::post('/{product:slug}/add-comment', [MarketProductController::class, 'addComment'])->name('customer.market.add-comment')->middleware(['auth', 'throttle:add-comment']);
     });
 
-    Route::get('/payment-callback/{order}/{payment}', [SalesProcessPaymentController::class, 'paymentCallBack'])->name('customer.sales-process.payment-call-back');
+    // sales process
+    Route::namespace('SalesProcess')->group(function () {
+        Route::middleware('auth')->group(function () {
+
+            //cart
+            Route::get('/shoping-cart', [CartController::class, 'shopingCart'])->name('customer.sales-process.shoping-cart');
+            Route::post('/add-to-cart', [CartController::class, 'addToCart'])->name('customer.sales-process.add-to-cart')->middleware('throttle:cart');
+            Route::get('/remove-from-cart/{cartItem}', [CartController::class, 'removeFromCart'])->name('customer.sales-process.remove-from-cart')->middleware(['throttle:cart', 'can:delete,cartItem']);
+            Route::post('/shoping-cart/update', [CartController::class, 'updateCart'])->name('customer.sales-process.update-shoping-cart');
+            Route::post('/shoping-cart/coupon', [CartController::class, 'coupon'])->name('customer.sales-process.coupon')->middleware('throttle:coupon');
+            Route::get('/update-header-cart', [CartController::class, 'updateHeaderCart'])->name('customer.sales-process.update-header-cart');
+
+            //address
+            Route::get('/address-and-delivery', [AddressController::class, 'addressAndDelivery'])->name('customer.sales-process.address-and-delivery');
+            Route::post('/store-address', [AddressController::class, 'storeAddress'])->name('customer.sales-process.store-address')->middleware('throttle:address');
+            Route::put('/update-address/{address}', [AddressController::class, 'updateAddress'])->name('customer.sales-process.update-address')->middleware(['throttle:address', 'can:update,address']);
+            Route::get('/provinces/{province}/cities', [AddressController::class, 'getCities']);
+
+            // payment
+            Route::post('/payment', [SalesProcessPaymentController::class, 'payment'])->name('customer.sales-process.payment')->middleware('throttle:payment');
+        });
+        Route::get('/payment-callback/{order}/{payment}', [SalesProcessPaymentController::class, 'paymentCallBack'])->name('customer.sales-process.payment-call-back');
+    });
+
+
+    // user profile
+    Route::namespace('Profile')->middleware('auth')->group(function () {
+
+        Route::get('/profile', [ProfileController::class, 'index'])->name('customer.profile.profile');
+        Route::put('/update-profile', [ProfileController::class, 'updateProfile'])->name('customer.profile.update-profile');
+
+        Route::get('/my-orders', [ProfileController::class, 'myOrders'])->name('customer.profile.my-orders');
+        Route::get('/my-orders/detail/{order}', [ProfileController::class, 'myOrdersDetail'])->middleware('can:view,order')->name('customer.profile.my-orders.detail');
+        Route::get('/my-favorites', [ProfileController::class, 'myFavorites'])->name('customer.profile.my-favorites');
+        Route::delete('/delete-my-favorite/{product}', [ProfileController::class, 'deleteMyFavorite'])->name('customer.profile.my-favorites.delete');
+        Route::get('/my-addresses', [ProfileController::class, 'myAddresses'])->name('customer.profile.my-addresses');
+
+        Route::get('/my-tickets', [ProfileTiketController::class, 'index'])->name('customer.profile.ticket.index');
+        Route::get('my-tickets/show/{ticket}', [ProfileTiketController::class, 'show'])->middleware('can:show,ticket')->name('customer.profile.ticket.show');
+        Route::post('my-tickets/answer/{ticket}', [ProfileTiketController::class, 'answer'])->middleware('can:answer,ticket')->name('customer.profile.ticket.answer');
+        Route::get('my-tickets/change/{ticket}', [ProfileTiketController::class, 'change'])->middleware('can:change,ticket')->name('customer.profile.ticket.change');
+        Route::get('my-tickets/create', [ProfileTiketController::class, 'create'])->name('customer.profile.ticket.create');
+        Route::post('my-tickets/store', [ProfileTiketController::class, 'store'])->name('customer.profile.ticket.store');
+    });
+
+
+    // like
+    Route::post('/like/{type}/{id}', [LikeController::class, 'toggle'])->name('like.toggle')->middleware(['auth', 'throttle:like']);
+
+    // content
+    Route::prefix('content')->group(function () {
+        Route::get('/about', [ContentController::class, 'about'])->name('customer.content.about');
+        Route::get('/contact', [ContentController::class, 'contact'])->name('customer.content.contact');
+        Route::post('/contact', [ContentController::class, 'storeContact'])->name('customer.content.contact.store')->middleware('throttle:contactMessage');
+        Route::get('/FAQ', [ContentController::class, 'faq'])->name('customer.content.faq');
+        Route::get('/blogs/{category:slug?}', [ContentController::class, 'blogs'])->name('customer.content.blogs');
+        Route::get('/blog-detail/{post:slug}', [ContentController::class, 'blogDetail'])->name('customer.content.blog-detail');
+        Route::post('blog-detail/{post:slug}/add-comment', [ContentController::class, 'addComment'])->name('customer.content.blog-detail.add-comment')->middleware(['auth', 'throttle:add-comment']);
+    });
 });
-
-
-// like
-Route::post('/like/{type}/{id}', [LikeController::class, 'toggle'])->name('like.toggle')->middleware(['auth', 'throttle:like']);
-
-// content
-Route::view('/about', 'customer.pages.about')->name('customer.about');
-Route::view('/contact', 'customer.pages.contact')->name('customer.contact');
-Route::view('/blog', 'customer.pages.blog')->name('customer.blog');

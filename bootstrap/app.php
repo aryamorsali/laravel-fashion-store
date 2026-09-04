@@ -1,6 +1,7 @@
 <?php
 
 use App\Exceptions\CartException;
+use App\Http\Middleware\CheckMaintenanceMode;
 use App\Http\Middleware\EnsureUserIsOwner;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
@@ -25,9 +26,10 @@ return Application::configure(basePath: dirname(__DIR__))
             fn(Request $request) => route('auth.login-register.form')
         );
 
-        $middleware->alias([
-            'owner' => EnsureUserIsOwner::class
-        ]);
+       $middleware->alias([
+        'owner' => EnsureUserIsOwner::class,
+        'CheckMaintenanceMode' => CheckMaintenanceMode::class,
+       ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {
         $exceptions->render(function (

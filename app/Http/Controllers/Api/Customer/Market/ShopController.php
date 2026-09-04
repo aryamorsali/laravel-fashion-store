@@ -231,6 +231,11 @@ class ShopController extends Controller
                 description: 'Validation error',
                 content: new OA\JsonContent(ref: '#/components/schemas/422ResponseSchema')
             ),
+            new OA\Response(
+                response: 404,
+                description: 'Category not found',
+                content: new OA\JsonContent(ref: '#/components/schemas/404ResponseSchema')
+            ),
         ]
     )]
 

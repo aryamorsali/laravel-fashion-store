@@ -34,7 +34,7 @@ class PostRequest extends FormRequest
                 'tags' => ['nullable', 'array'],
                 'tags.*' => ['integer', 'exists:tags,id'],
 
-                'body' => 'required|max:600|min:5|regex:/^[ا-یa-zA-Z0-9\-۰-۹ء-ي.,><\/;\n\r& ]+$/u',
+                'body' => 'required|max:2000|min:5|regex:/^[ا-یa-zA-Z0-9\-۰-۹ء-ي.,><\/;\n\r& ]+$/u',
                 'published_at' => 'nullable|date_format:Y-m-d H:i',
 
             ];
@@ -52,7 +52,7 @@ class PostRequest extends FormRequest
                 'tags' => ['nullable', 'array'],
                 'tags.*' => ['integer', 'exists:tags,id'],
 
-                'body' => 'required|max:600|min:5|regex:/^[ا-یa-zA-Z0-9\-۰-۹ء-ي.,><\/;\n\r& ]+$/u',
+                'body' => 'required|max:2000|min:5|regex:/^[ا-یa-zA-Z0-9\-۰-۹ء-ي.,><\/;\n\r& ]+$/u',
                 'published_at' => 'nullable|date_format:Y-m-d H:i',
             ];
         }

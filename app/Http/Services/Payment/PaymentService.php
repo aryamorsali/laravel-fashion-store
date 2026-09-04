@@ -40,7 +40,7 @@ class PaymentService
                 ]);
             })->pay()->render();
         } catch (\Exception $e) {
-            return redirect()->back()->with('toast-error', 'خطا در اتصال به درگاه پرداخت: ' . $e->getMessage());
+            return redirect()->back()->with('toast-error', 'Error connecting to payment gateway: ' . $e->getMessage());
         }
     }
 
