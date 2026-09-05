@@ -34,7 +34,7 @@ class OrderController extends Controller
             'orderItems.productVariant.color',
             'orderItems.productVariant.size',
         ])->whereKey($order->getKey())->firstOrFail();
-            
+
         return view('admin.market.order.detail', compact('order'));
     }
 

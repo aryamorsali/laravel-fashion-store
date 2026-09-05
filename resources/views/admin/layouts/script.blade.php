@@ -5,8 +5,8 @@
 <script src="https://use.fontawesome.com/releases/v6.3.0/js/all.js" crossorigin="anonymous"></script>
 <script src="{{ asset('admin-assets/js/scripts.js') }}"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.8.0/Chart.min.js" crossorigin="anonymous"></script>
-<script src="{{ asset('admin-assets/js/chart-area-demo.js') }}"></script>
-<script src="{{ asset('admin-assets/js/chart-bar-demo.js') }}"></script>
+{{-- <script src="{{ asset('admin-assets/js/chart-area-demo.js') }}"></script> --}}
+{{-- <script src="{{ asset('admin-assets/js/chart-bar-demo.js') }}"></script> --}}
 
 {{-- <script src="{{ asset('admin-assets/js/bootstrap/bootstrap.min.js') }}"></script> --}}
 <script src="{{ asset('admin-assets/select2/js/select2.min.js') }}"></script>

@@ -3,15 +3,15 @@
                <div class="sb-sidenav-menu">
                    <div class="nav">
 
-                       <a class="nav-link pt-4" href="index.html">
+                       <a class="nav-link pt-4" href="{{ route('customer.home') }}">
                            <div class="sb-nav-link-icon"><i class="fas fa-store"></i></div>
                            Store
                        </a>
                        <hr>
 
-                       <a class="nav-link" href="index.html">
+                       <a class="nav-link" href="{{ route('admin.home') }}">
                            <div class="sb-nav-link-icon"><i class="fas fa-home"></i></div>
-                           Home
+                           Dashboard
                        </a>
 
                        @canany(['view-home-box', 'view-product', 'view-product-category', 'view-brand', 'view-color',
