@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin\Ticket;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Admin\Market\SearchRequest;
 use App\Http\Requests\Admin\Ticket\TicketCategoryRequest;
 use App\Models\Ticket\TicketCategory;
 use Illuminate\Http\Request;
@@ -12,9 +13,20 @@ class TicketCategoryController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(SearchRequest $request)
     {
-        $categories = TicketCategory::all();
+        $validated = $request->validated();
+
+        $search = $validated['search'] ?? null;
+
+        $query = TicketCategory::query();
+        if ($request->filled('search')) {
+
+            $query->where('name', 'LIKE', '%' . $search . '%');
+        }
+
+        $categories = $query->orderBy('created_at', 'desc')->paginate(15)->appends(request()->query());
+
         return view('admin.ticket.category.index', compact('categories'));
     }
 

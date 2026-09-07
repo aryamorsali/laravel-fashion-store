@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin\Market;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\Market\ProductCategoryRequest;
+use App\Http\Requests\Admin\Market\SearchRequest;
 use App\Http\Services\Image\ImageService;
 use App\Models\Content\Tag;
 use App\Models\Market\ProductCategory;
@@ -15,9 +16,20 @@ class CategoryController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(SearchRequest $request)
     {
-        $productCategories = ProductCategory::orderBy('created_at', 'desc')->get();;
+        $validated = $request->validated();
+
+        $search = $validated['search'] ?? null;
+
+        $query = ProductCategory::query();
+        if ($request->filled('search')) {
+
+            $query->where('name', 'LIKE', '%' . $search . '%');
+        }
+
+        $productCategories = $query->orderBy('created_at', 'desc')->paginate(15)->appends(request()->query());
+
         return view('admin.market.category.index', compact('productCategories'));
     }
 

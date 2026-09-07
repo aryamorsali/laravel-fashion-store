@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin\Ticket;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Admin\Market\SearchRequest;
 use App\Http\Requests\Admin\Ticket\TicketRequest;
 use App\Models\Ticket\Ticket;
 use Illuminate\Http\Request;
@@ -13,9 +14,40 @@ class TicketController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(SearchRequest $request)
     {
-        $tickets = Ticket::whereNull('parent_id')->orderBy('created_at', 'DESC')->get();
+        $validated = $request->validated();
+
+        $search = $validated['search'] ?? null;
+
+        $query = Ticket::whereNull('parent_id')->with([
+            'user',
+            'category',
+            'priority',
+            'parent',
+            'children',
+        ]);
+        if ($request->filled('search')) {
+
+            $query->where(function ($q) use ($search) {
+                $q->whereHas('user', function ($q) use ($search) {
+                    $q->where('first_name', 'LIKE', '%' . $search . '%')
+                        ->orWhere('last_name', 'LIKE', '%' . $search . '%')
+                        ->orWhere('email', 'LIKE', '%' . $search . '%')
+                        ->orWhere('mobile', 'LIKE', '%' . $search . '%');
+                })
+                    ->orWhereHas('category', function ($q) use ($search) {
+                        $q->where('name', 'LIKE', '%' . $search . '%');
+                    })
+                    ->orWhereHas('priority', function ($q) use ($search) {
+                        $q->where('name', 'LIKE', '%' . $search . '%');
+                    })
+                    ->orWhere('subject', 'LIKE', '%' . $search . '%');;
+            });
+        }
+
+        $tickets = $query->orderBy('created_at', 'desc')->paginate(15)->appends(request()->query());
+
         return  view("admin.ticket.index", compact('tickets'));
     }
 
@@ -33,7 +65,7 @@ class TicketController extends Controller
                     $tickets = Ticket::orderBy('created_at', 'DESC')->whereNull('parent_id')->get();
                     break;
             }
-        }else{
+        } else {
             $tickets = Ticket::orderBy('created_at', 'DESC')->get();
         }
         return  view("admin.ticket.index", compact('tickets'));

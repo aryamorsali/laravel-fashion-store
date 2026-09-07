@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin\Market;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Admin\Market\SearchRequest;
 use App\Http\Requests\Admin\Market\WarehouseRequest;
 use App\Models\Market\Warehouse;
 use Illuminate\Http\Request;
@@ -12,9 +13,22 @@ class WarehouseController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(SearchRequest $request)
     {
-        $warehouses = Warehouse::all();
+        $validated = $request->validated();
+
+        $search = $validated['search'] ?? null;
+
+        $query = Warehouse::query();
+        if ($request->filled('search')) {
+
+            $query->where(function ($q) use ($search) {
+                $q->where('name', 'LIKE', '%' . $search . '%');
+            });
+        }
+
+        $warehouses = $query->orderBy('created_at', 'desc')->paginate(15)->appends(request()->query());
+        
         return view('admin.market.warehouse.index', compact('warehouses'));
     }
 

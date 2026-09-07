@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin\Content;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Admin\Market\SearchRequest;
 use App\Models\Content\Comment;
 use App\Models\Content\Post;
 use Illuminate\Http\Request;
@@ -12,14 +13,30 @@ class CommentController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(SearchRequest $request)
     {
+        $validated = $request->validated();
+
+        $search = $validated['search'] ?? null;
+
+        $query = Comment::query()->where('commentable_type', Post::class)->with(['commentable', 'user']);
+
+        if ($request->filled('search')) {
+            $query->where(function ($q) use ($search) {
+                $q->where('body', 'LIKE', '%' . $search . '%')
+                    ->orWhere('author_id', 'LIKE', '%' . $search . '%')
+                    ->orWhere('commentable_id', 'LIKE', '%' . $search . '%');
+            });
+        }
+
         $unSeenComments = Comment::where('commentable_type', Post::class)->where('seen', 0)->get();
         foreach ($unSeenComments as $unSeenComment) {
             $unSeenComment->seen = 1;
             $result = $unSeenComment->save();
         }
-        $comments = Comment::with('commentable')->orderBy('created_at', 'desc')->where('commentable_type', Post::class)->paginate(15);
+
+        $comments = $query->orderBy('created_at', 'desc')->paginate(15)->appends(request()->query());
+
         return view('admin.content.comment.index', compact('comments'));
     }
 

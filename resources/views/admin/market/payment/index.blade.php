@@ -8,7 +8,8 @@
     <section class="container-fluid px-0">
         <nav style="background-color: #eee; height: 2.25rem" class="my-4 rounded ps-2" aria-label="breadcrumb">
             <ol class="breadcrumb p-1 ">
-                <li class="breadcrumb-item"><a href="{{ route('admin.home') }}" style="text-decoration: none">Dashboard</a></li>
+                <li class="breadcrumb-item"><a href="{{ route('admin.home') }}" style="text-decoration: none">Dashboard</a>
+                </li>
                 <li class="breadcrumb-item"><a href="#" style="text-decoration: none">Market</a></li>
                 <li class="breadcrumb-item active">Payments</li>
             </ol>
@@ -23,7 +24,18 @@
 
             <section class="d-flex align-items-center mt-4 mb-3 border-bottom pb-2">
                 <div class="me-auto" style="max-width: 16rem;">
-                    <input type="text" class="form-control form-control-sm form-text" placeholder="search..">
+                    {{-- // search --}}
+                    <form class="d-flex align-items-center" action="{{ route('admin.market.payment.index') }}"
+                        method="GET">
+
+                        <input type="text" name="search" value="{{ request('search') }}"
+                            class="form-control form-control-sm" style="margin-right: 5px" placeholder="search (order id - user)">
+
+                        <button type="submit" class="btn btn-sm btn-secondary">
+                            <i class="fa fa-search"></i>
+                        </button>
+
+                    </form>
                 </div>
                 <section class="sort">
 
@@ -57,7 +69,7 @@
                     <thead>
                         <tr>
                             <th scope="col">#</th>
-                            <th scope="col">Transaction ID</th>
+                            <th scope="col">Order ID</th>
                             <th scope="col">User</th>
                             <th scope="col">Gateway</th>
                             <th scope="col">Amount</th>
@@ -71,7 +83,7 @@
                         @foreach ($payments as $payment)
                             <tr>
                                 <th scope="row">{{ $loop->iteration }}</th>
-                                <td>{{ $payment->transaction_id }}</td>
+                                <td>{{ $payment->order_id }}</td>
                                 <td>{{ $payment->user->full_name }}</td>
                                 <td>{{ $payment->gateway }}</td>
                                 <td>{{ $payment->amount }}</td>

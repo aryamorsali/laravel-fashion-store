@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin\Content;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\Content\FAQRequest;
+use App\Http\Requests\Admin\Market\SearchRequest;
 use App\Models\Content\FAQ;
 use App\Models\Content\Tag;
 use Illuminate\Http\Request;
@@ -14,9 +15,20 @@ class FAQController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(SearchRequest $request)
     {
-        $faqs = FAQ::all();
+        $validated = $request->validated();
+
+        $search = $validated['search'] ?? null;
+
+        $query = FAQ::query();
+        if ($request->filled('search')) {
+
+            $query->where('question', 'LIKE', '%' . $search . '%');
+        }
+
+        $faqs = $query->orderBy('created_at', 'desc')->paginate(15)->appends(request()->query());
+
         return view('admin.content.faq.index', compact('faqs'));
     }
 

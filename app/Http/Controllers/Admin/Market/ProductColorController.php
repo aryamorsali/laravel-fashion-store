@@ -3,15 +3,29 @@
 namespace App\Http\Controllers\Admin\Market;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Admin\Market\SearchRequest;
 use App\Models\Market\Product;
 use App\Models\Market\ProductColor;
 use Illuminate\Http\Request;
 
 class ProductColorController extends Controller
 {
-    public function index()
+    public function index(SearchRequest $request)
     {
-        $colors = ProductColor::all();
+        $validated = $request->validated();
+
+        $search = $validated['search'] ?? null;
+
+        $query = ProductColor::query();
+        if ($request->filled('search')) {
+
+            $query->where(function ($q) use ($search) {
+                $q->where('name', 'LIKE', '%' . $search . '%');
+            });
+        }
+
+        $colors = $query->orderBy('created_at', 'desc')->paginate(15)->appends(request()->query());
+        
         return view('admin.market.product.color.index', compact('colors'));
     }
 

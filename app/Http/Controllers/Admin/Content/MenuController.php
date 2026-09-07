@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin\Content;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\Content\MenuRequest;
+use App\Http\Requests\Admin\Market\SearchRequest;
 use App\Models\Content\Menu;
 use Illuminate\Http\Request;
 
@@ -12,9 +13,20 @@ class MenuController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(SearchRequest $request)
     {
-        $menus = Menu::all();
+        $validated = $request->validated();
+
+        $search = $validated['search'] ?? null;
+
+        $query = Menu::query();
+        if ($request->filled('search')) {
+
+            $query->where('name', 'LIKE', '%' . $search . '%');
+        }
+
+        $menus = $query->orderBy('created_at', 'desc')->paginate(15)->appends(request()->query());
+
         return view('admin.content.menu.index', compact('menus'));
     }
 

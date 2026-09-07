@@ -8,7 +8,8 @@
     <section class="container-fluid px-0">
         <nav style="background-color: #eee; height: 2.25rem" class="my-4 rounded ps-2" aria-label="breadcrumb">
             <ol class="breadcrumb p-1 ">
-                <li class="breadcrumb-item"><a href="{{ route('admin.home') }}" style="text-decoration: none">Dashboard</a></li>
+                <li class="breadcrumb-item"><a href="{{ route('admin.home') }}" style="text-decoration: none">Dashboard</a>
+                </li>
                 <li class="breadcrumb-item"><a href="#" style="text-decoration: none">content</a></li>
                 <li class="breadcrumb-item active">comments</li>
             </ol>
@@ -23,7 +24,19 @@
 
             <section class="d-flex align-items-center mt-4 mb-3 border-bottom pb-2">
                 <div class="me-auto" style="max-width: 16rem;">
-                    <input type="text" class="form-control form-control-sm form-text" placeholder="search..">
+                    {{-- // search --}}
+                    <form class="d-flex align-items-center" action="{{ route('admin.content.comment.index') }}"
+                        method="GET">
+
+                        <input type="text" name="search" value="{{ request('search') }}"
+                            class="form-control form-control-sm" style="margin-right: 5px"
+                            placeholder="( title - userID )">
+
+                        <button type="submit" class="btn btn-sm btn-secondary">
+                            <i class="fa fa-search"></i>
+                        </button>
+
+                    </form>
                 </div>
             </section>
 
@@ -59,7 +72,7 @@
                                 @endif
                                 <td>{{ $comment->commentable_id }}</td>
                                 <td>{{ $comment->approved == 1 ? 'confirmed' : 'not confirmed' }}</td>
-                                
+
                                 <td class="width-16-rem text-center">
                                     <a href="{{ route('admin.content.comment.show', $comment->id) }}"
                                         class="btn btn-info btn-sm width-6-rem mi"><i class="fa fa-eye"></i>
@@ -74,6 +87,9 @@
 
                     </tbody>
                 </table>
+                <div class="d-flex justify-content-center mt-4">
+                    {{ $comments->onEachSide(1)->links('vendor.pagination.custom') }}
+                </div>
             </section>
         </section>
 
@@ -81,6 +97,5 @@
 @endsection
 
 @section('script')
-
     @include('admin.alerts.sweetalert.delete-confirm', ['className' => 'delete'])
 @endsection

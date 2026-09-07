@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin\Market;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\Market\CommonDiscountRequest;
+use App\Http\Requests\Admin\Market\SearchRequest;
 use App\Models\Market\CommonDiscount;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
@@ -13,9 +14,22 @@ class CommonDiscountController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(SearchRequest $request)
     {
-        $common_discounts = CommonDiscount::orderBy('created_at', 'desc')->get();
+        $validated = $request->validated();
+
+        $search = $validated['search'] ?? null;
+
+        $query = CommonDiscount::query();
+        if ($request->filled('search')) {
+
+            $query->where(function ($q) use ($search) {
+                $q->where('title', 'LIKE', '%' . $search . '%');
+            });
+        }
+
+        $common_discounts = $query->orderBy('created_at', 'desc')->paginate(15)->appends(request()->query());
+
         return view('admin.market.discount.common_discount.index', compact('common_discounts'));
     }
 

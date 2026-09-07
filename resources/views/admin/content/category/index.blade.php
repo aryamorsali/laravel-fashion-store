@@ -8,7 +8,8 @@
     <section class="container-fluid px-0">
         <nav style="background-color: #eee; height: 2.25rem" class="my-4 rounded ps-2" aria-label="breadcrumb">
             <ol class="breadcrumb p-1 ">
-                <li class="breadcrumb-item"><a href="{{ route('admin.home') }}" style="text-decoration: none">Dashboard</a></li>
+                <li class="breadcrumb-item"><a href="{{ route('admin.home') }}" style="text-decoration: none">Dashboard</a>
+                </li>
                 <li class="breadcrumb-item"><a href="#" style="text-decoration: none">content</a></li>
                 <li class="breadcrumb-item active">category</li>
             </ol>
@@ -23,7 +24,18 @@
 
             <section class="d-flex align-items-center mt-4 mb-3 border-bottom pb-2">
                 <div class="me-auto" style="max-width: 16rem;">
-                    <input type="text" class="form-control form-control-sm form-text" placeholder="search..">
+                    {{-- // search --}}
+                    <form class="d-flex align-items-center" action="{{ route('admin.content.category.index') }}"
+                        method="GET">
+
+                        <input type="text" name="search" value="{{ request('search') }}"
+                            class="form-control form-control-sm" style="margin-right: 5px" placeholder="search (name)">
+
+                        <button type="submit" class="btn btn-sm btn-secondary">
+                            <i class="fa fa-search"></i>
+                        </button>
+
+                    </form>
                 </div>
                 @can('create-post-category')
                     <a href="{{ route('admin.content.category.create') }}" class="btn btn-dark btn-sm my-btn ">Create new
@@ -69,7 +81,8 @@
 
                                 <td>
                                     <label>
-                                        <input id="{{ $postCategory->id }}" onchange="changeStatus({{ $postCategory->id }})"
+                                        <input id="{{ $postCategory->id }}"
+                                            onchange="changeStatus({{ $postCategory->id }})"
                                             @cannot('update-post-category') disabled @endcannot
                                             data-url="{{ route('admin.content.category.status', $postCategory->id) }}"
                                             type="checkbox" @if ($postCategory->status === 1) checked @endif>
@@ -102,6 +115,9 @@
 
                     </tbody>
                 </table>
+                <div class="d-flex justify-content-center mt-4">
+                    {{ $postCategoreis->onEachSide(1)->links('vendor.pagination.custom') }}
+                </div>
             </section>
         </section>
 

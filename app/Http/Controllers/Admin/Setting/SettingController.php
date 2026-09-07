@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin\Setting;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Admin\Market\SearchRequest;
 use App\Http\Requests\Admin\Setting\SettingRequest;
 use App\Http\Services\Image\ImageService;
 use Illuminate\Http\Request;
@@ -10,13 +11,20 @@ use App\Models\Setting\Setting;
 
 class SettingController extends Controller
 {
-    public function index(Request $request)
+    public function index(SearchRequest $request)
     {
-        if ($request->search) {
-            $settings = Setting::where('key', 'LIKE', '%' . $request->search . '%')->orderBy('created_at', 'DESC')->get();
-        } else {
-            $settings = Setting::all();
+        $validated = $request->validated();
+
+        $search = $validated['search'] ?? null;
+
+        $query = Setting::query();
+        if ($request->filled('search')) {
+
+            $query->where('key', 'LIKE', '%' . $search . '%');
         }
+
+        $settings = $query->orderBy('created_at', 'desc')->paginate(15);
+
         return view('admin.setting.index', compact('settings'));
     }
 

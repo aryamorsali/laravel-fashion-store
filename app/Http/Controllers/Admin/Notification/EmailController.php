@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin\Notification;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Admin\Market\SearchRequest;
 use App\Http\Requests\Admin\Notification\EmailRequest;
 use App\Http\Services\Message\Email\EmailService;
 use App\Http\Services\Message\MessageService;
@@ -16,11 +17,9 @@ class EmailController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index(Request $request)
+    public function index(SearchRequest $request)
     {
-        $validated = $request->validate([
-            'search' => 'nullable|string|max:100',
-        ]);
+        $validated = $request->validated();
 
         $search = $validated['search'] ?? null;
 
@@ -142,7 +141,7 @@ class EmailController extends Controller
         $email->update([
             'status' => 'queued',
         ]);
-      
+
         SendEmailToUsers::dispatch($email);
 
         return redirect(route('admin.notification.email.index'))->with(

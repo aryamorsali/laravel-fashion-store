@@ -27,7 +27,7 @@
                     <form class="d-flex align-items-center" action="{{ route('admin.user.role.index') }}" method="GET">
 
                         <input type="text" name="search" value="{{ request('search') }}"
-                            class="form-control form-control-sm" style="margin-right: 5px" placeholder="search..">
+                            class="form-control form-control-sm" style="margin-right: 5px" placeholder="search (title)">
 
                         <button type="submit" class="btn btn-sm btn-secondary">
                             <i class="fa fa-search"></i>

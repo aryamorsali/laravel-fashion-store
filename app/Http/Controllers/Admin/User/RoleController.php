@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin\User;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Admin\Market\SearchRequest;
 use App\Models\User\Role;
 use Illuminate\Http\Request;
 use App\Http\Requests\Admin\User\RoleRequest;
@@ -14,11 +15,9 @@ class RoleController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index(Request $request)
+    public function index(SearchRequest $request)
     {
-        $validated = $request->validate([
-            'search' => 'nullable|string|max:100',
-        ]);
+        $validated = $request->validated();
 
         $search = $validated['search'] ?? null;
 
@@ -48,7 +47,7 @@ class RoleController extends Controller
     public function store(RoleRequest $request)
     {
         $inputs = $request->validated();
-        DB::transaction(function () use ($inputs){
+        DB::transaction(function () use ($inputs) {
 
             $role = Role::create($inputs);
 

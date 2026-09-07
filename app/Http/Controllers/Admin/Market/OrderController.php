@@ -3,15 +3,28 @@
 namespace App\Http\Controllers\Admin\Market;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Admin\Market\SearchRequest;
 use App\Models\Market\Order;
 use Illuminate\Http\Request;
 
 class OrderController extends Controller
 {
 
-    public function index()
+    public function index(SearchRequest $request)
     {
-        $orders = Order::orderBy('id', 'desc')->paginate(20);
+        $validated = $request->validated();
+
+        $search = $validated['search'] ?? null;
+
+        $query = Order::query()->with(['user', 'payments', 'orderItems']);
+        if ($request->filled('search')) {
+
+            $query->where(function ($q) use ($search) {
+                $q->where('id', 'LIKE', '%' . $search . '%');
+            });
+        }
+
+        $orders = $query->orderBy('id', 'desc')->paginate(15)->appends(request()->query());
 
         return view('admin.market.order.index', compact('orders'));
     }

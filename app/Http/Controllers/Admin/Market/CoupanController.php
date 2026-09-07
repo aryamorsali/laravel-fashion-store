@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin\Market;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\Market\CouponRequest;
+use App\Http\Requests\Admin\Market\SearchRequest;
 use App\Models\Market\Coupon;
 use App\Models\User;
 use Carbon\Carbon;
@@ -14,9 +15,22 @@ class CoupanController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(SearchRequest $request)
     {
-        $coupons = Coupon::all();
+        $validated = $request->validated();
+
+        $search = $validated['search'] ?? null;
+
+        $query = Coupon::query();
+        if ($request->filled('search')) {
+
+            $query->where(function ($q) use ($search) {
+                $q->where('code', 'LIKE', '%' . $search . '%');
+            });
+        }
+
+        $coupons = $query->orderBy('created_at', 'desc')->paginate(15)->appends(request()->query());
+
         return view('admin.market.discount.coupon.index', compact('coupons'));
     }
 

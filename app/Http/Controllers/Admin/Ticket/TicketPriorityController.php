@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin\Ticket;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Admin\Market\SearchRequest;
 use App\Http\Requests\Admin\Ticket\TicketPriorityRequest;
 use App\Models\Ticket\TicketPriority;
 use Illuminate\Http\Request;
@@ -12,9 +13,20 @@ class TicketPriorityController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(SearchRequest $request)
     {
-        $priorities = TicketPriority::all();
+        $validated = $request->validated();
+
+        $search = $validated['search'] ?? null;
+
+        $query = TicketPriority::query();
+        if ($request->filled('search')) {
+
+            $query->where('name', 'LIKE', '%' . $search . '%');
+        }
+
+        $priorities = $query->orderBy('created_at', 'desc')->paginate(15)->appends(request()->query());
+
         return view('admin.ticket.priority.index', compact('priorities'));
     }
 

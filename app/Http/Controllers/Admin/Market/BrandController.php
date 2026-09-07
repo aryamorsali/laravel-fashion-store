@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin\Market;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\Market\BrandRequest;
+use App\Http\Requests\Admin\Market\SearchRequest;
 use App\Http\Services\Image\ImageService;
 use App\Models\Content\Tag;
 use App\Models\Market\Brand;
@@ -15,9 +16,22 @@ class BrandController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(SearchRequest $request)
     {
-        $brands = Brand::orderBy('created_at', 'desc')->get();
+        $validated = $request->validated();
+
+        $search = $validated['search'] ?? null;
+
+        $query = Brand::query();
+        if ($request->filled('search')) {
+
+            $query->where(function ($q) use ($search) {
+                $q->where('name', 'LIKE', '%' . $search . '%');
+            });
+        }
+
+        $brands = $query->orderBy('created_at', 'desc')->paginate(15)->appends(request()->query());
+
         return view('admin.market.brand.index', compact('brands'));
     }
 

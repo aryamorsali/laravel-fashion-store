@@ -3,16 +3,16 @@
 namespace App\Http\Controllers\Admin\User;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Admin\Market\SearchRequest;
 use App\Models\User\Permission;
 use Illuminate\Http\Request;
 
 class PermissionController extends Controller
 {
-    public function index(Request $request)
+    public function index(SearchRequest $request)
     {
-        $validated = $request->validate([
-            'search' => 'nullable|string|max:100',
-        ]);
+        $validated = $request->validated();
+
 
         $search = $validated['search'] ?? null;
 
@@ -21,7 +21,7 @@ class PermissionController extends Controller
 
         if ($request->filled('search')) {
 
-           $query->where('name', 'LIKE', '%' . $search . '%');
+            $query->where('name', 'LIKE', '%' . $search . '%');
         }
 
         $permissions = $query->orderByDesc('id')->paginate(15)->appends(request()->query());

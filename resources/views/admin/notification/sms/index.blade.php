@@ -28,7 +28,7 @@
                         method="GET">
 
                         <input type="text" name="search" value="{{ request('search') }}"
-                            class="form-control form-control-sm" style="margin-right: 5px" placeholder="search..">
+                            class="form-control form-control-sm" style="margin-right: 5px" placeholder="search (title - body)">
 
                         <button type="submit" class="btn btn-sm btn-secondary">
                             <i class="fa fa-search"></i>

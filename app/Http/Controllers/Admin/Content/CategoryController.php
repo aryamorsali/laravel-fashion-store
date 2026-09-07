@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin\Content;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\Content\PostCategoryRequest;
+use App\Http\Requests\Admin\Market\SearchRequest;
 use App\Http\Services\Image\ImageService;
 use App\Models\Content\PostCategory;
 use App\Models\Content\Tag;
@@ -15,9 +16,20 @@ class CategoryController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(SearchRequest $request)
     {
-        $postCategoreis = PostCategory::all();
+        $validated = $request->validated();
+
+        $search = $validated['search'] ?? null;
+
+        $query = PostCategory::query();
+        if ($request->filled('search')) {
+
+            $query->where('name', 'LIKE', '%' . $search . '%');
+        }
+
+        $postCategoreis = $query->orderBy('created_at', 'desc')->paginate(15)->appends(request()->query());
+
         return view('admin.content.category.index', compact('postCategoreis'));
     }
 

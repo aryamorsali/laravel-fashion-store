@@ -30,7 +30,18 @@
 
             <section class="d-flex align-items-center mt-4 mb-3 border-bottom pb-2">
                 <div class="me-auto" style="max-width: 16rem;">
-                    <input type="text" class="form-control form-control-sm form-text" placeholder="search..">
+                    {{-- // search --}}
+                    <form class="d-flex align-items-center" action="{{ route('admin.market.order.index') }}"
+                        method="GET">
+
+                        <input type="text" name="search" value="{{ request('search') }}"
+                            class="form-control form-control-sm" style="margin-right: 5px" placeholder="search.. id">
+
+                        <button type="submit" class="btn btn-sm btn-secondary">
+                            <i class="fa fa-search"></i>
+                        </button>
+
+                    </form>
                 </div>
             </section>
 
@@ -58,7 +69,7 @@
                         @foreach ($orders as $order)
                             <tr>
                                 <th scope="row">{{ $loop->iteration }}</th>
-                                <td>${{ $order->id }}</td>
+                                <td>{{ $order->id }}</td>
                                 <td>${{ number_format($order->order_final_amount + ($order->order_discount_amount ?? 0), 2) }}
                                 </td>
                                 <td>${{ number_format($order->order_discount_amount, 2) }}</td>

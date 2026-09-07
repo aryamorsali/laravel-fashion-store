@@ -8,7 +8,8 @@
     <section class="container-fluid px-0">
         <nav style="background-color: #eee; height: 2.25rem" class="my-4 rounded ps-2" aria-label="breadcrumb">
             <ol class="breadcrumb p-1 ">
-                <li class="breadcrumb-item"><a href="{{ route('admin.home') }}" style="text-decoration: none">Dashboard</a></li>
+                <li class="breadcrumb-item"><a href="{{ route('admin.home') }}" style="text-decoration: none">Dashboard</a>
+                </li>
                 <li class="breadcrumb-item"><a href="#" style="text-decoration: none">Market</a></li>
                 <li class="breadcrumb-item active">Amazing Sales</li>
             </ol>
@@ -23,7 +24,18 @@
 
             <section class="d-flex align-items-center mt-4 mb-3 border-bottom pb-2">
                 <div class="me-auto" style="max-width: 16rem;">
-                    <input type="text" class="form-control form-control-sm form-text" placeholder="search..">
+                    {{-- // search --}}
+                    <form class="d-flex align-items-center" action="{{ route('admin.market.discount.amazingSale') }}"
+                        method="GET">
+
+                        <input type="text" name="search" value="{{ request('search') }}"
+                            class="form-control form-control-sm" style="margin-right: 5px" placeholder="search (product)">
+
+                        <button type="submit" class="btn btn-sm btn-secondary">
+                            <i class="fa fa-search"></i>
+                        </button>
+
+                    </form>
                 </div>
                 @can('create-amazing-sale')
                     <a href="{{ route('admin.market.discount.amazingSale.create') }}" class="btn btn-dark btn-sm my-btn ">Add
@@ -112,6 +124,9 @@
 
                     </tbody>
                 </table>
+                <div class="d-flex justify-content-center mt-4">
+                    {{ $amazingSales->onEachSide(1)->links('vendor.pagination.custom') }}
+                </div>
             </section>
         </section>
 

@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin\Market;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\Market\AmazingSaleRequest;
+use App\Http\Requests\Admin\Market\SearchRequest;
 use App\Models\Market\AmazingSale;
 use App\Models\Market\Product;
 use App\Models\Market\ProductVariant;
@@ -15,12 +16,25 @@ class AmazingSaleController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(SearchRequest $request)
     {
-        $amazingSales = AmazingSale::with([
-            'productVariant.product'
-        ])->orderBy('created_at', 'desc')->get();
+        $validated = $request->validated();
 
+        $search = $validated['search'] ?? null;
+
+        $query = AmazingSale::query()->with([
+            'productVariant.product',
+            'productVariant.color',
+            'productVariant.size',
+        ]);
+        if ($request->filled('search')) {
+
+            $query->whereHas('productVariant.product', function ($q) use ($search) {
+                $q->where('name', 'LIKE', '%' . $search . '%');
+            });
+        }
+
+        $amazingSales = $query->orderBy('created_at', 'desc')->paginate(15)->appends(request()->query());
 
         return view('admin.market.discount.amazing_sale.index', compact('amazingSales'));
     }

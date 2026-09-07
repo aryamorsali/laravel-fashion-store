@@ -3,7 +3,7 @@
 namespace App\Http\Controllers\Admin\User;
 
 use App\Http\Controllers\Controller;
-
+use App\Http\Requests\Admin\Market\SearchRequest;
 use App\Http\Requests\Admin\User\CustomerRequest;
 use App\Http\Services\Image\ImageService;
 use App\Models\User;
@@ -17,11 +17,9 @@ class CustomerController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index(Request $request)
+    public function index(SearchRequest $request)
     {
-        $validated = $request->validate([
-            'search' => 'nullable|string|max:100',
-        ]);
+        $validated =$request->validated();
 
         $search = $validated['search'] ?? null;
 

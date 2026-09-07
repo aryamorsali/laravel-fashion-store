@@ -27,7 +27,7 @@
                     <form class="d-flex align-items-center" action="{{ route('admin.user.customer.index') }}" method="GET">
 
                         <input type="text" name="search" value="{{ request('search') }}"
-                            class="form-control form-control-sm" style="margin-right: 5px" placeholder="search..">
+                            class="form-control form-control-sm" style="margin-right: 5px" placeholder="search (user - mobile - email)">
 
                         <button type="submit" class="btn btn-sm btn-secondary">
                             <i class="fa fa-search"></i>
@@ -58,9 +58,9 @@
                         @foreach ($users as $user)
                             <tr>
                                 <th scope="row">{{ $loop->iteration }}</th>
-                                <td>{{ $user->full_name }}</td>
-                                <td>{{ $user->mobile }}</td>
-                                <td>{{ $user->email }}</td>
+                                <td>{{ $user->full_name ?? '-' }}</td>
+                                <td>{{ $user->mobile ?? '-'  }}</td>
+                                <td>{{ $user->email ?? '-'  }}</td>
                                 <td>{{ $user->registration_date ?? '-' }}</td>
                                 <td>
                                     <label>

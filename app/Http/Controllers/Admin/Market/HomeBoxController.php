@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin\Market;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\Market\HomeBoxRequest;
+use App\Http\Requests\Admin\Market\SearchRequest;
 use App\Http\Services\Image\ImageService;
 use App\Models\Market\HomeBox;
 use App\Models\Market\ProductCategory;
@@ -14,9 +15,21 @@ class HomeBoxController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(SearchRequest $request)
     {
-        $boxes = HomeBox::orderby('created_at', 'desc')->get();
+        $validated = $request->validated();
+
+        $search = $validated['search'] ?? null;
+
+        $query = HomeBox::query();
+        if ($request->filled('search')) {
+
+            $query->where(function ($q) use ($search) {
+                $q->where('title', 'LIKE', '%' . $search . '%');
+            });
+        }
+
+        $boxes = $query->orderby('created_at', 'desc')->get();
         return view('admin.market.home-box.index', compact('boxes'));
     }
 

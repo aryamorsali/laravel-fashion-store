@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin\User;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Admin\Market\SearchRequest;
 use App\Http\Requests\Admin\User\AdminUserRequest;
 use App\Http\Services\Image\ImageService;
 use App\Models\User;
@@ -15,11 +16,10 @@ use Illuminate\Support\Facades\Hash;
 
 class AdminUserController extends Controller
 {
-    public function index(Request $request)
+    public function index(SearchRequest $request)
     {
-        $validated = $request->validate([
-            'search' => 'nullable|string|max:100',
-        ]);
+             $validated =$request->validated();
+
 
         $search = $validated['search'] ?? null;
 

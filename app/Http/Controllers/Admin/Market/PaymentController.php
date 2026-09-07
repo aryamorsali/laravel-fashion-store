@@ -3,14 +3,34 @@
 namespace App\Http\Controllers\Admin\Market;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Admin\Market\SearchRequest;
 use App\Models\Market\Payment;
 use Illuminate\Http\Request;
 
 class PaymentController extends Controller
 {
-    public function index()
+    public function index(SearchRequest $request)
     {
-        $payments = Payment::orderBy('id', 'desc')->paginate(20);
+        $validated = $request->validated();
+
+        $search = $validated['search'] ?? null;
+
+        $query = Payment::query()->with([
+            'user',
+            'order',
+        ]);
+        if ($request->filled('search')) {
+
+            $query->where(function ($q) use ($search) {
+                $q->whereHas('user', function ($q) use ($search) {
+                    $q->where('first_name', 'LIKE', '%' . $search . '%')
+                        ->orWhere('first_name', 'LIKE', '%' . $search . '%')
+                        ->orWhere('last_name', 'LIKE', '%' . $search . '%');
+                })->orWhere('order_id', 'LIKE', '%' . $search . '%');
+            });
+        }
+
+        $payments = $query->orderBy('id', 'desc')->paginate(15)->appends(request()->query());
         return view('admin.market.payment.index', compact('payments'));
     }
 

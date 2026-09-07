@@ -2,99 +2,144 @@
 
 @section('head-tag')
     <title>Dashboard</title>
+    <style>
+        .chart-container {
+            position: relative;
+            height: 240px;
+            width: 100%;
+        }
+
+        .chart-container canvas {
+            width: 100% !important;
+            height: 100% !important;
+        }
+    </style>
 @endsection
 
 @section('content')
     <div class="container-fluid px-4">
         <h1 class="mt-4">Dashboard</h1>
         <ol class="breadcrumb mb-4">
-            <li class="breadcrumb-item active">Dashboard</li>
+            <li class="breadcrumb-item active">Wellcome To Dashboard</li>
         </ol>
         <div class="row">
-            <div class="col-xl-3 col-md-6">
-                <div class="card bg-primary text-white mb-4">
-                    <div class="card-body"> Today’s Revenue <br>
-                        <h5>
-                            ${{ rtrim(rtrim(number_format($todayRevenue, 2), '0'), '.') }}
-                        </h5>
-                    </div>
-                    <div class="card-footer d-flex align-items-center justify-content-between">
+            @canany(['manage-payments', 'manage-orders'])
+                <div class="col-xl-3 col-md-6">
+                    <div class="card bg-primary text-white mb-4">
+                        <div class="card-body"> Today’s Revenue <br>
+                            <h5>
+                                ${{ rtrim(rtrim(number_format($todayRevenue, 2), '0'), '.') }}
+                            </h5>
+                        </div>
+                        <div class="card-footer d-flex align-items-center justify-content-between">
 
-                        <a class="small text-white stretched-link"
-                            href="{{ route('admin.market.payment.filter', [
-                                'sort' => '1',
-                            ]) }}">View
-                            Details</a>
-                        <div class="small text-white"><i class="fas fa-angle-right"></i></div>
+                            <a class="small text-white stretched-link"
+                                href="{{ route('admin.market.payment.filter', [
+                                    'sort' => '1',
+                                ]) }}">View
+                                Details</a>
+                            <div class="small text-white"><i class="fas fa-angle-right"></i></div>
+                        </div>
                     </div>
                 </div>
-            </div>
-            <div class="col-xl-3 col-md-6">
-                <div class="card bg-warning text-white mb-4">
+            @endcanany
 
-                    <div class="card-body">Low availability variants <br>
-                        <h5>
-                            {{ $lowVariantsAvailable }}
-                        </h5>
-                    </div>
-                    <div class="card-footer d-flex align-items-center justify-content-between">
-                        <a class="small text-white stretched-link" href="{{route('admin.market.warehouse.index')}}">View Details</a>
-                        <div class="small text-white"><i class="fas fa-angle-right"></i></div>
-                    </div>
-                </div>
-            </div>
+            @canany(['view-inventory', 'view-warehouse'])
+                <div class="col-xl-3 col-md-6">
+                    <div class="card bg-warning text-white mb-4">
 
-            <div class="col-xl-3 col-md-6">
-                <div class="card bg-success text-white mb-4">
-                    <div class="card-body">Today’s Confirmed Orders <br>
-                        <h5>
-                            {{ $confirmedOrders }}
-                        </h5>
-                    </div>
-                    <div class="card-footer d-flex align-items-center justify-content-between">
-                        <a class="small text-white stretched-link" href="{{route('admin.market.order.index')}}">View Details</a>
-                        <div class="small text-white"><i class="fas fa-angle-right"></i></div>
-                    </div>
-                </div>
-            </div>
-            <div class="col-xl-3 col-md-6">
-                <div class="card bg-danger text-white mb-4">
-                    <div class="card-body">Open Support Tickets <br>
-                        <h5>
-                            {{ $openTickets }}
-                        </h5>
-                    </div>
-                    <div class="card-footer d-flex align-items-center justify-content-between">
-                        <a class="small text-white stretched-link"
-                            href="{{ route('admin.ticket.filter', [
-                                'sort' => '1',
-                            ]) }}">View
-                            Details</a>
-                        <div class="small text-white"><i class="fas fa-angle-right"></i></div>
+                        <div class="card-body">Low availability variants <br>
+                            <h5>
+                                {{ $lowVariantsAvailable }}
+                            </h5>
+                        </div>
+                        <div class="card-footer d-flex align-items-center justify-content-between">
+                            <a class="small text-white stretched-link" href="{{ route('admin.market.warehouse.index') }}">View
+                                Details</a>
+                            <div class="small text-white"><i class="fas fa-angle-right"></i></div>
+                        </div>
                     </div>
                 </div>
-            </div>
+            @endcanany
+
+            @can('manage-orders')
+                <div class="col-xl-3 col-md-6">
+                    <div class="card bg-success text-white mb-4">
+                        <div class="card-body">Today’s Confirmed Orders <br>
+                            <h5>
+                                {{ $confirmedOrders }}
+                            </h5>
+                        </div>
+                        <div class="card-footer d-flex align-items-center justify-content-between">
+                            <a class="small text-white stretched-link" href="{{ route('admin.market.order.index') }}">View
+                                Details</a>
+                            <div class="small text-white"><i class="fas fa-angle-right"></i></div>
+                        </div>
+                    </div>
+                </div>
+            @endcan
+            @can('manage-tickets')
+                <div class="col-xl-3 col-md-6">
+                    <div class="card bg-danger text-white mb-4">
+                        <div class="card-body">Open Support Tickets <br>
+                            <h5>
+                                {{ $openTickets }}
+                            </h5>
+                        </div>
+                        <div class="card-footer d-flex align-items-center justify-content-between">
+                            <a class="small text-white stretched-link"
+                                href="{{ route('admin.ticket.filter', [
+                                    'sort' => '1',
+                                ]) }}">View
+                                Details</a>
+                            <div class="small text-white"><i class="fas fa-angle-right"></i></div>
+                        </div>
+                    </div>
+                </div>
+            @endcan
+
         </div>
-        <div class="row">
-            <div class="col-xl-6">
-                <div class="card mb-4">
-                    <div class="card-header">
-                        <i class="fas fa-chart-area me-1"></i>
-                        Last 30 Days Sales Trend
+        @canany(['view-revenue-chart', 'view-sales-chart'])
+            <div class="row">
+                @can('view-sales-chart')
+                    <div class="col-xl-8 col-lg-7">
+                        <div class="card shadow mb-4">
+                            <div class="card-header py-3">
+                                <h6 class="m-0 font-weight-bold text-primary">
+                                    <i class="fas fa-chart-area mr-2"></i>
+                                    Last 30 Days Sales Trend
+                                </h6>
+                            </div>
+
+                            <div class="card-body">
+                                <div class="chart-container">
+                                    <canvas id="myAreaChart"></canvas>
+                                </div>
+                            </div>
+                        </div>
                     </div>
-                    <div class="card-body"><canvas id="myAreaChart" width="100%" height="40"></canvas></div>
-                </div>
-            </div>
-            <div class="col-xl-6">
-                <div class="card mb-4">
-                    <div class="card-header">
-                        <i class="fas fa-chart-bar me-1"></i>
-                        Monthly Revenue (Last 6 Months)
+                @endcan
+                @can('view-revenue-chart')
+                    <div class="col-xl-4 col-lg-5">
+                        <div class="card shadow mb-4">
+                            <div class="card-header py-3">
+                                <h6 class="m-0 font-weight-bold text-primary">
+                                    <i class="fas fa-chart-bar mr-2"></i>
+                                    Monthly Revenue
+                                </h6>
+                            </div>
+
+                            <div class="card-body">
+                                <div class="chart-container">
+                                    <canvas id="myBarChart"></canvas>
+                                </div>
+                            </div>
+                        </div>
                     </div>
-                    <div class="card-body"><canvas id="myBarChart" width="100%" height="40"></canvas></div>
-                </div>
+                @endcan
+
             </div>
-        </div>
+        @endcanany
 
     </div>
 @endsection
@@ -117,7 +162,7 @@
                         label: "فروش ($)",
                         lineTension: 0.3,
                         backgroundColor: "rgba(2, 117, 216, 0.15)",
-                        borderColor: "rgba(2, 117, 216, 1)", 
+                        borderColor: "rgba(2, 117, 216, 1)",
                         pointRadius: 4,
                         pointBackgroundColor: "rgba(2, 117, 216, 1)",
                         pointBorderColor: "rgba(255, 255, 255, 0.8)",
@@ -147,7 +192,7 @@
                                 maxTicksLimit: 5,
                                 callback: function(value) {
                                     return '$' + Number(value)
-                                        .toLocaleString(); 
+                                        .toLocaleString();
                                 }
                             },
                             gridLines: {
@@ -161,7 +206,7 @@
                     tooltips: {
                         callbacks: {
                             label: function(tooltipItem, chart) {
-                                return 'فروش: $' + Number(tooltipItem.yLabel).toLocaleString();
+                                return 'sold: $' + Number(tooltipItem.yLabel).toLocaleString();
                             }
                         }
                     }
@@ -187,7 +232,7 @@
                     labels: barLabels,
                     datasets: [{
                         label: "Revenue",
-                        backgroundColor: "rgba(2, 117, 216, 1)", 
+                        backgroundColor: "rgba(2, 117, 216, 1)",
                         hoverBackgroundColor: "rgba(2, 117, 216, 0.85)",
                         borderColor: "rgba(2, 117, 216, 1)",
                         borderWidth: 0,

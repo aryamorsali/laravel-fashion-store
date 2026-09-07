@@ -7,7 +7,8 @@
     <section class="container-fluid px-0">
         <nav style="background-color: #eee; height: 2.25rem" class="my-4 rounded ps-2" aria-label="breadcrumb">
             <ol class="breadcrumb p-1 ">
-                <li class="breadcrumb-item"><a href="{{ route('admin.home') }}" style="text-decoration: none">Dashboard</a></li>
+                <li class="breadcrumb-item"><a href="{{ route('admin.home') }}" style="text-decoration: none">Dashboard</a>
+                </li>
                 <li class="breadcrumb-item"><a href="#" style="text-decoration: none">Ticket</a></li>
                 <li class="breadcrumb-item active">Priority</li>
             </ol>
@@ -22,7 +23,18 @@
 
             <section class="d-flex align-items-center mt-4 mb-3 border-bottom pb-2">
                 <div class="me-auto" style="max-width: 16rem;">
-                    <input type="text" class="form-control form-control-sm form-text" placeholder="search..">
+                    {{-- // search --}}
+                    <form class="d-flex align-items-center" action="{{ route('admin.ticket.category.index') }}"
+                        method="GET">
+
+                        <input type="text" name="search" value="{{ request('search') }}"
+                            class="form-control form-control-sm" style="margin-right: 5px" placeholder="search..">
+
+                        <button type="submit" class="btn btn-sm btn-secondary">
+                            <i class="fa fa-search"></i>
+                        </button>
+
+                    </form>
                 </div>
                 <a href="{{ route('admin.ticket.priority.create') }}" class="btn btn-dark btn-sm my-btn ">Create new
                     priority</a>
@@ -48,15 +60,16 @@
                                 <td>
                                     <label>
                                         <input id="{{ $priority->id }}" onchange="changeStatus({{ $priority->id }})"
-                                            data-url="{{ route('admin.ticket.priority.status', $priority->id) }}" type="checkbox"
-                                            @if ($priority->status === 1) checked @endif>
+                                            data-url="{{ route('admin.ticket.priority.status', $priority->id) }}"
+                                            type="checkbox" @if ($priority->status === 1) checked @endif>
                                     </label>
                                 </td>
                                 <td class="width-16-rem text-center">
                                     <a href="{{ route('admin.ticket.priority.edit', $priority->id) }}"
                                         class="btn btn-primary btn-sm width-6-rem mi"><i class="fa fa-edit"></i>
                                         Edit</a>
-                                    <form class="d-inline" action="{{ route('admin.ticket.priority.destroy', $priority->id) }}"
+                                    <form class="d-inline"
+                                        action="{{ route('admin.ticket.priority.destroy', $priority->id) }}"
                                         method="post">
                                         @csrf
                                         @method('delete')
@@ -69,6 +82,9 @@
 
                     </tbody>
                 </table>
+                <div class="d-flex justify-content-center mt-4">
+                    {{ $priorities->onEachSide(1)->links('vendor.pagination.custom') }}
+                </div>
             </section>
         </section>
 

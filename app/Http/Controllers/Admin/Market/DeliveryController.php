@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin\Market;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\Market\DeliveryRequest;
+use App\Http\Requests\Admin\Market\SearchRequest;
 use App\Models\Market\Delivery;
 use Illuminate\Http\Request;
 
@@ -12,9 +13,21 @@ class DeliveryController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(SearchRequest $request)
     {
-        $deliveries = Delivery::orderBy('created_at', 'desc')->get();
+        $validated = $request->validated();
+
+        $search = $validated['search'] ?? null;
+
+        $query = Delivery::query();
+        if ($request->filled('search')) {
+
+            $query->where(function ($q) use ($search) {
+                $q->where('name', 'LIKE', '%' . $search . '%');
+            });
+        }
+
+        $deliveries = $query->orderBy('created_at', 'desc')->paginate(15)->appends(request()->query());
         return view('admin.market.delivery.index', compact('deliveries'));
     }
 

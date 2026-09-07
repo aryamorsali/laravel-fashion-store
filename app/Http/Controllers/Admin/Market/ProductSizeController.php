@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin\Market;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Admin\Market\SearchRequest;
 use App\Models\Market\ProductSize;
 use Illuminate\Http\Request;
 
@@ -11,9 +12,21 @@ class ProductSizeController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(SearchRequest $request)
     {
-        $sizes = ProductSize::all();
+        $validated = $request->validated();
+
+        $search = $validated['search'] ?? null;
+
+        $query = ProductSize::query();
+        if ($request->filled('search')) {
+
+            $query->where(function ($q) use ($search) {
+                $q->where('name', 'LIKE', '%' . $search . '%');
+            });
+        }
+
+        $sizes = $query->orderBy('created_at', 'desc')->paginate(15)->appends(request()->query());
         return view('admin.market.product.size.index', compact('sizes'));
     }
 

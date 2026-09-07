@@ -8,7 +8,8 @@
     <section class="container-fluid px-0">
         <nav style="background-color: #eee; height: 2.25rem" class="my-4 rounded ps-2" aria-label="breadcrumb">
             <ol class="breadcrumb p-1 ">
-                <li class="breadcrumb-item"><a href="{{ route('admin.home') }}" style="text-decoration: none">Dashboard</a></li>
+                <li class="breadcrumb-item"><a href="{{ route('admin.home') }}" style="text-decoration: none">Dashboard</a>
+                </li>
                 <li class="breadcrumb-item"><a href="#" style="text-decoration: none">Market</a></li>
                 <li class="breadcrumb-item active">Common Discounts</li>
             </ol>
@@ -23,7 +24,18 @@
 
             <section class="d-flex align-items-center mt-4 mb-3 border-bottom pb-2">
                 <div class="me-auto" style="max-width: 16rem;">
-                    <input type="text" class="form-control form-control-sm form-text" placeholder="search..">
+                    {{-- // search --}}
+                    <form class="d-flex align-items-center" action="{{ route('admin.market.discount.common_discount') }}"
+                        method="GET">
+
+                        <input type="text" name="search" value="{{ request('search') }}"
+                            class="form-control form-control-sm" style="margin-right: 5px" placeholder="search (title)">
+
+                        <button type="submit" class="btn btn-sm btn-secondary">
+                            <i class="fa fa-search"></i>
+                        </button>
+
+                    </form>
                 </div>
                 @can('create-common-discount')
                     <a href="{{ route('admin.market.discount.common_discount.create') }}"
@@ -39,10 +51,10 @@
                     <thead>
                         <tr>
                             <th scope="col">#</th>
+                            <th scope="col">Occasion title</th>
                             <th scope="col">Discount percentage</th>
                             <th scope="col">Minimum purchase</th>
                             <th scope="col">Discount ceiling</th>
-                            <th scope="col">Occasion title</th>
                             <th scope="col">Start date</th>
                             <th scope="col">End date</th>
                             <th scope="col">Status</th>
@@ -57,6 +69,8 @@
                         @foreach ($common_discounts as $common_discount)
                             <tr>
                                 <th scope="row">{{ $loop->iteration }}</th>
+                                <td>{{ $common_discount->title }}</td>
+
                                 <td>{{ $common_discount->percentage }}%</td>
                                 <td>
                                     @if ($common_discount->minimal_order_amount)
@@ -70,7 +84,6 @@
                                     @else-
                                     @endif
                                 </td>
-                                <td>{{ $common_discount->title }}</td>
                                 <td>{{ $common_discount->start_date }}</td>
                                 <td>{{ $common_discount->end_date }}</td>
                                 <td>
@@ -123,6 +136,9 @@
 
                     </tbody>
                 </table>
+                <div class="d-flex justify-content-center mt-4">
+                    {{ $common_discounts->onEachSide(1)->links('vendor.pagination.custom') }}
+                </div>
             </section>
         </section>
 

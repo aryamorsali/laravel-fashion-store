@@ -17,12 +17,6 @@ class AdminDashboardController extends Controller
     {
         $todayRevenue = Payment::where('status', 'paid')->whereDate('created_at', today())->sum('amount');
 
-        // $returnedOrders = Order::whereIn('order_status', [
-        //     'not_checked',
-        //     'awaiting_confirmation',
-        //     'returned',
-        // ])->count();
-
         $lowVariantsAvailable = ProductVariant::query()->with('warehouseVariants')->get()
             ->filter(function (ProductVariant $variant) {
                 $availableStock = $variant->availableStock();

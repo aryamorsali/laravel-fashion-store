@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin\Market;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\Market\ProductAttributeRequest;
+use App\Http\Requests\Admin\Market\SearchRequest;
 use App\Models\Market\ProductAttribute;
 use App\Models\Market\ProductCategory;
 use Illuminate\Http\Request;
@@ -13,9 +14,22 @@ class PropertyController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(SearchRequest $request)
     {
-        $productAttributes = ProductAttribute::all();
+        $validated = $request->validated();
+
+        $search = $validated['search'] ?? null;
+
+        $query = ProductAttribute::query();
+        if ($request->filled('search')) {
+
+            $query->where(function ($q) use ($search) {
+                $q->where('name', 'LIKE', '%' . $search . '%');
+            });
+        }
+
+        $productAttributes = $query->orderBy('created_at', 'desc')->paginate(15)->appends(request()->query());
+
         return view('admin.market.property.index', compact('productAttributes'));
     }
 

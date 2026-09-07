@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin\Market;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Admin\Market\SearchRequest;
 use App\Http\Requests\Admin\Market\WarehouseVariantRequest;
 use App\Models\Market\ProductVariant;
 use App\Models\Market\Warehouse;
@@ -16,10 +17,28 @@ class WarehouseVariantController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index(Warehouse $warehouse)
+    public function index(Warehouse $warehouse, SearchRequest $request)
     {
-        // $warehouseVariants = $warehouse->variants()->with('productVariant')->paginate(15);
-        $warehouseVariants = $warehouse->variants()->with('productVariant')->orderBy('created_at', 'desc')->get();
+
+        $validated = $request->validated();
+
+        $search = $validated['search'] ?? null;
+
+        $warehouseVariants = $warehouse->variants()->with([
+            'productVariant',
+            'productVariant.color',
+            'productVariant.size',
+            'productVariant.product',
+        ]);
+
+        if ($request->filled('search')) {
+            $warehouseVariants->whereHas('productVariant.product', function ($c) use ($search) {
+                $c->where('name', 'LIKE', '%' . $search . '%');
+            });
+        }
+
+        $warehouseVariants = $warehouseVariants->orderBy('created_at', 'desc')->paginate(15)->appends(request()->query());
+
         return view('admin.market.warehouse.warehouse-variant.index', compact('warehouseVariants', 'warehouse'));
     }
 

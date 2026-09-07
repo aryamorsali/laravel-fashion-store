@@ -9,7 +9,8 @@
     <section class="container-fluid px-0">
         <nav style="background-color: #eee; height: 2.25rem" class="my-4 rounded ps-2" aria-label="breadcrumb">
             <ol class="breadcrumb p-1 ">
-                <li class="breadcrumb-item"><a href="{{ route('admin.home') }}" style="text-decoration: none">Dashboard</a></li>
+                <li class="breadcrumb-item"><a href="{{ route('admin.home') }}" style="text-decoration: none">Dashboard</a>
+                </li>
                 <li class="breadcrumb-item"><a href="#" style="text-decoration: none">content</a></li>
                 <li class="breadcrumb-item active">posts</li>
             </ol>
@@ -24,7 +25,17 @@
 
             <section class="d-flex align-items-center mt-4 mb-3 border-bottom pb-2">
                 <div class="me-auto" style="max-width: 16rem;">
-                    <input type="text" class="form-control form-control-sm form-text" placeholder="search..">
+                    {{-- // search --}}
+                    <form class="d-flex align-items-center" action="{{ route('admin.content.post.index') }}" method="GET">
+
+                        <input type="text" name="search" value="{{ request('search') }}"
+                            class="form-control form-control-sm" style="margin-right: 5px" placeholder="search (title - category)">
+
+                        <button type="submit" class="btn btn-sm btn-secondary">
+                            <i class="fa fa-search"></i>
+                        </button>
+
+                    </form>
                 </div>
                 @can('create-post')
                     <a href="{{ route('admin.content.post.create') }}" class="btn btn-dark btn-sm my-btn ">Create new
@@ -81,7 +92,8 @@
                                 </td>
                                 <td>
                                     <label>
-                                        <input id="{{ $post->id }}-commentable" @cannot('update-post') disabled @endcannot
+                                        <input id="{{ $post->id }}-commentable"
+                                            @cannot('update-post') disabled @endcannot
                                             onchange="commentable({{ $post->id }})"
                                             data-url="{{ route('admin.content.post.commentable', $post->id) }}"
                                             type="checkbox" @if ($post->commentable === 1) checked @endif>
@@ -110,6 +122,9 @@
                         @endforeach
                     </tbody>
                 </table>
+                <div class="d-flex justify-content-center mt-4">
+                    {{ $posts->onEachSide(1)->links('vendor.pagination.custom') }}
+                </div>
             </section>
         </section>
 

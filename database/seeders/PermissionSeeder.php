@@ -50,6 +50,10 @@ class PermissionSeeder extends Seeder
             'email-notification' => ['view', 'create', 'update', 'delete', 'send'],
             'sms-notification' => ['view', 'create', 'update', 'delete', 'send'],
 
+            'sales-chart' => ['view'],
+            'revenue-chart' => ['view'],
+
+
         ];
 
         foreach ($resources as $resource => $actions) {
@@ -103,6 +107,7 @@ class PermissionSeeder extends Seeder
                 'description' => 'Manage email notification file',
                 'status' => 1,
             ],
+
         ];
 
         $permissions = $permissions
