@@ -8,6 +8,7 @@ use App\Models\Market\Address;
 use App\Models\Market\CartItem;
 use App\Models\Market\Order;
 use App\Models\Market\Product;
+use App\Models\Notification;
 use App\Models\Ticket\AdminTicket;
 use App\Models\Ticket\Ticket;
 use App\Models\Ticket\TicketCategory;
@@ -16,6 +17,7 @@ use App\Models\User\Role;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
+use Illuminate\Notifications\DatabaseNotification;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
 
@@ -87,6 +89,11 @@ class User extends Authenticatable
     public function orders()
     {
         return $this->hasMany(Order::class);
+    }
+
+    public function notifications()
+    {
+        return $this->morphMany(DatabaseNotification::class, 'notifiable');
     }
 
     public function favoriteProducts()

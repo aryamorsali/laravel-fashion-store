@@ -18,6 +18,10 @@ use App\Models\Market\Delivery;
 use App\Models\Market\InventoryAllocation;
 use App\Models\Market\WarehouseTransaction;
 use App\Models\Market\WarehouseVariant;
+use App\Models\User;
+use App\Notifications\LowStockNotification;
+use App\Notifications\NewOrderRegisteredNotification;
+use App\Notifications\PaymentFailedNotification;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
@@ -276,6 +280,14 @@ class PaymentCalculationService
             $order = Order::lockForUpdate()->findOrFail($order->id);
             $payment = Payment::lockForUpdate()->findOrFail($payment->id);
 
+            $order->load([
+                'orderItems',
+                'orderItems.allocations.cartItem',
+                'orderItems.allocations.warehouseVariant.productVariant.product',
+                'orderItems.allocations.warehouseVariant.productVariant.color',
+                'orderItems.allocations.warehouseVariant.productVariant.size',
+            ]);
+
             // already_paid
             if ($order->order_status === 'confirmed' && $order->payment_status === 'paid' && $payment->status === 'paid') {
                 // قبلا سفارش پردازش شده است
@@ -284,7 +296,7 @@ class PaymentCalculationService
                         'status' => 'success',
                         'message' => 'This order has already been successfully paid and registered.',
                         'data' => [
-                            'order' => new OrderResource($order->load('orderItems')),
+                            'order' => new OrderResource($order),
                             'transaction_id' => $payment->transaction_id,
                         ],
                     ], 200);
@@ -295,7 +307,7 @@ class PaymentCalculationService
                 );
             }
 
-            $order->load('orderItems.allocations.cartItem');
+
 
             // ----------------------------------
             // اگر پرداخت موفق بود
@@ -364,6 +376,51 @@ class PaymentCalculationService
                     'payment_status' => 'paid',
                 ]);
 
+                // ثبت نوتیفیکیشن برای ادمین مورد نظر
+                // new order notification
+                $orderAdmins = User::where('activation', 1)->get()->filter(function ($u) {
+                    return $u->is_owner || $u->hasPermissionTo('manage-orders');
+                });
+
+                foreach ($orderAdmins as $admin) {
+                    $admin->notify(new NewOrderRegisteredNotification($order->fresh()));
+                }
+
+                // low stock notification
+                $lowStockItems = [];
+
+                // پیدا کردن موجودی واریانت خریداری شده
+                // Order -> OrderItems -> InventoryAllocation -> WarehouseVariant -> stock
+                foreach ($order->orderItems as $item) {
+                    foreach ($item->allocations as $allocation) {
+                        $warehouseVariant = $allocation->warehouseVariant;
+
+                        // اگر موجودی زیر 5 تاست و قبلا آن را در لیست اضافه نکرده‌ایم
+                        if ($warehouseVariant && $warehouseVariant->stock < 5) {
+                            $lowStockItems[] = [
+                                'variant_id' => $warehouseVariant->productVariant->id ?? null,
+                                'name' => $warehouseVariant->productVariant->product->name ?? 'Unspecified product',
+                                'color' => $warehouseVariant->productVariant->color?->name ?? null,
+                                'size' => $warehouseVariant->productVariant->size?->name ?? null,
+                                'remaining' => $warehouseVariant->stock
+                            ];
+                        }
+                    }
+                }
+
+                //  ارسال نوتیفیکیشن فقط در صورت نیاز
+                if (!empty($lowStockItems)) {
+                    $warehouseAdmins = User::where('activation', 1)
+                        ->whereHas('permissions', function ($q) {
+                            $q->whereIn('name', ['view-inventory', 'view-warehouse']);
+                        })->get();
+
+                    foreach ($warehouseAdmins as $admin) {
+                        $admin->notify(new LowStockNotification($lowStockItems));
+                    }
+                }
+
+
                 if ($request->expectsJson()) {
                     return response()->json([
                         'status' => 'success',
@@ -410,6 +467,15 @@ class PaymentCalculationService
                     'order_status'   =>  'awaiting_confirmation',
                 ]);
 
+                // ثبت نوتیفیکیشن برای ادمین مورد نظر
+                $admins = User::where('activation', 1)->get()->filter(function ($u) {
+                    return $u->hasPermissionTo('manage-orders');
+                });
+
+                foreach ($admins as $admin) {
+                    $admin->notify(new PaymentFailedNotification($order->fresh(), $payment->fresh()));
+                }
+
 
                 if ($request->expectsJson()) {
                     return response()->json([
@@ -448,8 +514,6 @@ class PaymentCalculationService
                 }
                 return redirect()->route('customer.home')->with('toast-error', $result['message']);
             }
-
-
         });
     }
 }

@@ -90,7 +90,7 @@ class AdminDashboardController extends Controller
         }
 
 
-        return view('admin.index', compact(
+        return view('admin.dashborad.index', compact(
             'todayRevenue',
             'lowVariantsAvailable',
             'openTickets',
@@ -100,5 +100,11 @@ class AdminDashboardController extends Controller
             'barLabels',
             'barValues',
         ));
+    }
+
+
+    public function notifications()
+    {
+        return view('admin.dashborad.notifications');
     }
 }
