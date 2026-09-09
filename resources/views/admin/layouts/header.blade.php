@@ -31,68 +31,63 @@
                          aria-labelledby="navbarDropdownNotifications">
                          <li class="notif-head">
                              Notifications
-                             <a href="#!" class="mark-read">Mark all as read</a>
+                             <form action="{{ route('admin.notifications.mark-as-read') }}" method="POST">
+                                 @csrf
+                                 <button type="submit" class="btn btn-sm btn-link p-0 mark-read">
+                                     Mark all as read
+                                 </button>
+                             </form>
                          </li>
                          @foreach ($notifications as $notification)
                              <li>
-                                 <a class="notif-item" href="#!">
-                                     <span class="notification-icon @if($notification['event'] == 'order') bg-primary @endif">
-                                         <i class="fas fa-shopping-cart"></i>
+                                 <a class="notif-item" href="{{ $notification->data['url'] }}">
+                                     <span
+                                         class="notification-icon @switch($notification->data['event'])
+                                         @case('new_order')
+                                             bg-primary
+                                             @break
+                                                @case('low_stock')
+                                             bg-warning
+                                             @break
+                                                @case('payment_failed')
+                                             bg-danger
+                                             @break
+                                                @case('new_ticket')
+                                             bg-info
+                                             @break
+                                                   @case('new_user')
+                                             bg-secondary
+                                             @break
+                                                     @case('new_product_comment')
+                                             bg-success
+                                             @break
+                                                     @case('new_post_comment')
+                                             bg-dark
+                                             @break
+                                             @default
+                                     @endswitch">
+                                         @php
+                                             $icon = match ($notification->data['event'] ?? '') {
+                                                 'new_order' => 'shopping-cart',
+                                                 'low_stock' => 'box-open',
+                                                 'payment_failed' => 'exclamation-triangle',
+                                                 'new_ticket' => 'headset',
+                                                 'new_user' => 'user-plus',
+                                                 'new_post_comment' => 'comment-dots',
+                                                 'new_product_comment' => 'comment-alt',
+                                             };
+                                         @endphp
+
+                                         <i class="fas fa-{{ $icon }}"></i>
                                      </span>
                                      <div class="notif-body">
-                                         <p class="notif-title">New order <b>#1024</b> received <span class="dot"></span>
+                                         <p class="notif-title">{!! $notification->data['message'] !!} <span class="dot"></span>
                                          </p>
-                                         <p class="notif-sub">5 min ago</p>
+                                         <p class="notif-sub">{{ $notification->created_at->diffForHumans() }}</p>
                                      </div>
                                  </a>
                              </li>
                          @endforeach
-
-
-                         {{-- <li>
-                             <a class="notif-item" href="#!">
-                                 <span class="notification-icon bg-danger">
-                                     <i class="fas fa-exclamation-triangle"></i>
-                                 </span>
-                                 <div class="notif-body">
-                                     <p class="notif-title">Payment failed for order <b>#1023</b> <span
-                                             class="dot"></span>
-                                     </p>
-                                     <p class="notif-sub">32 min ago</p>
-                                 </div>
-
-                             </a>
-                         </li>
-
-                         <li>
-                             <a class="notif-item" href="#!">
-                                 <span class="notification-icon bg-warning">
-                                     <i class="fas fa-box-open"></i>
-                                 </span>
-                                 <div class="notif-body">
-
-                                     <p class="notif-title">Low stock: <b>Black T-Shirt — L</b> <span class="dot"></span>
-                                     </p>
-                                     <p class="notif-sub">2 hours ago</p>
-                                 </div>
-
-                             </a>
-                         </li>
-
-                         <li>
-                             <a class="notif-item" href="#!">
-                                 <span class="notification-icon bg-info">
-                                     <i class="fas fa-headset"></i>
-                                 </span>
-                                 <div class="notif-body">
-
-                                     <p class="notif-title">New support ticket <b>#88</b> <span class="dot"></span></p>
-                                     <p class="notif-sub">Yesterday</p>
-                                 </div>
-
-                             </a>
-                         </li> --}}
-
                          <li class="notif-foot"><a href="{{ route('admin.notifications') }}">View all notifications</a></li>
                      </ul>
                  </li>

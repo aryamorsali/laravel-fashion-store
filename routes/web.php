@@ -59,6 +59,7 @@ use Illuminate\Support\Facades\Route;
 Route::prefix('admin')->middleware(['auth', 'can:access-admin-panel'])->group(function () {
     Route::get('/', [AdminDashboardController::class, 'index'])->name('admin.home');
     Route::get('/notifications', [AdminDashboardController::class, 'notifications'])->name('admin.notifications')->middleware('can:view-notifications');
+    Route::post('/notifications/mark-as-read', [AdminDashboardController::class, 'markAsRead'])->name('admin.notifications.mark-as-read')->middleware('can:view-notifications');
 
     // market
     Route::prefix('market')->group(function () {

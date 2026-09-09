@@ -8,6 +8,7 @@ use App\Http\Services\Message\SMS\SmsService;
 use App\Models\Otp;
 use App\Models\User;
 use App\Models\User\Role;
+use App\Notifications\NewUserRegisteredNotification;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\DB;
@@ -58,6 +59,15 @@ class Authentication
 
                 if ($defaultRole) {
                     $user->roles()->sync([$defaultRole->id]);
+                }
+
+                // new user notification
+                $admins = User::where('activation', 1)->get()->filter(function ($u) {
+                    return $u->is_owner || $u->hasPermissionTo('access-admin-panel');
+                });
+
+                foreach ($admins as $admin) {
+                    $admin->notify(new NewUserRegisteredNotification($user));
                 }
             });
         }

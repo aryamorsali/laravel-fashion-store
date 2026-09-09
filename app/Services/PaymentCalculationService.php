@@ -398,7 +398,8 @@ class PaymentCalculationService
                         // اگر موجودی زیر 5 تاست و قبلا آن را در لیست اضافه نکرده‌ایم
                         if ($warehouseVariant && $warehouseVariant->stock < 5) {
                             $lowStockItems[] = [
-                                'variant_id' => $warehouseVariant->productVariant->id ?? null,
+                                'warehouse_id' => $warehouseVariant->warehouse_id,
+                                'product_variant_id' => $warehouseVariant->productVariant->id ?? null,
                                 'name' => $warehouseVariant->productVariant->product->name ?? 'Unspecified product',
                                 'color' => $warehouseVariant->productVariant->color?->name ?? null,
                                 'size' => $warehouseVariant->productVariant->size?->name ?? null,
@@ -408,12 +409,13 @@ class PaymentCalculationService
                     }
                 }
 
+
                 //  ارسال نوتیفیکیشن فقط در صورت نیاز
                 if (!empty($lowStockItems)) {
-                    $warehouseAdmins = User::where('activation', 1)
-                        ->whereHas('permissions', function ($q) {
-                            $q->whereIn('name', ['view-inventory', 'view-warehouse']);
-                        })->get();
+
+                    $warehouseAdmins = User::where('activation', 1)->get()->filter(function ($u) {
+                        return $u->is_owner || $u->hasPermissionTo('view-inventory') || $u->hasPermissionTo('view-warehouse');
+                    });
 
                     foreach ($warehouseAdmins as $admin) {
                         $admin->notify(new LowStockNotification($lowStockItems));

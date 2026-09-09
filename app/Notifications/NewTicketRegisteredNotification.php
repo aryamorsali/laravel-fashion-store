@@ -2,23 +2,23 @@
 
 namespace App\Notifications;
 
-use App\Models\Market\Order;
+use App\Models\Ticket\Ticket;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 
-class NewOrderRegisteredNotification extends Notification
+class NewTicketRegisteredNotification extends Notification
 {
     use Queueable;
 
     /**
      * Create a new notification instance.
      */
-    private $order;
-    public function __construct(Order $order)
+    private $ticket;
+    public function __construct(Ticket $ticket)
     {
-        $this->order = $order;
+        $this->ticket = $ticket;
     }
 
     /**
@@ -49,15 +49,10 @@ class NewOrderRegisteredNotification extends Notification
      */
     public function toArray(object $notifiable): array
     {
-        $formattedAmount = rtrim(rtrim(number_format($this->order->order_final_amount, 2), '0'), '.');
         return [
-            'event' => 'new_order', // نوع رویداد
-            'message' => "New order <b>#{$this->order->id}</b> received",
-            'url'   => route('admin.market.order.show', $this->order->id),
-            'meta'  => [
-                'order_id' => $this->order->id,
-                'customer_name' => $this->order->user->full_name,
-            ],
+            'event' => 'new_ticket', // نوع رویداد
+            'message' => "New support ticket <b>#{$this->ticket->id}</b>",
+            'url'   => route('admin.ticket.show', $this->ticket->id),
         ];
     }
 }

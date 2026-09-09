@@ -6,6 +6,8 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Customer\Product\CommentRequest;
 use App\Models\Content\Comment;
 use App\Models\Market\Product;
+use App\Models\User;
+use App\Notifications\NewProductCommentRegisteredNotification;
 use App\Services\ProductService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -52,6 +54,14 @@ class ProductController extends Controller
 
         $comment = $this->productService->addComment($product, $data);
 
+        // new product comment notification
+        $admins = User::where('activation', 1)->get()->filter(function ($u) {
+            return $u->is_owner || $u->hasPermissionTo('manage-product-comments');
+        });
+
+        foreach ($admins as $admin) {
+            $admin->notify(new NewProductCommentRegisteredNotification($comment));
+        }
 
         return redirect()->back()->with(
             'toast-success',

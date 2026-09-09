@@ -132,62 +132,68 @@
         {{-- سربرگ --}}
         <div class="notif-page-head mt-5">
             <h3><i class="far fa-bell px-2"></i>Notifications</h3>
-            <a href="#!" class="mark-all">Mark all as read</a>
+            <form action="{{ route('admin.notifications.mark-as-read') }}" class="mark-all" method="POST">
+                @csrf
+                <button type="submit" class="btn btn-sm btn-link p-0 mark-read">
+                    Mark all as read
+                </button>
+            </form>
         </div>
 
         {{-- کارت اصلی --}}
         <div class="card shadow-sm border-0 notif-page">
             <div class="card-body p-0">
+                @foreach ($notifications as $notification)
+                    {{-- @dd($notification->data) --}}
+                    <a href="{{ $notification->data['url'] }}" class="page-notif">
+                        <span
+                            class="notification-icon  @switch($notification->data['event'])
+                                         @case('new_order')
+                                             bg-primary
+                                             @break
+                                                @case('low_stock')
+                                             bg-warning
+                                             @break
+                                                @case('payment_failed')
+                                             bg-danger
+                                             @break
+                                                @case('new_ticket')
+                                             bg-info
+                                             @break
+                                                   @case('new_user')
+                                             bg-secondary
+                                             @break
+                                             @default
+                                     @endswitch">
+                            @php
+                                $icon = match ($notification->data['event'] ?? '') {
+                                    'new_order' => 'shopping-cart',
+                                    'low_stock' => 'box-open',
+                                    'payment_failed' => 'exclamation-triangle',
+                                    'new_ticket' => 'headset',
+                                    'new_user' => 'user-plus',
+                                };
+                            @endphp
 
-                <a href="#!" class="page-notif">
-                    <span class="notification-icon bg-primary"><i class="fas fa-shopping-cart"></i></span>
-                    <div class="notif-body">
-                        <p class="notif-title">New order <b>#1024</b> received</p>
-                        <p class="notif-sub">5 min ago</p>
-                    </div>
-                    <span class="dot"></span>
-                </a>
+                            <i class="fas fa-{{ $icon }}"></i></span>
+                        <div class="notif-body">
+                            <p class="notif-title">{!! $notification->data['message'] !!}</p>
+                            <p class="notif-sub">{{ $notification->created_at->diffForHumans() }}</p>
+                        </div>
+                        @if (!$notification->read_at)
+                            <span class="dot"></span>
+                        @endif
 
-                <a href="#!" class="page-notif">
-                    <span class="notification-icon bg-danger"><i class="fas fa-exclamation-triangle"></i></span>
-                    <div class="notif-body">
-                        <p class="notif-title">Payment failed for order <b>#1023</b></p>
-                        <p class="notif-sub">32 min ago</p>
-                    </div>
-                    <span class="dot"></span>
-                </a>
+                    </a>
+                @endforeach
 
-                <a href="#!" class="page-notif">
-                    <span class="notification-icon bg-warning"><i class="fas fa-box-open"></i></span>
-                    <div class="notif-body">
-                        <p class="notif-title">Low stock: <b>Black T-Shirt — L</b></p>
-                        <p class="notif-sub">2 hours ago</p>
-                    </div>
-                    <span class="dot"></span>
-                </a>
 
-                <a href="#!" class="page-notif">
-                    <span class="notification-icon bg-info"><i class="fas fa-headset"></i></span>
-                    <div class="notif-body">
-                        <p class="notif-title">New support ticket <b>#88</b></p>
-                        <p class="notif-sub">Yesterday</p>
-                    </div>
-                    <span class="dot"></span>
-                </a>
-
-                <a href="#!" class="page-notif is-read">
-                    <span class="notification-icon bg-secondary"><i class="fas fa-user-plus"></i></span>
-                    <div class="notif-body">
-                        <p class="notif-title">New user registered: <b>David Beckham</b></p>
-                        <p class="notif-sub">Yesterday</p>
-                    </div>
-                </a>
 
             </div>
 
             {{-- فوتر --}}
             <div class="notif-page-foot">
-                <span>Showing 5 of 24</span>
+                {{-- <span>Showing 5 of 24</span>
                 <nav>
                     <ul class="pagination pagination-sm mb-0">
                         <li class="page-item disabled"><a class="page-link" href="#!">Prev</a></li>
@@ -195,7 +201,11 @@
                         <li class="page-item"><a class="page-link" href="#!">2</a></li>
                         <li class="page-item"><a class="page-link" href="#!">Next</a></li>
                     </ul>
-                </nav>
+                </nav> --}}
+
+                <div class="d-flex justify-content-center mt-4">
+                    {{ $notifications->onEachSide(1)->links('vendor.pagination.custom') }}
+                </div>
             </div>
         </div>
 

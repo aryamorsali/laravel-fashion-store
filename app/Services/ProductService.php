@@ -7,6 +7,7 @@ use Carbon\Carbon;
 use App\Models\Market\Product;
 use Illuminate\Support\Facades\Auth;
 use App\Models\Content\Comment;
+use App\Models\User;
 
 class ProductService
 {
@@ -36,7 +37,7 @@ class ProductService
                     'color_hex' => $v->color?->hex_code,
                     'size_id' => $v->size?->id,
                     'size_name' => $v->size?->name,
-                    'price' =>(float) $v->price,
+                    'price' => (float) $v->price,
                     'final_price' => (float) $v->final_price,
                     'stock' => (int) $v->availableStock(),
                     'percentage' => $v->activeAmazingSale?->percentage,

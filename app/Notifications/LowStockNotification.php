@@ -54,8 +54,8 @@ class LowStockNotification extends Notification
         $count = count($this->lowStockItems);
 
         $message = $count === 1
-            ? 'Low inventory: ' . $this->lowStockItems[0]['color'].' '.$this->lowStockItems[0]['name'].'—'.$this->lowStockItems[0]['size']
-            : "Low inventory for {$count} products";
+            ? 'Low inventory: ' . '<b>' .$this->lowStockItems[0]['color'].' '.$this->lowStockItems[0]['name'].' — '.$this->lowStockItems[0]['size'] . '</b>'
+            : "Low inventory for <b>{$count}</b> products";
 
         return [
             'event' => 'low_stock',

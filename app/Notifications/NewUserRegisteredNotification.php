@@ -2,23 +2,23 @@
 
 namespace App\Notifications;
 
-use App\Models\Market\Order;
+use App\Models\User;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 
-class NewOrderRegisteredNotification extends Notification
+class NewUserRegisteredNotification extends Notification
 {
     use Queueable;
 
     /**
      * Create a new notification instance.
      */
-    private $order;
-    public function __construct(Order $order)
+    private $user;
+    public function __construct(User $user)
     {
-        $this->order = $order;
+        $this->user = $user;
     }
 
     /**
@@ -49,15 +49,11 @@ class NewOrderRegisteredNotification extends Notification
      */
     public function toArray(object $notifiable): array
     {
-        $formattedAmount = rtrim(rtrim(number_format($this->order->order_final_amount, 2), '0'), '.');
+        $userName = $this->user->full_name ?? "Unknown user";
         return [
-            'event' => 'new_order', // نوع رویداد
-            'message' => "New order <b>#{$this->order->id}</b> received",
-            'url'   => route('admin.market.order.show', $this->order->id),
-            'meta'  => [
-                'order_id' => $this->order->id,
-                'customer_name' => $this->order->user->full_name,
-            ],
+            'event' => 'new_user', // نوع رویداد
+            'message' => "New user registered: <b>{$userName}</b>",
+            'url'   => route('admin.user.customer.index'),
         ];
     }
 }
