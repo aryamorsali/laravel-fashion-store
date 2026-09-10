@@ -4,6 +4,7 @@ namespace App\Providers;
 
 use App\Models\Market\CartItem;
 use App\Models\Market\ProductCategory;
+use App\Models\Notification\Notification;
 use App\Models\Setting\Setting;
 use App\Models\User;
 use App\Models\User\Permission;
@@ -81,6 +82,13 @@ class AppServiceProvider extends ServiceProvider
             }
         });
 
+        view()->composer('admin.layouts.header', function ($view) {
+            $view->with(
+                'notifications',
+               Auth::user()->notifications()->whereNull('read_at')->take(8)->get()
+            );
+        });
+
         $permissions = Permission::all()->pluck('name');
 
         foreach ($permissions as $permission) {
@@ -88,6 +96,11 @@ class AppServiceProvider extends ServiceProvider
                 return $user->hasPermissionTo($permission) || $user->is_owner;
             });
         }
+        // dashboard notifications
+        Gate::define('view-notifications', function (User $user) {
+            return $user->hasPermissionTo('manage-orders') || $user->hasPermissionTo('manage-payments')
+                || $user->hasPermissionTo('manage-tickets') || $user->hasPermissionTo('view-inventory') || $user->is_owner;
+        });
 
 
         // این متغیرها فقط و فقط به فایل layouts.app و فایل‌های داخل پوشه customer فرستاده می‌شوند

@@ -11,6 +11,8 @@ use App\Models\Content\Post;
 use App\Models\Content\PostCategory;
 use App\Models\Content\Tag;
 use App\Models\Market\Product;
+use App\Models\User;
+use App\Notifications\NewPostCommentRegisteredNotification;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -71,13 +73,22 @@ class ContentController extends Controller
             'body' => 'required|max:2000',
         ]);
 
-        Comment::create([
+        $comment = Comment::create([
             'body' => $data['body'],
             'parent_id' => null,
             'author_id' => Auth::user()->id,
             'commentable_type' => Post::class,
             'commentable_id' => $post->id,
         ]);
+
+        // new post comment notification
+        $admins = User::where('activation', 1)->get()->filter(function ($u) {
+            return $u->is_owner || $u->hasPermissionTo('manage-post-comments');
+        });
+
+        foreach ($admins as $admin) {
+            $admin->notify(new NewPostCommentRegisteredNotification($comment));
+        }
         return redirect()->back()->with(
             'toast-success',
             'Thanks for your review! It’s pending admin approval.'

@@ -12,6 +12,8 @@ use App\Models\Ticket\Ticket;
 use App\Models\Ticket\TicketCategory;
 use App\Models\Ticket\TicketFile;
 use App\Models\Ticket\TicketPriority;
+use App\Models\User;
+use App\Notifications\NewTicketRegisteredNotification;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -69,6 +71,16 @@ class ProfileTiketController extends Controller
                         'file_size' => filesize(public_path($imagePath)),
                         'type' => $file->getMimeType(),
                     ]);
+                }
+
+
+                // new ticket notification
+                $ticketAdmins = User::where('activation', 1)->get()->filter(function ($u) {
+                    return $u->is_owner || $u->hasPermissionTo('manage-tickets');
+                });
+
+                foreach ($ticketAdmins as $admin) {
+                    $admin->notify(new NewTicketRegisteredNotification($ticket));
                 }
             });
         } catch (Throwable $exception) {

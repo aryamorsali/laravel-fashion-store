@@ -9,7 +9,10 @@ use App\Models\Market\ProductVariant;
 use App\Models\Ticket\Ticket;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+
+use function Symfony\Component\Clock\now;
 
 class AdminDashboardController extends Controller
 {
@@ -90,7 +93,7 @@ class AdminDashboardController extends Controller
         }
 
 
-        return view('admin.index', compact(
+        return view('admin.dashborad.index', compact(
             'todayRevenue',
             'lowVariantsAvailable',
             'openTickets',
@@ -100,5 +103,22 @@ class AdminDashboardController extends Controller
             'barLabels',
             'barValues',
         ));
+    }
+
+
+    public function notifications()
+    {
+        $notifications = Auth::user()->notifications()->orderBy('created_at', 'desc')->paginate(15);
+        return view('admin.dashborad.notifications', compact('notifications'));
+    }
+
+    public function markAsRead()
+    {
+        $notifications = Auth::user()->notifications()->whereNull('read_at')->get();
+        foreach ($notifications as $notification) {
+            $notification->read_at = now();
+            $notification->save();
+        }
+        return back();
     }
 }
