@@ -163,6 +163,12 @@
                                                    @case('new_user')
                                              bg-secondary
                                              @break
+                                                  @case('new_product_comment')
+                                             bg-success
+                                             @break
+                                               @case('new_post_comment')
+                                             bg-dark
+                                             @break
                                              @default
                                      @endswitch">
                             @php
@@ -172,6 +178,8 @@
                                     'payment_failed' => 'exclamation-triangle',
                                     'new_ticket' => 'headset',
                                     'new_user' => 'user-plus',
+                                    'new_post_comment' => 'comment-dots',
+                                    'new_product_comment' => 'comment-alt',
                                 };
                             @endphp
 

@@ -108,7 +108,7 @@ class AdminDashboardController extends Controller
 
     public function notifications()
     {
-        $notifications = Auth::user()->notifications()->paginate(15);
+        $notifications = Auth::user()->notifications()->orderBy('created_at', 'desc')->paginate(15);
         return view('admin.dashborad.notifications', compact('notifications'));
     }
 

@@ -388,7 +388,8 @@ class PaymentCalculationService
 
                 // low stock notification
                 $lowStockItems = [];
-
+                $seenVariantIds = [];
+                
                 // پیدا کردن موجودی واریانت خریداری شده
                 // Order -> OrderItems -> InventoryAllocation -> WarehouseVariant -> stock
                 foreach ($order->orderItems as $item) {
@@ -397,18 +398,25 @@ class PaymentCalculationService
 
                         // اگر موجودی زیر 5 تاست و قبلا آن را در لیست اضافه نکرده‌ایم
                         if ($warehouseVariant && $warehouseVariant->stock < 5) {
+
+                            $variantId = $warehouseVariant->productVariant->id ?? null;
+                            if ($variantId && in_array($variantId, $seenVariantIds)) {
+                                continue;
+                            }
+
+                            $seenVariantIds[] = $variantId;
+
                             $lowStockItems[] = [
                                 'warehouse_id' => $warehouseVariant->warehouse_id,
                                 'product_variant_id' => $warehouseVariant->productVariant->id ?? null,
                                 'name' => $warehouseVariant->productVariant->product->name ?? 'Unspecified product',
                                 'color' => $warehouseVariant->productVariant->color?->name ?? null,
                                 'size' => $warehouseVariant->productVariant->size?->name ?? null,
-                                'remaining' => $warehouseVariant->stock
                             ];
                         }
                     }
                 }
-
+                dd($lowStockItems);
 
                 //  ارسال نوتیفیکیشن فقط در صورت نیاز
                 if (!empty($lowStockItems)) {
@@ -471,7 +479,7 @@ class PaymentCalculationService
 
                 // ثبت نوتیفیکیشن برای ادمین مورد نظر
                 $admins = User::where('activation', 1)->get()->filter(function ($u) {
-                    return $u->hasPermissionTo('manage-orders');
+                    return $u->is_owner || $u->hasPermissionTo('manage-orders') || $u->hasPermissionTo('manage-payments');
                 });
 
                 foreach ($admins as $admin) {

@@ -85,7 +85,7 @@ class AppServiceProvider extends ServiceProvider
         view()->composer('admin.layouts.header', function ($view) {
             $view->with(
                 'notifications',
-               Auth::user()->notifications()->whereNull('read_at')->take(10)->get()
+               Auth::user()->notifications()->whereNull('read_at')->take(8)->get()
             );
         });
 

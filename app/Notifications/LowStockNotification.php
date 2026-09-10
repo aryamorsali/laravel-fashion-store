@@ -52,15 +52,17 @@ class LowStockNotification extends Notification
     {
         // تعداد محصولات کم موجودی
         $count = count($this->lowStockItems);
+        $url = $count === 1 ? route('admin.market.warehouse.variant.edit',['warehouse' => $this->lowStockItems[0]['warehouse_id'], 'warehouseVariant' => $this->lowStockItems[0]['product_variant_id']])
+        : route('admin.market.warehouse.index');
 
         $message = $count === 1
-            ? 'Low inventory: ' . '<b>' .$this->lowStockItems[0]['color'].' '.$this->lowStockItems[0]['name'].' — '.$this->lowStockItems[0]['size'] . '</b>'
-            : "Low inventory for <b>{$count}</b> products";
+            ? 'Low inventory: ' . '<b>' . $this->lowStockItems[0]['color'] . ' ' . $this->lowStockItems[0]['name'] . ' — ' . $this->lowStockItems[0]['size'] . '</b>'
+            : "Low inventory for <b>{$count}</b> variants";
 
         return [
             'event' => 'low_stock',
             'message' => $message,
-            'url'   => route('admin.market.warehouse.index'),
+            'url'   => $url,
             'meta' => [
                 'count' => $count,
                 'items' => $this->lowStockItems,
