@@ -12,4 +12,4 @@ Schedule::command('carts:clear-expired-carts')->everyFiveMinutes();
 
 Schedule::command('emails:send-scheduled-email-notifications')->everyMinute();
 Schedule::command('sms:send-scheduled-sms-notifications')->everyMinute();
-
+Schedule::command('discounts:expire')->everyMinute();
