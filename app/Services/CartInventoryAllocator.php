@@ -72,6 +72,7 @@ class CartInventoryAllocator
 
         $cartItem->update([
             'quantity' => $newQuantity,
+            'expires_at' => now()->addMinutes(30)
         ]);
     }
 }

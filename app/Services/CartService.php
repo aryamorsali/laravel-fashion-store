@@ -244,7 +244,7 @@ class CartService
                 'totalItemPrice' => (float) $totalItemPrice,
                 'price' => (float) $price,
                 'finalPrice' => (float) $finalPrice,
-                'discount' => $discount ? (float) $discount : null,         
+                'discount' => $discount ? (float) $discount : null,
 
                 // مقادیر لازم برای هدر سبد
                 'cart_item_id' => (int) $cartItem->id,

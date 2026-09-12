@@ -8,7 +8,7 @@ Artisan::command('inspire', function () {
     $this->comment(Inspiring::quote());
 })->purpose('Display an inspiring quote');
 
-Schedule::command('carts:clear-expired-carts')->everyFiveMinutes();
+Schedule::command('carts:clear-expired-carts')->everyMinute();
 
 Schedule::command('emails:send-scheduled-email-notifications')->everyMinute();
 Schedule::command('sms:send-scheduled-sms-notifications')->everyMinute();
