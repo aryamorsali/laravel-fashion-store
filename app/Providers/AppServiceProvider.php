@@ -4,6 +4,7 @@ namespace App\Providers;
 
 use App\Models\Market\CartItem;
 use App\Models\Market\ProductCategory;
+use App\Models\Market\WarehouseVariant;
 use App\Models\Notification\Notification;
 use App\Models\Setting\Setting;
 use App\Models\User;
@@ -11,6 +12,7 @@ use App\Models\User\Permission;
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Facades\View;
@@ -85,7 +87,7 @@ class AppServiceProvider extends ServiceProvider
         view()->composer('admin.layouts.header', function ($view) {
             $view->with(
                 'notifications',
-               Auth::user()->notifications()->whereNull('read_at')->take(8)->get()
+                Auth::user()->notifications()->whereNull('read_at')->take(8)->get()
             );
         });
 
