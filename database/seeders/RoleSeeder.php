@@ -48,6 +48,11 @@ class RoleSeeder extends Seeder
                 'create-banner',
                 'update-banner',
                 'delete-banner',
+
+                'view-about',
+                'update-about',
+
+                'view-contact-message',
             ],
 
             'support-agent' => ['manage-tickets'],
@@ -64,6 +69,8 @@ class RoleSeeder extends Seeder
 
                 'view-warehouse-transaction',
             ],
+
+            'order-manager' => ['manage-orders'],
         ];
 
         foreach ($rolePermissions as $roleName  => $permissionNames) {

@@ -26,5 +26,65 @@ class DatabaseSeeder extends Seeder
         $this->call(RoleSeeder::class);
 
         $this->call(OrderSeeder::class);
+
+        /////////////////////////////////////////////////////////////////////////////////////
+
+        // جداول اصلی که وابسته به چیزی نیستن parent
+        $this->call([
+            AboutSeeder::class,
+            BannerSeeder::class,
+            BrandSeeder::class,
+            CommonDiscountSeeder::class,
+            DeliverySeeder::class,
+            FaqSeeder::class,
+            NotificationEmailSeeder::class,
+            LocationSeeder::class,
+            NotificationSmsSeeder::class,
+            PermissionSeeder::class,
+            PostCategorySeeder::class,
+            ProductCategorySeeder::class,
+            ProductColorSeeder::class,
+            ProductSizeSeeder::class,
+            RoleSeeder::class,
+            SettingSeeder::class,
+            TagSeeder::class,
+            TicketCategorySeeder::class,
+            TicketPrioritySeeder::class,
+            WarehouseSeeder::class,
+            UserSeeder::class,
+        ]);
+
+        //  جداول وابسته (Child)
+        $this->call([
+            AddressSeeder::class,
+            AmazingSaleSeeder::class,
+            CartItemSeeder::class,
+            CommentSeeder::class,
+            ContactMessageSeeder::class,
+            CopounSeeder::class,
+            CopounUserSeeder::class,
+            HomeBoxSeeder::class,
+            InventoryAllocationSeeder::class,
+            LikeSeeder::class,
+            PostSeeder::class,
+            NotificationSeeder::class,
+            OrderSeeder::class,
+            OrderItemSeeder::class,
+            PaymentSeeder::class,
+            PermissionRoleSeeder::class,
+            PermissionUserSeeder::class,
+            ProductSeeder::class,
+            ProductAttributeSeeder::class,
+            ProductAttributeValueSeeder::class,
+            ProductImageSeeder::class,
+            ProductVariantSeeder::class,
+            RoleUserSeeder::class,
+            TaggableSeeder::class,
+            TicketSeeder::class,
+            TicketFileSeeder::class,
+            WarehouseTransactionSeeder::class,
+            WarehouseVariantSeeder::class,
+
+        ]);
     }
 }
