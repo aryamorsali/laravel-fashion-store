@@ -23,7 +23,7 @@ class CommonDiscountSeeder extends Seeder
                 'minimal_order_amount' => 100, 
                 'status'               => 1,   
                 'start_date'           => Carbon::now()->subDays(2),
-                'end_date'             => Carbon::now()->addYears(5),
+                'end_date'             => Carbon::now()->addMonths(1),
             ],
             [
                 'id'                   => 2,
@@ -33,7 +33,7 @@ class CommonDiscountSeeder extends Seeder
                 'minimal_order_amount' => 80, 
                 'status'               => 0, 
                 'start_date'           => Carbon::now()->subDays(1),
-                'end_date'             => Carbon::now()->addMonths(4),
+                'end_date'             => Carbon::now()->addMonths(1),
             ],
             [
                 'id'                   => 3,

@@ -98,7 +98,7 @@ class ProductCategorySeeder extends Seeder
             // Accessories Sub-categories
             [
                 'id'          => 10,
-                'name'        => 'Bags & Backpacks',
+                'name'        => 'Bags',
                 'description' => 'Crossbody pouches, leather backpacks, and totes.',
                 'status'      => 1,
                 'image'       => null,

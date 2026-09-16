@@ -2,6 +2,7 @@
 
 namespace Database\Seeders;
 
+use App\Models\Content\Tag;
 use App\Models\Market\Product;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
@@ -13,6 +14,9 @@ class ProductSeeder extends Seeder
      */
     public function run()
     {
-        Product::factory()->count(25)->create();
+        Product::factory()->count(50)->create()->each(function (Product $product) {
+            $tagIds = Tag::inRandomOrder()->take(rand(1, 3))->pluck('id');
+            $product->tags()->sync($tagIds);
+        });
     }
 }
