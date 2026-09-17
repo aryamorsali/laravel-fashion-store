@@ -64,13 +64,12 @@ class DatabaseSeeder extends Seeder
             ContactMessageSeeder::class,
             CopounSeeder::class,
             HomeBoxSeeder::class,
-            
-            InventoryAllocationSeeder::class,
-            LikeSeeder::class,
+
+            WarehouseVariantSeeder::class,
+            OrderSeeder::class,
             PostSeeder::class,
             NotificationSeeder::class,
-            OrderSeeder::class,
-            OrderItemSeeder::class,
+            
             PaymentSeeder::class,
             PermissionRoleSeeder::class,
             PermissionUserSeeder::class,
@@ -81,7 +80,6 @@ class DatabaseSeeder extends Seeder
             TicketSeeder::class,
             TicketFileSeeder::class,
             WarehouseTransactionSeeder::class,
-            WarehouseVariantSeeder::class,
 
         ]);
     }

@@ -16,10 +16,13 @@ class UserSeeder extends Seeder
     {
         // ساخت مالک سایت 
         User::firstOrCreate(
-            ['mobile' => '09120000000'],
+            [
+                'mobile' => '09120000001',
+                'email' => 'owner@gmail.com'
+            ],
             [
                 'email' => 'owner@gmail.com',
-                'mobile' => '09120000000',
+                'mobile' => '09120000001',
                 'is_owner' => 1,
             ]
         );

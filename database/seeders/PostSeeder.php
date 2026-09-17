@@ -27,7 +27,7 @@ class PostSeeder extends Seeder
                 'author_id'       => 'images/banner/2025/12/27/1766784173.jpg',
                 'category_id'       => 'images/banner/2025/12/27/1766784173.jpg',
             ],
-      
+
         ];
 
         foreach ($posts as $banner) {
@@ -36,5 +36,8 @@ class PostSeeder extends Seeder
                 $banner
             );
         }
+
+
+        Post::factory()->count(10)->create();
     }
 }

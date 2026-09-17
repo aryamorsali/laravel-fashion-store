@@ -2,12 +2,12 @@
 
 namespace Database\Factories\Market;
 
-use App\Models\Market\Order;
+use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
- * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\Order>
+ * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\Market\Order>
  */
 class OrderFactory extends Factory
 {
@@ -16,17 +16,15 @@ class OrderFactory extends Factory
      *
      * @return array<string, mixed>
      */
-     protected $model = Order::class;
-
     public function definition(): array
     {
         // بین 6 ماه گذشته
         $randomDate = Carbon::now()->subDays(rand(0, 180));
 
         return [
-            'user_id' => 10,
+            'user_id' => User::inRandomOrder()->value('id'),
             'order_final_amount' => $this->faker->numberBetween(100, 5000),
-            'order_total_products_discount_amount' => $this->faker->numberBetween(30, 120),
+            'order_total_products_discount_amount' => $this->faker->numberBetween(10, 90),
             'order_discount_amount' => $this->faker->numberBetween(10, 60),
             'order_coupon_discount_amount' => $this->faker->numberBetween(10, 30),
             'order_common_discount_amount' => $this->faker->numberBetween(10, 30),
