@@ -2,17 +2,18 @@
 
 namespace Database\Seeders;
 
-use App\Models\Market\Payment;
+use App\Models\Ticket\Ticket;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 
-class PaymentSeeder extends Seeder
+class TicketSeeder extends Seeder
 {
     /**
      * Run the database seeds.
      */
-    public function run(): void
+
+    public function run()
     {
-        Payment::factory()->count(40)->paid()->create();
+        Ticket::factory()->count(30)->create();
     }
 }

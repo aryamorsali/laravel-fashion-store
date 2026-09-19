@@ -69,16 +69,12 @@ class DatabaseSeeder extends Seeder
             OrderSeeder::class,
             PostSeeder::class,
             NotificationSeeder::class,
-            
             PaymentSeeder::class,
-            PermissionRoleSeeder::class,
-            PermissionUserSeeder::class,
+            
             ProductAttributeSeeder::class,
             ProductAttributeValueSeeder::class,
             ProductImageSeeder::class,
-            RoleUserSeeder::class,
             TicketSeeder::class,
-            TicketFileSeeder::class,
             WarehouseTransactionSeeder::class,
 
         ]);

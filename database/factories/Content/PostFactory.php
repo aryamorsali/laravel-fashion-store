@@ -23,7 +23,7 @@ class PostFactory extends Factory
             'title'       => fake()->unique()->sentence(rand(4, 7)),
             'summary'     => fake()->paragraph(2),
             'body'        => fake()->paragraphs(rand(3, 6), true),
-            'image'       => 'images/post/blog-0' . rand(1, 5) . '.jpg',
+            'image'       => 'images/post/seed/blog-0' . rand(1, 5) . '.jpg',
             'author_id'   => User::inRandomOrder()->value('id'),
             'category_id' => PostCategory::inRandomOrder()->value('id') ,
             'status'      => 1,

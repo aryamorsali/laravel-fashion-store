@@ -14,7 +14,7 @@ class ProductSeeder extends Seeder
      */
     public function run()
     {
-        Product::factory()->count(50)->create()->each(function (Product $product) {
+        Product::factory()->count(100)->create()->each(function (Product $product) {
             $tagIds = Tag::inRandomOrder()->take(rand(1, 3))->pluck('id');
             $product->tags()->sync($tagIds);
         });

@@ -25,22 +25,22 @@ class ProductFactory extends Factory
         $name = fake()->unique()->words(3, true);
 
         $sampleImages = [
-            'images/product-01.jpg',
-            'images/product-02.jpg',
-            'images/product-03.jpg',
-            'images/product-04.jpg',
-            'images/product-05.jpg',
-            'images/product-06.jpg',
-            'images/product-07.jpg',
-            'images/product-08.jpg',
-            'images/product-09.jpg',
-            'images/product-10.jpg',
-            'images/product-11.jpg',
-            'images/product-12.jpg',
-            'images/product-13.jpg',
-            'images/product-14.jpg',
-            'images/product-15.jpg',
-            'images/product-16.jpg',
+            'images/product/seed/product-01.jpg',
+            'images/product/seed/product-02.jpg',
+            'images/product/seed/product-03.jpg',
+            'images/product/seed/product-04.jpg',
+            'images/product/seed/product-05.jpg',
+            'images/product/seed/product-06.jpg',
+            'images/product/seed/product-07.jpg',
+            'images/product/seed/product-08.jpg',
+            'images/product/seed/product-09.jpg',
+            'images/product/seed/product-10.jpg',
+            'images/product/seed/product-11.jpg',
+            'images/product/seed/product-12.jpg',
+            'images/product/seed/product-13.jpg',
+            'images/product/seed/product-14.jpg',
+            'images/product/seed/product-15.jpg',
+            'images/product/seed/product-16.jpg',
 
         ];
 

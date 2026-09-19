@@ -20,7 +20,7 @@ class HomeBoxSeeder extends Seeder
             [
                 'title'       => 'Women',
                 'subtitle'    => 'New Trend',
-                'image'       => 'images/home-box/banner-01.jpg',
+                'image'       => 'images/home-box/seed/banner-01.jpg',
                 'category_id' => $categories->get('women'),
                 'position'    => 'top-left',
                 'status'      => 1,
@@ -28,7 +28,7 @@ class HomeBoxSeeder extends Seeder
             [
                 'title'       => 'Men',
                 'subtitle'    => 'New Trend',
-                'image'       => 'images/home-box/banner-02.jpg',
+                'image'       => 'images/home-box/seed/banner-02.jpg',
                 'category_id' => $categories->get('men'),
                 'position'    => 'top-right',
                 'status'      => 1,
@@ -36,7 +36,7 @@ class HomeBoxSeeder extends Seeder
             [
                 'title'       => 'Bags',
                 'subtitle'    => 'Exclusive Offers',
-                'image'       => 'images/home-box/banner-04.jpg',
+                'image'       => 'images/home-box/seed/banner-04.jpg',
                 'category_id' => $categories->get('bags'),
                 'position'    => 'bottom-left',
                 'status'      => 1,
@@ -44,7 +44,7 @@ class HomeBoxSeeder extends Seeder
             [
                 'title'       => 'Watches',
                 'subtitle'    => 'Exclusive Offers',
-                'image'       => 'images/home-box/banner-05.jpg',
+                'image'       => 'images/home-box/seed/banner-05.jpg',
                 'category_id' => $categories->get('watches'),
                 'position'    => 'center',
                 'status'      => 1,
@@ -52,7 +52,7 @@ class HomeBoxSeeder extends Seeder
             [
                 'title'       => 'Accessories',
                 'subtitle'    => 'New Trend',
-                'image'       => 'images/home-box/banner-03.jpg',
+                'image'       => 'images/home-box/seed/banner-03.jpg',
                 'category_id' => $categories->get('accessories'),
                 'position'    => 'bottom-left',
                 'status'      => 1,
