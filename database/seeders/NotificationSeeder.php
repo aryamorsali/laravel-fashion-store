@@ -14,13 +14,7 @@ class NotificationSeeder extends Seeder
      */
     public function run(): void
     {
-        $admin = User::where('is_owner', 1)->get();
-
-        // پاک کردن اعلان‌های قدیمی همین ادمین جهت جلوگیری از تکراری شدن
-        // DB::table('notifications')
-        //     ->where('notifiable_type', get_class($admin))
-        //     ->where('notifiable_id', $admin->id)
-        //     ->delete();
+        $admin = User::where('is_owner', 1)->first();
 
         $notifications = [
             // سفارش جدید
@@ -125,7 +119,7 @@ class NotificationSeeder extends Seeder
             DB::table('notifications')->insert([
                 'id'              =>  Str::uuid(),
                 'type'            => $item['type'],
-                'notifiable_type' => get_class($admin),
+                'notifiable_type' => User::class,
                 'notifiable_id'   => $admin->id,
                 'data'            => json_encode($item['data']),
                 'read_at'         => $item['read_at'],

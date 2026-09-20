@@ -63,7 +63,7 @@
                         @foreach ($admins as $admin)
                             <tr>
                                 <th scope="row">{{ $loop->iteration }}</th>
-                                <td>{{ $admin->full_name }}</td>
+                                <td>{{ $admin->full_name ?? '-' }}</td>
                                 <td>{{ $admin->mobile }}</td>
                                 <td>{{ $admin->email }}</td>
                                 <td>

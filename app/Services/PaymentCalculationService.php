@@ -416,7 +416,6 @@ class PaymentCalculationService
                         }
                     }
                 }
-                dd($lowStockItems);
 
                 //  ارسال نوتیفیکیشن فقط در صورت نیاز
                 if (!empty($lowStockItems)) {

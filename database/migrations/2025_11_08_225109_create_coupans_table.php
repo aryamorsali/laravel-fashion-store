@@ -20,8 +20,8 @@ return new class extends Migration
             $table->tinyInteger('type')->default(0)->comment('0 => common, 1 => private');
             $table->foreignId('user_id')->nullable()->constrained('users')->onUpdate('cascade')->onDelete('cascade');
             $table->tinyInteger('status')->default(0)->comment('0 => inactive, 1 => active, 2 => expired');
-            $table->timestamp('start_date');
-            $table->timestamp('end_date');
+            $table->timestamp('start_date')->useCurrent();
+            $table->timestamp('end_date')->useCurrent();
             $table->timestamps();
             $table->softDeletes();
         });

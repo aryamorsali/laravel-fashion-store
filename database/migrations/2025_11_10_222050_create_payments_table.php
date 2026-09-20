@@ -18,7 +18,7 @@ return new class extends Migration
             $table->decimal('amount', 20, 3)->default(0);
             $table->string('gateway', 50)->index();
             $table->string('transaction_id')->nullable()->unique();
-            $table->enum('status', ['pending', 'paid', 'failed', 'cancelled', 'refunded'])->default('pending')->index();
+            $table->enum('status', ['unpaid', 'paid', 'failed', 'returned'])->default('unpaid')->index();
             $table->json('first_response')->nullable();
             $table->json('second_response')->nullable();
             $table->timestamp('paid_at')->nullable();

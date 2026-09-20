@@ -7,8 +7,6 @@ use Illuminate\Database\Eloquent\Factories\Factory;
 use App\Models\Market\Product;
 use App\Models\Market\ProductCategory;
 
-use function Symfony\Component\Clock\now;
-
 /**
  * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\Market\Product>
  */
@@ -24,7 +22,7 @@ class ProductFactory extends Factory
     {
         $name = fake()->unique()->words(3, true);
 
-        $sampleImages = [
+        $images = [
             'images/product/seed/product-01.jpg',
             'images/product/seed/product-02.jpg',
             'images/product/seed/product-03.jpg',
@@ -44,17 +42,27 @@ class ProductFactory extends Factory
 
         ];
 
+        $imageName = fake()->randomElement($images);
+
         return [
             'name'         => ucfirst($name),
             'has_color'    => fake()->boolean(80),
-            'has_size'     => fake()->boolean(80), 
-            'image'        => fake()->randomElement($sampleImages),
+            'has_size'     => fake()->boolean(80),
+            'image' => [
+                'indexArray' => [
+                    'large' => $imageName,
+                    'main'  => $imageName,
+                    'small' => $imageName,
+                ],
+                'directory'    => 'images/product/seed',
+                'currentImage' => 'main',
+            ],
             'base_price'   => fake()->numberBetween(20, 300),
             'description'  => fake()->paragraph(3),
             'brand_id'     => Brand::inRandomOrder()->value('id'),
             'category_id'  => ProductCategory::inRandomOrder()->value('id'),
             'status'       => 'published',
-            'published_at' => now(),
+            'published_at' => now()->subDays(rand(1,20)),
         ];
     }
 }

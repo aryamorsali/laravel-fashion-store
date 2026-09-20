@@ -23,6 +23,7 @@ class UserSeeder extends Seeder
             [
                 'email' => 'owner@gmail.com',
                 'mobile' => '09120000001',
+                'activation' => '1',
                 'is_owner' => 1,
             ]
         );
@@ -34,35 +35,37 @@ class UserSeeder extends Seeder
         $supportRole = Role::where('name', 'support-agent')->first();
 
         // ساخت مدیر انبار 
-        $warehouse = User::firstOrCreate(
+        $adminWarehouse = User::firstOrCreate(
             ['mobile' => '09120000002'],
             [
                 'mobile'     => '09120000002',
                 'email'      => 'warehouse@gmail.com',
+                'activation' => '1',
                 'is_owner'   => 0,
             ]
         );
 
         if ($warehouseRole && $adminRole) {
-            $warehouse->roles()->sync([$warehouseRole->id, $adminRole->id]);
+            $adminWarehouse->roles()->sync([$warehouseRole->id, $adminRole->id]);
         }
 
         // ساخت پشتیبانی
-        $support = User::firstOrCreate(
+        $adminSupport = User::firstOrCreate(
             ['mobile' => '09120000003'],
             [
                 'mobile'     => '09120000003',
                 'email'      => 'support@gmail.com',
+                'activation' => '1',
                 'is_owner'   => 0,
             ]
         );
 
         if ($supportRole && $adminRole) {
-            $support->roles()->sync([$supportRole->id, $adminRole->id]);
+            $adminSupport->roles()->sync([$supportRole->id, $adminRole->id]);
         }
 
         // کاربران عادی
-        if ($userRole && User::where('is_owner', 0)->hasRole('user')->count() < 100) {
+        if ($userRole && User::where('is_owner', 0)->whereHas('roles', fn ($q) => $q->where('roles.id', $userRole->id))->count() < 100) {
             User::factory()
                 ->count(100)
                 ->create()

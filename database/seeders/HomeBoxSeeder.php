@@ -54,7 +54,7 @@ class HomeBoxSeeder extends Seeder
                 'subtitle'    => 'New Trend',
                 'image'       => 'images/home-box/seed/banner-03.jpg',
                 'category_id' => $categories->get('accessories'),
-                'position'    => 'bottom-left',
+                'position'    => 'bottom-right',
                 'status'      => 1,
             ],
         ];

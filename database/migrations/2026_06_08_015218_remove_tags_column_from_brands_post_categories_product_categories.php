@@ -22,10 +22,6 @@ return new class extends Migration
         Schema::table('product_categories', function (Blueprint $table) {
             $table->dropColumn('tags');
         });
-
-        Schema::table('faqs', function (Blueprint $table) {
-            $table->dropColumn('tags');
-        });
     }
 
     /**

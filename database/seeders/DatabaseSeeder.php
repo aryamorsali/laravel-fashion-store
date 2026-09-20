@@ -13,21 +13,6 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        $this->call(ProductSeeder::class);
-
-        User::factory()->create([
-            'name' => 'Test User',
-            'email' => 'test@example.com',
-        ]);
-
-        $this->call(LocationSeeder::class);
-
-        $this->call(PermissionSeeder::class);
-        $this->call(RoleSeeder::class);
-
-        $this->call(OrderSeeder::class);
-
-        /////////////////////////////////////////////////////////////////////////////////////
 
         // جداول اصلی که وابسته به چیزی نیستن parent
         $this->call([

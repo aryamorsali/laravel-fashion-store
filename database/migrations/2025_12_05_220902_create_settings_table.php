@@ -15,6 +15,7 @@ return new class extends Migration
             $table->id();
             $table->string('key')->unique();
             $table->text('value')->nullable();
+            $table->tinyInteger('status')->default(1)->comment('0 => inactive, 1 => active');
             $table->timestamps();
         });
     }

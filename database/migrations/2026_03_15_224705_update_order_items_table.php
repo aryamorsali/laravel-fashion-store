@@ -16,12 +16,11 @@ return new class extends Migration
 
 
             $table->dropForeign(['product_id']);
-            $table->dropForeign(['product_variant_id']);
             $table->dropForeign(['color_id']);
             $table->dropForeign(['size_id']);
 
 
-            $table->dropColumn(['product_id', 'color_id', 'size_id', 'product_variant_id']);
+            $table->dropColumn(['product_id', 'color_id', 'size_id']);
 
             $table->foreignId('product_variant_id')
                 ->nullable()

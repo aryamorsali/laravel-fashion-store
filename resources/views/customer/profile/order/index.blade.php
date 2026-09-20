@@ -424,7 +424,7 @@
                                     Your recent orders will appear here.
                                 </p>
 
-                                <a href="{{ route('customer.shop.index') }}"
+                                <a href="{{ route('customer.market.shop') }}"
                                     class="flex-c-m stext-101 cl0 size-116 bg1 bor2 hov-btn1 p-lr-15 trans-04 m-lr-auto">
                                     Start Shopping
                                 </a>

@@ -9,6 +9,7 @@ use App\Models\Notification\Notification;
 use App\Models\Setting\Setting;
 use App\Models\User;
 use App\Models\User\Permission;
+use Illuminate\Support\Facades\Schema;
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -91,12 +92,14 @@ class AppServiceProvider extends ServiceProvider
             );
         });
 
-        $permissions = Permission::all()->pluck('name');
+        if (Schema::hasTable('permissions')) {
+            $permissions = Permission::all()->pluck('name');
 
-        foreach ($permissions as $permission) {
-            Gate::define($permission, function (User $user) use ($permission) {
-                return $user->hasPermissionTo($permission) || $user->is_owner;
-            });
+            foreach ($permissions as $permission) {
+                Gate::define($permission, function (User $user) use ($permission) {
+                    return $user->hasPermissionTo($permission) || $user->is_owner;
+                });
+            }
         }
         // dashboard notifications
         Gate::define('view-notifications', function (User $user) {

@@ -45,5 +45,7 @@ class ProductVariantSeeder extends Seeder
                 );
             }
         }
+        // میکرد بخاطر همین باید دوباره پابلیش کنیم draft بخاطر هوک ک تعریف کردیم در مدل پروداکت محصولاتی ک خاصیت متغیر دارند رو  
+        Product::whereHas('variants')->update(['status' => 'published']);
     }
 }

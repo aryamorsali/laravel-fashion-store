@@ -19,7 +19,7 @@ return new class extends Migration
             // نوع پرداخت (برای گسترش آینده)
             $table->enum('payment_type', ['online', 'offline', 'wallet'])->default('online')
                 ->comment('online|offline|wallet — پروژه فعلی: فقط online');
-            $table->enum('payment_status', ['unpaid', 'paid', 'failed', 'returned'])->default('pending')
+            $table->enum('payment_status', ['unpaid', 'paid', 'failed', 'returned'])->default('unpaid')
                 ->comment('unpaid, paid, failed, returned');
             $table->decimal('order_final_amount', 20, 3)->comment('مبلغ نهایی قابل پرداخت پس از همه تخفیف‌ها');
             $table->decimal('order_total_products_discount_amount', 20, 3)->default(0);

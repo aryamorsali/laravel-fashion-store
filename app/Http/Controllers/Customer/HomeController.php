@@ -19,7 +19,7 @@ class HomeController extends Controller
      */
     public function home()
     {
-        Auth::loginUsingId(2);
+        Auth::loginUsingId(1);
 
         $banners = Banner::where('status', 1)->get();
 
@@ -57,7 +57,7 @@ class HomeController extends Controller
                     ->filter()
                     ->max() ?? 0;
             })
-            ->take(1);
+            ->take(8);
 
 
         $topProducts = Product::bestSellers(30)

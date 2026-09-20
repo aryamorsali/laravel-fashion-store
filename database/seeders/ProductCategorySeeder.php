@@ -85,17 +85,16 @@ class ProductCategorySeeder extends Seeder
                 'parent_id'   => 2,
             ],
 
-            // Footwear Sub-categories
+            // Accessories Sub-categories
+
             [
                 'id'          => 9,
-                'name'        => 'Running & Lifestyle Sneakers',
+                'name'        => 'Watches',
                 'description' => 'High-cushion runners and everyday street kicks.',
                 'status'      => 1,
                 'image'       => null,
-                'parent_id'   => 3,
+                'parent_id'   => 4,
             ],
-
-            // Accessories Sub-categories
             [
                 'id'          => 10,
                 'name'        => 'Bags',

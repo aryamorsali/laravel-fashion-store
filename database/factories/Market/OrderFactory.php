@@ -23,12 +23,13 @@ class OrderFactory extends Factory
 
         return [
             'user_id' => User::inRandomOrder()->value('id'),
+            'payment_status' => fake()->randomElement(['unpaid', 'paid', 'failed', 'returned']),
             'order_final_amount' => $this->faker->numberBetween(100, 5000),
             'order_total_products_discount_amount' => $this->faker->numberBetween(10, 90),
             'order_discount_amount' => $this->faker->numberBetween(10, 60),
             'order_coupon_discount_amount' => $this->faker->numberBetween(10, 30),
             'order_common_discount_amount' => $this->faker->numberBetween(10, 30),
-            'order_status' => 'confirmed',
+            'order_status' => fake()->randomElement(['not_checked','awaiting_confirmation','confirmed','not_confirmed','canceled','returned']),
             'created_at' => $randomDate,
             'updated_at' => $randomDate,
         ];
