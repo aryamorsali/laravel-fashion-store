@@ -23,7 +23,7 @@ class OrderFactory extends Factory
 
         return [
             'user_id' => User::inRandomOrder()->value('id'),
-            'payment_status' => fake()->randomElement(['unpaid', 'paid', 'failed', 'returned']),
+            'payment_status' => fake()->randomElement(['unpaid', 'paid', 'paid', 'failed', 'returned']),
             'order_final_amount' => $this->faker->numberBetween(100, 5000),
             'order_total_products_discount_amount' => $this->faker->numberBetween(10, 90),
             'order_discount_amount' => $this->faker->numberBetween(10, 60),

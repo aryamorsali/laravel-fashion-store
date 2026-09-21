@@ -68,7 +68,6 @@
                             <th scope="col">Subject</th>
                             <th scope="col">Category</th>
                             <th scope="col">Priority</th>
-                            <th scope="col">Assigned to</th>
                             <th class="max-width-16-rem text-center"><i class="fa fa-cogs"></i> Action</th>
                         </tr>
                     </thead>
@@ -78,10 +77,9 @@
                             <tr>
                                 <th scope="row">{{ $loop->iteration }}</th>
                                 <td>{{ $ticket->user->full_name }}</td>
-                                <td>{{ $ticket->subject }}</td>
+                                <td>{{ Str::limit($ticket->subject, 50) }}</td>
                                 <td>{{ $ticket->category->name }}</td>
                                 <td>{{ $ticket->priority->name ?? '-' }}</td>
-                                <td>{{ $ticket->user->full_name }}</td>
 
 
                                 <td class="width-16-rem text-center">

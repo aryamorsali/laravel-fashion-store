@@ -58,6 +58,7 @@ class LoginRegisterController extends Controller
 
     public function loginConfirmStore($token, LoginConfirmStoreRequest $request)
     {
+        
         $data = $request->validated();
 
         $user = $this->authentication->loginConfirmStore($token, $data);

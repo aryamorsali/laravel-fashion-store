@@ -19,17 +19,22 @@ class CheckMaintenanceMode
     {
         $settings = Setting::where('status', 1)->pluck('value', 'key')->toArray();
 
-        if ($settings['maintenance_mode'] == 0) {
-            return $next($request);
-        }
-        $user = Auth::user();
+        if (isset($settings['maintenance_mode'])) {
 
-        if ($user) {
-            if ($user->hasRole('admin') || $user->is_owner) {
+            if ($settings['maintenance_mode'] == 0) {
                 return $next($request);
             }
-        }
+            
+            $user = Auth::user();
 
-        abort(503, 'The site is being updated.');
+            if ($user) {
+                if ($user->hasRole('admin') || $user->is_owner) {
+                    return $next($request);
+                }
+            }
+
+            abort(503, 'The site is being updated.');
+        }
+        return $next($request);
     }
 }

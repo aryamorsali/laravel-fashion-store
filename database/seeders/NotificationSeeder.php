@@ -23,7 +23,7 @@ class NotificationSeeder extends Seeder
                 'data' => [
                     'event'   => 'new_order',
                     'message' => 'New order <b>#1042</b> received',
-                    'url'     => route('admin.market.order.show', 1),
+                    'url'     => route('admin.market.order.show', 1, false),
                     'meta'    => [
                         'order_id'      => 1042,
                         'customer_name' => 'Sara Mohammadi',
@@ -38,7 +38,7 @@ class NotificationSeeder extends Seeder
                 'data' => [
                     'event'   => 'low_stock',
                     'message' => 'Low inventory: <b>Black Coza T-Shirt — L</b>',
-                    'url'     => route('admin.market.warehouse.index'),
+                    'url'     => route('admin.market.warehouse.index', [], false),
                     'meta'    => [
                         'count' => 1,
                         'items' => [
@@ -61,7 +61,7 @@ class NotificationSeeder extends Seeder
                 'data' => [
                     'event'   => 'new_ticket',
                     'message' => 'New support ticket <b>#48</b>',
-                    'url'     => route('admin.ticket.show', 1),
+                    'url'     => route('admin.ticket.show', 1, false),
                 ],
                 'read_at' => null,
             ],
@@ -72,7 +72,7 @@ class NotificationSeeder extends Seeder
                 'data' => [
                     'event'   => 'new_user',
                     'message' => 'New user registered: <b>Ali Rezaei</b>',
-                    'url'     => route('admin.user.customer.index'),
+                    'url'     => route('admin.user.customer.index', [], false),
                 ],
                 'read_at' => null, 
             ],
@@ -83,7 +83,7 @@ class NotificationSeeder extends Seeder
                 'data' => [
                     'event'   => 'payment_failed',
                     'message' => 'Payment failed for order #1039',
-                    'url'     => route('admin.market.payment.show', 1),
+                    'url'     => route('admin.market.payment.show', 1, false),
                     'meta'    => [
                         'order_id'      => 1039,
                         'customer_name' => 'Reza Rad',
@@ -98,7 +98,7 @@ class NotificationSeeder extends Seeder
                 'data' => [
                     'event'   => 'new_product_comment',
                     'message' => 'New product comment <b>#25</b>',
-                    'url'     => route('admin.market.comment.show', 1),
+                    'url'     => route('admin.market.comment.show', 1, false),
                 ],
                 'read_at' => now()->subHours(5), 
             ],
@@ -109,7 +109,7 @@ class NotificationSeeder extends Seeder
                 'data' => [
                     'event'   => 'new_post_comment',
                     'message' => 'New post comment <b>#14</b>',
-                    'url'     => route('admin.content.comment.show', 1),
+                    'url'     => route('admin.content.comment.show', 1, false),
                 ],
                 'read_at' => now()->subDay(),
             ],

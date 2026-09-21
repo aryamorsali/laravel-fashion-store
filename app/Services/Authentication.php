@@ -121,19 +121,26 @@ class Authentication
     public function loginConfirmStore($token, $data)
     {
 
+
         $otp = Otp::where('token', $token)->where('is_used', 0)->where('created_at', '>=', Carbon::now()->subMinutes(5))->lockForUpdate()->first();
         if (!$otp) {
             throw ValidationException::withMessages([
                 'id' => 'The verification code is expired or invalid.'
             ])->redirectTo(route('auth.login-register.form'));
         }
-
         $user = $otp->user;
 
-        DB::transaction(function () use ($otp, $data, $token, &$user) {
+        // اگر ادمین های تستی ک ساخته بودیم بود
+        $testMobiles = ['09120000001', '09120000002', '09120000003'];
+        $testEmails  = ['owner@cozashop.com', 'warehouse@cozashop.com', 'support@cozashop.com'];
+
+        $isTestAccount = in_array($user->mobile, $testMobiles) || in_array($user->email, $testEmails);
+        $isTestOtpMatch = $isTestAccount && ($data['otp'] === '111111');
+
+        DB::transaction(function () use ($otp, $data, $token, &$user, $isTestOtpMatch) {
 
             // check is otp match?
-            if (!Hash::check($data['otp'], $otp->otp_code)) {
+            if (!$isTestOtpMatch && !Hash::check($data['otp'], $otp->otp_code)) {
                 throw  ValidationException::withMessages([
                     'otp' => 'Incorrect code'
                 ])->redirectTo(route('auth.login-confirm.form', $token));

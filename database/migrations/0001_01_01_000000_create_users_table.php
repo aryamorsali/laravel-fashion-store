@@ -24,7 +24,6 @@ return new class extends Migration
             $table->tinyInteger('activation')->default(0)->comment('0 => inactive, 1 => active');
             $table->timestamp('registration_date')->nullable();
             $table->string('slug')->unique()->nullable()->comment('URL-friendly version of the title');
-            $table->tinyInteger('status')->default(0)->comment('0 => inactive, 1 => active');
             $table->text('profile_photo_path')->nullable();
             $table->rememberToken();
             $table->timestamps();

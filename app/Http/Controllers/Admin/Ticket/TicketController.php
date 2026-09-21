@@ -56,17 +56,17 @@ class TicketController extends Controller
         if ($request->has('sort')) {
             switch ($request->sort) {
                 case '1':
-                    $tickets = Ticket::where('status', 0)->whereNull('parent_id')->get();
+                    $tickets = Ticket::where('status', 0)->whereNull('parent_id')->orderBy('created_at', 'DESC')->paginate(15)->appends(request()->query());
                     break;
                 case '2':
-                    $tickets = Ticket::where('status', 1)->whereNull('parent_id')->get();
+                    $tickets = Ticket::where('status', 1)->whereNull('parent_id')->orderBy('created_at', 'DESC')->paginate(15)->appends(request()->query());
                     break;
                 default:
-                    $tickets = Ticket::orderBy('created_at', 'DESC')->whereNull('parent_id')->get();
+                    $tickets = Ticket::orderBy('created_at', 'DESC')->whereNull('parent_id')->paginate(15)->appends(request()->query());
                     break;
             }
         } else {
-            $tickets = Ticket::orderBy('created_at', 'DESC')->get();
+            $tickets = Ticket::whereNull('parent_id')->orderBy('created_at', 'DESC')->paginate(15)->appends(request()->query());
         }
         return  view("admin.ticket.index", compact('tickets'));
     }
