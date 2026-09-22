@@ -326,7 +326,11 @@
                                     </p>
                                     <p class="stext-107 cl6 m-b-6 flex-w flex-sb-m">
                                         <span class="cl2">Delivery Method:</span>
-                                        <span class="cl3">{{ $order->delivery->name }}</span>
+                                        <span class="cl3">{{ $order->delivery->name ?? '-' }}</span>
+                                    </p>
+                                    <p class="stext-107 cl6 m-b-6 flex-w flex-sb-m">
+                                        <span class="cl2">Delivery Date Until:</span>
+                                        <span class="cl3">{{ $order->delivery_date?->format('Y-m-d') ?? '-' }}</span>
                                     </p>
                                 </div>
                             </div>

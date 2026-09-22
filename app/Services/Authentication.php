@@ -62,12 +62,11 @@ class Authentication
                 }
 
                 // new user notification
-                $admins = User::where('activation', 1)->get()->filter(function ($u) {
-                    return $u->is_owner || $u->hasPermissionTo('access-admin-panel');
-                });
 
-                foreach ($admins as $admin) {
-                    $admin->notify(new NewUserRegisteredNotification($user));
+                $owner = User::where('activation', 1)->where('is_owner', 1)->first();
+
+                if ($owner) {
+                    $owner->notify(new NewUserRegisteredNotification($user));
                 }
             });
         }

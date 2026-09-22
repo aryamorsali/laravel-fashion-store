@@ -18,10 +18,10 @@ class UserSeeder extends Seeder
         User::firstOrCreate(
             [
                 'mobile' => '09120000001',
-                'email' => 'owner@gmail.com'
+                'email' => 'owner@cozashop.com'
             ],
             [
-                'email' => 'owner@gmail.com',
+                'email' => 'owner@cozashop.com',
                 'mobile' => '09120000001',
                 'activation' => '1',
                 'is_owner' => 1,
@@ -39,7 +39,7 @@ class UserSeeder extends Seeder
             ['mobile' => '09120000002'],
             [
                 'mobile'     => '09120000002',
-                'email'      => 'warehouse@gmail.com',
+                'email'      => 'warehouse@cozashop.com',
                 'activation' => '1',
                 'is_owner'   => 0,
             ]
@@ -54,7 +54,7 @@ class UserSeeder extends Seeder
             ['mobile' => '09120000003'],
             [
                 'mobile'     => '09120000003',
-                'email'      => 'support@gmail.com',
+                'email'      => 'support@cozashop.com',
                 'activation' => '1',
                 'is_owner'   => 0,
             ]

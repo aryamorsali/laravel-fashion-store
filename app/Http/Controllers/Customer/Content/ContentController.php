@@ -23,8 +23,7 @@ class ContentController extends Controller
         $categories = PostCategory::where('status', 1)->get();
 
         $tags = Tag::whereHas('posts', function ($q) {
-            $q->where('status', 1)
-                ->where('published_at', '<=', now());
+            $q->where('status', 1)->where('published_at', '<=', now());
         })->get();
 
         // کامنت های تایید شده

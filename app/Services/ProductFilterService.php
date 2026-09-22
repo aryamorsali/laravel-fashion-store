@@ -27,8 +27,7 @@ class ProductFilterService
         ], $data);
 
         // کوئری اصلی محصولات
-        $query = Product::query()
-            ->where('status', 'published');
+        $query = Product::query()->where('status', 'published')->where('published_at', '<=', now());
 
         // فیلتر دسته‌بندی
         if ($category && $category->id) {

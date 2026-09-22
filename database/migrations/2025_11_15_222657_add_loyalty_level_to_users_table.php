@@ -12,7 +12,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('users', function (Blueprint $table) {
-            $table->enum('loyalty_level', ['bronze', 'silver', 'gold', 'platinum'])->default('bronze')->after('status');
+            $table->enum('loyalty_level', ['bronze', 'silver', 'gold', 'platinum'])->default('bronze')->after('activation');
         });
     }
 

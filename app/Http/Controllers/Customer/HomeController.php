@@ -19,13 +19,13 @@ class HomeController extends Controller
      */
     public function home()
     {
-        // Auth::loginUsingId(1);
+        Auth::loginUsingId(1);
 
         $banners = Banner::where('status', 1)->get();
 
         $boxes = HomeBox::where('status', 1)->get()->keyBy('position');
 
-        $amazingProducts = Product::where('status', 'published')
+        $amazingProducts = Product::where('status', 'published')->where('published_at', '<=', now())
             ->whereHas('variants', function ($q) {
                 // Only variants that HAVE active amazing sales AND have stock
                 $q->whereHas('amazingSale', function ($q) {

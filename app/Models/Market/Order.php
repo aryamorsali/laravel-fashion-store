@@ -18,6 +18,7 @@ class Order extends Model
         'delivery_snapshot' => 'array',
         'coupon_snapshot' => 'array',
         'common_discount_snapshot' => 'array',
+        'delivery_date' => 'datetime',
     ];
 
     public function payments()

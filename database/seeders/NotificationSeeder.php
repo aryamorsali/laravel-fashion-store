@@ -14,12 +14,13 @@ class NotificationSeeder extends Seeder
      */
     public function run(): void
     {
-        $admin = User::where('is_owner', 1)->first();
+        $owner = User::where('is_owner', 1)->first();
 
         $notifications = [
             // سفارش جدید
             [
                 'type' => 'App\Notifications\NewOrderRegisteredNotification',
+                'roles' => [],
                 'data' => [
                     'event'   => 'new_order',
                     'message' => 'New order <b>#1042</b> received',
@@ -29,12 +30,13 @@ class NotificationSeeder extends Seeder
                         'customer_name' => 'Sara Mohammadi',
                     ],
                 ],
-                'read_at' => null, 
+                'read_at' => null,
             ],
 
             // کسری موجودی انبار
             [
                 'type' => 'App\Notifications\LowStockNotification',
+                'roles' => ['warehouse-manager'],         //   رول های پیشفرضی ک ساختیم
                 'data' => [
                     'event'   => 'low_stock',
                     'message' => 'Low inventory: <b>Black Coza T-Shirt — L</b>',
@@ -52,12 +54,13 @@ class NotificationSeeder extends Seeder
                         ],
                     ],
                 ],
-                'read_at' => null, 
+                'read_at' => null,
             ],
 
             // تیکت پشتیبانی جدید
             [
                 'type' => 'App\Notifications\NewTicketRegisteredNotification',
+                'roles' => ['support-agent'],
                 'data' => [
                     'event'   => 'new_ticket',
                     'message' => 'New support ticket <b>#48</b>',
@@ -69,17 +72,19 @@ class NotificationSeeder extends Seeder
             // ثبت‌ نام کاربر جدید
             [
                 'type' => 'App\Notifications\NewUserRegisteredNotification',
+                'roles' => [],
                 'data' => [
                     'event'   => 'new_user',
                     'message' => 'New user registered: <b>Ali Rezaei</b>',
                     'url'     => route('admin.user.customer.index', [], false),
                 ],
-                'read_at' => null, 
+                'read_at' => null,
             ],
 
             // تراکنش ناموفق
             [
                 'type' => 'App\Notifications\PaymentFailedNotification',
+                'roles' => [],
                 'data' => [
                     'event'   => 'payment_failed',
                     'message' => 'Payment failed for order #1039',
@@ -89,23 +94,25 @@ class NotificationSeeder extends Seeder
                         'customer_name' => 'Reza Rad',
                     ],
                 ],
-                'read_at' => now()->subHours(2), 
+                'read_at' => now()->subHours(2),
             ],
 
             // کامنت محصول جدید
             [
                 'type' => 'App\Notifications\NewProductCommentRegisteredNotification',
+                'roles' => [],
                 'data' => [
                     'event'   => 'new_product_comment',
                     'message' => 'New product comment <b>#25</b>',
                     'url'     => route('admin.market.comment.show', 1, false),
                 ],
-                'read_at' => now()->subHours(5), 
+                'read_at' => now()->subHours(5),
             ],
 
             // کامنت پست وبلاگ جدید
             [
                 'type' => 'App\Notifications\NewPostCommentRegisteredNotification',
+                'roles' => ['content-manager'],
                 'data' => [
                     'event'   => 'new_post_comment',
                     'message' => 'New post comment <b>#14</b>',
@@ -116,16 +123,30 @@ class NotificationSeeder extends Seeder
         ];
 
         foreach ($notifications as $index => $item) {
-            DB::table('notifications')->insert([
-                'id'              =>  Str::uuid(),
-                'type'            => $item['type'],
-                'notifiable_type' => User::class,
-                'notifiable_id'   => $admin->id,
-                'data'            => json_encode($item['data']),
-                'read_at'         => $item['read_at'],
-                'created_at'      => now()->subMinutes(($index + 1) * 20),
-                'updated_at'      => now()->subMinutes(($index + 1) * 20),
-            ]);
+
+            // دریافت کاربرانی که این رول‌ها را دارند
+            $roleUsers = collect();
+            if (! empty($item['roles'])) {
+                $roleUsers = User::whereHas('roles', function ($query) use ($item) {
+                    $query->whereIn('name', $item['roles']);
+                })->get();
+            }
+
+            // ترکیب مالک با کاربران دارای رول و حذف موارد تکراری بر اساس ID
+            $recipients = collect([$owner])->merge($roleUsers)->unique('id');
+
+            foreach ($recipients as $recipient) {
+                DB::table('notifications')->insert([
+                    'id'              =>  Str::uuid(),
+                    'type'            => $item['type'],
+                    'notifiable_type' => User::class,
+                    'notifiable_id'   => $recipient->id,
+                    'data'            => json_encode($item['data']),
+                    'read_at'         => $item['read_at'],
+                    'created_at'      => now()->subMinutes(($index + 1) * 20),
+                    'updated_at'      => now()->subMinutes(($index + 1) * 20),
+                ]);
+            }
         }
     }
 }
