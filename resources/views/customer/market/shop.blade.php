@@ -639,11 +639,11 @@
 
                                         <img class="icon-heart1 dis-block trans-04"
                                             src="{{ asset('images/icons/icon-heart-01.png') }}"
-                                            style="{{ $product->isLikedByUser() ? 'display:none' : '' }}" alt="ICON">
+                                            style="{{ $product->is_liked_by_user ? 'display:none' : '' }}" alt="ICON">
 
                                         <img class="icon-heart2 dis-block trans-04"
                                             src="{{ asset('images/icons/icon-heart-02.png') }}"
-                                            style="{{ $product->isLikedByUser() ? '' : 'display:none' }}" alt="ICON">
+                                            style="{{ $product->is_liked_by_user ? '' : 'display:none' }}" alt="ICON">
 
                                     </button>
                                 </div>
@@ -684,7 +684,7 @@
     <script src="{{ asset('customer-assets/vendor/daterangepicker/daterangepicker.js') }}"></script>
     <!--===============================================================================================-->
     <script src="{{ asset('customer-assets/vendor/slick/slick.min.js') }}"></script>
-    <script src="js/slick-custom.js') }}"></script>
+    {{-- <script src="js/slick-custom.js') }}"></script> --}}
     <!--===============================================================================================-->
     <script src="{{ asset('customer-assets/vendor/parallax100/parallax100.js') }}"></script>
     <script>
@@ -886,6 +886,16 @@
                         'Accept': 'application/json'
                     }
                 });
+
+                if (res.status === 401) {
+                    window.location.href = '/login-register';
+                    return;
+                }
+
+                if (!res.ok) {
+                    showToast('A communication error occurred.');
+                    return;
+                }
 
                 const data = await res.json();
 

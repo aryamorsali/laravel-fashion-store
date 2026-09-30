@@ -19,7 +19,6 @@ class HomeController extends Controller
      */
     public function home()
     {
-        Auth::loginUsingId(1);
 
         $banners = Banner::where('status', 1)->get();
 
@@ -53,7 +52,7 @@ class HomeController extends Controller
             })
             ->with($productRelations)
             ->withExists(['likes as is_liked_by_user' => function ($q) {
-                $q->where('user_id', Auth::user()->id);
+                $q->where('user_id', Auth::id() ?? 0);
             }])
             ->get()
             ->sortByDesc(function ($product) {
@@ -72,7 +71,7 @@ class HomeController extends Controller
             })
             ->with($productRelations)
             ->withExists(['likes as is_liked_by_user' => function ($q) {
-                $q->where('user_id', Auth::id());
+                $q->where('user_id', Auth::id() ?? 0);
             }])
             ->take(8)
             ->get();
@@ -88,7 +87,7 @@ class HomeController extends Controller
             })
             ->with($productRelations)
             ->withExists(['likes as is_liked_by_user' => function ($q) {
-                $q->where('user_id', Auth::id());
+                $q->where('user_id', Auth::id() ?? 0);
             }])
             ->orderBy('published_at', 'desc')
             ->take(8)

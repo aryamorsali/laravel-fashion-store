@@ -4,7 +4,7 @@ namespace App\Services;
 
 use App\Models\Market\Brand;
 use App\Models\Market\Product;
-
+use Illuminate\Support\Facades\Auth;
 
 class ProductFilterService
 {
@@ -376,7 +376,9 @@ class ProductFilterService
                     'activeAmazingSale',
                 ]);
             },
-        ]);
+        ])->withExists(['likes as is_liked_by_user' => function ($q) {
+            $q->where('user_id', Auth::id() ?? 0);
+        }]);
     }
 
 
@@ -410,5 +412,4 @@ class ProductFilterService
             'isProductAvailable' => $isProductAvailable
         ];
     }
-
 }

@@ -705,7 +705,7 @@
                         <div class="col-sm-6 col-md-4 p-b-40">
                             <div class="blog-item">
                                 <div class="hov-img0">
-                                    <a href="{{route('customer.content.blog-detail', ['post' => $blog->slug])}}">
+                                    <a href="{{ route('customer.content.blog-detail', ['post' => $blog->slug]) }}">
 
                                         <img src="{{ asset($blog->image['blogArray'][$blog->image['currentImage']]) }}"
                                             alt="{{ $blog->title }}">
@@ -901,6 +901,17 @@
                         'Accept': 'application/json'
                     }
                 });
+
+                if (res.status === 401) {
+                    // showToast('Please log in to your account first.');
+                    window.location.href = '/login-register';
+                    return;
+                }
+
+                if (!res.ok) {
+                    showToast('A communication error occurred.');
+                    return;
+                }
 
                 const data = await res.json();
 
