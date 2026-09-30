@@ -19,14 +19,20 @@ class ProductService
         );
         $product = Product::withTotalSold()
             ->with([
-                'productCategory' => fn($q) => $q->where('status', 1),
+                'activeComments',
+                'productCategory' => fn($q) => $q->where('status', 1)->with('parent'),
                 'brand' => fn($q) => $q->where('status', 1),
                 'images',
                 'attributeValues.productAttribute',
+                'variants.warehouseVariants',
                 'variants.activeAmazingSale',
                 'variants.color',
                 'variants.size',
-            ])->whereKey($product->getKey())->firstOrFail();
+            ])
+            ->withExists(['likes as is_liked_by_user' => function ($q) {
+                $q->where('user_id', Auth::id() ?? 0);
+            }])
+            ->whereKey($product->getKey())->firstOrFail();
 
         $variantsForJs = $product->variants
             ->map(function ($v) {
@@ -85,21 +91,22 @@ class ProductService
                 });
             })
             ->with([
+                'productCategory',
                 'variants' => function ($q) {
-                    $q->with([
-                        // موجودی
-                        'warehouseVariants',
+                    $q->whereHas('warehouseVariants', function ($sub) {
+                        $sub->whereColumn('stock', '>', 'reserved');
+                    });
+                },
+                'variants.amazingSale',
+                'variants.activeAmazingSale',
+                'variants.orderItems',
+                'variants.warehouseVariants',
 
-                        // تخفیف فعال
-                        'amazingSale' => function ($s) {
-                            $s->where('is_active', true)
-                                ->where('start_date', '<=', now())
-                                ->where('end_date', '>=', now());
-                        },
-                        'orderItems',
-                    ]);
-                }
-            ])->inRandomOrder()
+            ])
+            ->withExists(['likes as is_liked_by_user' => function ($q) {
+                $q->where('user_id', Auth::id() ?? 0);
+            }])
+            ->inRandomOrder()
             ->take(8)
             ->get();
 
