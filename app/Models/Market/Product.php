@@ -106,11 +106,8 @@ class Product extends Model
                 ->where('created_at', '>=', now()->subDays($days));
         };
 
-        return $query
-            ->where('status', 'published')
-            ->where('published_at', '<=', now())
-            // فقط محصولاتی که حداقل یک فروش معتبر دارن
-            ->whereHas('orderItems.order', $validOrders)
+        // فقط محصولاتی که حداقل یک فروش معتبر دارن
+        return  $query->whereHas('orderItems.order', $validOrders)
             // محاسبه مجموع تعداد فروش
             ->withSum(['orderItems as total_sold' => function ($q) use ($validOrders) {
                 $q->whereHas('order', $validOrders);

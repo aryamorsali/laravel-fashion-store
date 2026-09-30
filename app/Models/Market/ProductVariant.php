@@ -70,7 +70,7 @@ class ProductVariant extends Model
             return 0;
         }
 
-        return $this->amazingSale->percentage;
+        return $this->activeAmazingSale->percentage;
     }
 
     public function getFinalPriceAttribute()

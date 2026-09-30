@@ -13,6 +13,7 @@ use Carbon\Carbon;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
 
@@ -49,7 +50,7 @@ class Authentication
 
         if (!$user) {
             $newUser['password'] = Hash::make(Str::random(32));
-            $newUser['activation'] = 0;                        //
+            $newUser['activation'] = 1;
             $newUser['loyalty_level'] = 'bronze';
             $newUser['registration_date'] = Carbon::now();
             DB::transaction(function () use (&$user, $newUser) {
@@ -85,14 +86,20 @@ class Authentication
 
         // send email or sms
         if ($type == 0) {
-            // send sms
-            $smsService = new SmsService();
-            $smsService->setFrom(Config::get('sms.otp_from'));
-            $smsService->setTo(['0' . $user->mobile]);
-            $smsService->setText("Coza Shop \n Verification code : $otpCode");
-            $smsService->setIsFlash(true);
 
-            $messagesService = new MessageService($smsService);
+            if (empty(config('sms.username')) || empty(config('sms.password'))) {
+                // اگر کلید خالی بود کد را در فایل لاگ ثبت کن
+                Log::info("--- [TEST SMS OTP] --- Phone: {$user->mobile} | OTP Code: {$otpCode}");
+            } else {
+                // send sms
+                $smsService = new SmsService();
+                $smsService->setFrom(Config::get('sms.otp_from'));
+                $smsService->setTo(['0' . $user->mobile]);
+                $smsService->setText("Coza Shop \n Verification code : $otpCode");
+                $smsService->setIsFlash(true);
+
+                $messagesService = new MessageService($smsService);
+            }
         } elseif ($type == 1) {
             // send email
             $emailService = new EmailService();
@@ -107,8 +114,9 @@ class Authentication
             $messagesService = new MessageService($emailService);
         }
 
-        $messagesService->send();
-
+        if (isset($messagesService)) {
+            $messagesService->send();
+        }
         return [
             'token' => $token,
             'created_at' => $otp->created_at,

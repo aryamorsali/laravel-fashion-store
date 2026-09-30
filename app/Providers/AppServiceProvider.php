@@ -81,7 +81,11 @@ class AppServiceProvider extends ServiceProvider
         // برای هدر این مقادیر ارسال میشود
         view()->composer('customer.layouts.header', function ($view) {
             if (Auth::check()) {
-                $view->with('cartItems', CartItem::where('user_id', Auth::user()->id)->get());
+                $view->with('cartItems', CartItem::where('user_id', Auth::id())->with([
+                    'productVariant',
+                    'productVariant.product',
+                    'productVariant.activeAmazingSale',
+                ])->get());
             }
         });
 

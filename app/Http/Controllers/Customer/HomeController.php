@@ -23,7 +23,21 @@ class HomeController extends Controller
 
         $banners = Banner::where('status', 1)->get();
 
-        $boxes = HomeBox::where('status', 1)->get()->keyBy('position');
+        $boxes = HomeBox::where('status', 1)->with(['category'])->get()->keyBy('position');
+
+        $productRelations = [
+            'variants' => function ($q) {
+                $q->whereHas('warehouseVariants', function ($sub) {
+                    $sub->whereColumn('stock', '>', 'reserved');
+                });
+            },
+            'variants.warehouseVariants',
+            'variants.activeAmazingSale',
+            'variants.orderItems',
+            'variants.amazingSale' => function ($q) {
+                $q->where('is_active', true)->where('start_date', '<=', now())->where('end_date', '>=', now());
+            },
+        ];
 
         $amazingProducts = Product::where('status', 'published')->where('published_at', '<=', now())
             ->whereHas('variants', function ($q) {
@@ -37,19 +51,10 @@ class HomeController extends Controller
                         $q->whereColumn('stock', '>', 'reserved');
                     });
             })
-            ->with([
-                'variants' => function ($q) {
-                    // Load only in-stock variants
-                    $q->whereHas('warehouseVariants', function ($q) {
-                        $q->whereColumn('stock', '>', 'reserved');
-                    })->with(['amazingSale' => function ($q) {
-                        // Load only active sale
-                        $q->where('is_active', true)
-                            ->where('start_date', '<=', now())
-                            ->where('end_date', '>=', now());
-                    }]);
-                }
-            ])
+            ->with($productRelations)
+            ->withExists(['likes as is_liked_by_user' => function ($q) {
+                $q->where('user_id', Auth::user()->id);
+            }])
             ->get()
             ->sortByDesc(function ($product) {
                 return $product->variants
@@ -60,57 +65,37 @@ class HomeController extends Controller
             ->take(8);
 
 
-        $topProducts = Product::bestSellers(30)
-            ->whereNotIn('id', $amazingProducts->pluck('id'))
+        $topProducts = Product::where('status', 'published')->where('published_at', '<=', now())
+            ->whereNotIn('id', $amazingProducts->pluck('id'))->bestSellers(30)
             ->whereHas('variants.warehouseVariants', function ($q) {
                 $q->whereColumn('stock', '>', 'reserved');
             })
-            ->with([
-                'variants' => function ($q) {
-                    $q->whereHas('warehouseVariants', function ($q) {
-                        $q->whereColumn('stock', '>', 'reserved');
-                    })
-                        ->with([
-                            'warehouseVariants',
-                            'orderItems',
-                            'amazingSale' => function ($q) {
-                                $q->where('is_active', true)
-                                    ->where('start_date', '<=', now())
-                                    ->where('end_date', '>=', now());
-                            },
-                        ]);
-                }
-            ])
+            ->with($productRelations)
+            ->withExists(['likes as is_liked_by_user' => function ($q) {
+                $q->where('user_id', Auth::id());
+            }])
             ->take(8)
             ->get();
 
 
-        $excludeIds = $amazingProducts->pluck('id')
-            ->merge($topProducts->pluck('id'))
-            ->unique();
+        $excludeIds = $amazingProducts->pluck('id')->merge($topProducts->pluck('id'))->unique();
 
-        $latestProducts = Product::where('status', 'published')
-            ->where('published_at', '<=', now())
+
+        $latestProducts = Product::where('status', 'published')->where('published_at', '<=', now())
             ->whereNotIn('id', $excludeIds)
             ->whereHas('variants.warehouseVariants', function ($q) {
                 $q->whereColumn('stock', '>', 'reserved');
             })
-            ->with(['variants' => function ($q) {
-                $q->whereHas('warehouseVariants', function ($q) {
-                    $q->whereColumn('stock', '>', 'reserved');
-                })
-                    ->with(['amazingSale' => function ($q) {
-                        $q->where('is_active', true)
-                            ->where('start_date', '<=', now())
-                            ->where('end_date', '>=', now());
-                    }]);
+            ->with($productRelations)
+            ->withExists(['likes as is_liked_by_user' => function ($q) {
+                $q->where('user_id', Auth::id());
             }])
             ->orderBy('published_at', 'desc')
             ->take(8)
             ->get();
 
 
-        $blogs = Post::where('status', 1)->where('published_at', '<=', now())->orderBy('published_at', 'desc')->take(3)->get();
+        $blogs = Post::where('status', 1)->where('published_at', '<=', now())->with(['user'])->orderBy('published_at', 'desc')->take(3)->get();
 
         return view('customer.home', compact('banners', 'boxes', 'amazingProducts', 'blogs', 'topProducts', 'latestProducts'));
     }

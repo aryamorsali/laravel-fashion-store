@@ -1552,7 +1552,7 @@
                     "Order"
                 ],
                 "summary": "Get user order details",
-                "description": "Retrieve full details of a specific order belonging to the authenticated user including snapshots and ordered items.",
+                "description": "Full details of an authenticated user order.",
                 "operationId": "faa03e0aa1256e23afae7465f79c263e",
                 "parameters": [
                     {

@@ -397,12 +397,12 @@
 
                                                             <img class="icon-heart1 dis-block trans-04"
                                                                 src="{{ asset('images/icons/icon-heart-01.png') }}"
-                                                                style="{{ $product->isLikedByUser() ? 'display:none' : '' }}"
+                                                                style="{{ $product->is_liked_by_user ? 'display:none' : '' }}"
                                                                 alt="ICON">
 
                                                             <img class="icon-heart2 dis-block trans-04"
                                                                 src="{{ asset('images/icons/icon-heart-02.png') }}"
-                                                                style="{{ $product->isLikedByUser() ? '' : 'display:none' }}"
+                                                                style="{{ $product->is_liked_by_user ? '' : 'display:none' }}"
                                                                 alt="ICON">
                                                         </button>
                                                     </div>
@@ -529,12 +529,12 @@
 
                                                             <img class="icon-heart1 dis-block trans-04"
                                                                 src="{{ asset('images/icons/icon-heart-01.png') }}"
-                                                                style="{{ $product->isLikedByUser() ? 'display:none' : '' }}"
+                                                                style="{{ $product->is_liked_by_user ? 'display:none' : '' }}"
                                                                 alt="ICON">
 
                                                             <img class="icon-heart2 dis-block trans-04"
                                                                 src="{{ asset('images/icons/icon-heart-02.png') }}"
-                                                                style="{{ $product->isLikedByUser() ? '' : 'display:none' }}"
+                                                                style="{{ $product->is_liked_by_user ? '' : 'display:none' }}"
                                                                 alt="ICON">
                                                         </button>
                                                     </div>
@@ -659,12 +659,12 @@
 
                                                             <img class="icon-heart1 dis-block trans-04"
                                                                 src="{{ asset('images/icons/icon-heart-01.png') }}"
-                                                                style="{{ $product->isLikedByUser() ? 'display:none' : '' }}"
+                                                                style="{{ $product->is_liked_by_user ? 'display:none' : '' }}"
                                                                 alt="ICON">
 
                                                             <img class="icon-heart2 dis-block trans-04"
                                                                 src="{{ asset('images/icons/icon-heart-02.png') }}"
-                                                                style="{{ $product->isLikedByUser() ? '' : 'display:none' }}"
+                                                                style="{{ $product->is_liked_by_user ? '' : 'display:none' }}"
                                                                 alt="ICON">
                                                         </button>
                                                     </div>

@@ -249,32 +249,23 @@
                  @php
                      $totalPrice = 0;
                  @endphp
+                 <ul class="header-cart-wrapitem w-full" id="headerCartItems">
 
-                 @foreach ($cartItems as $item)
-                     <ul class="header-cart-wrapitem w-full" id="headerCartItems">
+                     @foreach ($cartItems as $item)
                          <li class="header-cart-item flex-w flex-t m-b-12">
 
                              <div class="header-cart-item-img">
                                  <img src="{{ asset($item->productVariant->product->image['indexArray']['small']) }}"
                                      alt="IMG">
                              </div>
+
                              @php
-                                 $price = $item->productVariant?->price;
-                                 $finalPrice = $price;
-                                 $discount = null;
+                                 $variant = $item->productVariant;
 
-                                 $activeAmazingSale =
-                                     $item->productVariant &&
-                                     $item->productVariant->amazingSale &&
-                                     $item->productVariant->amazingSale->is_active &&
-                                     $item->productVariant->amazingSale->start_date <= now() &&
-                                     $item->productVariant->amazingSale->end_date >= now();
+                                 $hasAmazingSale = $variant?->has_amazing_sale;
+                                 $amazingSalePercentage = $variant?->discount_percentage;
 
-                                 if ($activeAmazingSale) {
-                                     $discount = $item->productVariant->amazingSale->percentage;
-                                     $finalPrice = $price - ($price * $discount) / 100;
-                                 }
-
+                                 $finalPrice = $variant?->final_price;
                                  $totalPrice += $item->quantity * $finalPrice;
                              @endphp
                              <div class="header-cart-item-txt p-t-8" style="flex:1; padding-right:5px;">
@@ -287,7 +278,7 @@
                                          {{ $item->productVariant->product->name }}
                                      </a>
 
-                                     @if ($activeAmazingSale)
+                                     @if ($hasAmazingSale)
                                          <span
                                              style="
                                                 background:#e60023;
@@ -297,7 +288,7 @@
                                                 border-radius:12px;
                                                 font-weight:600;
                                                 white-space:nowrap;">
-                                             -{{ $item->productVariant->amazingSale->percentage }}%
+                                             -{{ $amazingSalePercentage }}%
                                          </span>
                                      @endif
 
@@ -311,7 +302,7 @@
                                          <span id="header-cart-qty-{{ $item->id }}" class="header-item-quantity">
                                              {{ $item->quantity }}
                                          </span> ×
-                                         @if ($activeAmazingSale)
+                                         @if ($hasAmazingSale)
                                              <span style="color:#e60023; font-weight:500;">
                                                  ${{ number_format($finalPrice, 2) }}
                                              </span>
@@ -333,8 +324,8 @@
                              </div>
 
                          </li>
-                     </ul>
-                 @endforeach
+                     @endforeach
+                 </ul>
 
 
                  <div class="w-full">
