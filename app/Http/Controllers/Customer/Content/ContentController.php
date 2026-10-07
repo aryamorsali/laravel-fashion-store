@@ -109,7 +109,7 @@ class ContentController extends Controller
             $q->where('status', 1)->where('published_at', '<=', now());
         })->get();
 
-        $query = Post::where('status', 1)->where('published_at', '<=', now());
+        $query = Post::where('status', 1)->where('published_at', '<=', now())->with(['user', 'tags', 'comments']);
 
         // فیلتر تگ
         if ($request->tag) {
@@ -136,22 +136,14 @@ class ContentController extends Controller
             })
             ->with([
                 'variants' => function ($q) {
-                    $q->whereHas('warehouseVariants', function ($q) {
-                        $q->whereColumn('stock', '>', 'reserved');
-                    })
-                        ->with([
-                            'warehouseVariants',
-                            'orderItems',
-                            'amazingSale' => function ($q) {
-                                $q->where('is_active', true)
-                                    ->where('start_date', '<=', now())
-                                    ->where('end_date', '>=', now());
-                            },
-                        ]);
-                }
-            ])
-            ->take(3)
-            ->get();
+                    $q->whereHas('warehouseVariants', function ($sub) {
+                        $sub->whereColumn('stock', '>', 'reserved');
+                    });
+                },
+                'variants.warehouseVariants',
+                'variants.orderItems',
+            ])->take(3)->get();
+            
 
         return view('customer.content.blogs', compact('posts', 'tags', 'categories', 'featuredProducts'));
     }

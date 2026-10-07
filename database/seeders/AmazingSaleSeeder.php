@@ -24,7 +24,7 @@ class AmazingSaleSeeder extends Seeder
                 ],
                 [
                     'product_variant_id' => $variantId,
-                    'percentage'         => rand(10, 50),
+                    'percentage'         => rand(10, 35),
                     'start_date'         => Carbon::now()->subDays(10),
                     'end_date'           => Carbon::now()->addMonths(1),
                     'is_active'          => 1,

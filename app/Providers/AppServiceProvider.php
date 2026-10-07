@@ -11,6 +11,7 @@ use App\Models\User;
 use App\Models\User\Permission;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Cache\RateLimiting\Limit;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;

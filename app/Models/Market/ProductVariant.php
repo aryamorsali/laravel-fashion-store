@@ -79,7 +79,6 @@ class ProductVariant extends Model
             return $this->price;
         }
 
-        return $this->price -
-            (($this->price * $this->discount_percentage) / 100);
+        return $this->price - (($this->price * $this->discount_percentage) / 100);
     }
 }

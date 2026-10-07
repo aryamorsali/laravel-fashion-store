@@ -315,31 +315,14 @@
                                                 <div class="block2-pic hov-img0">
 
                                                     @php
-                                                        $activeAmazingSale = $product->variants
-                                                            // Only available variants
-                                                            ->filter(
-                                                                fn($v) => $v->warehouseVariants->sum('stock') >
-                                                                    $v->warehouseVariants->sum('reserved'),
-                                                            )
-                                                            // Extract sales
-                                                            ->pluck('amazingSale')
-                                                            ->flatten()
-                                                            // Only valid sales
-                                                            ->filter(function ($sale) {
-                                                                return $sale &&
-                                                                    $sale->is_active &&
-                                                                    $sale->start_date <= now() &&
-                                                                    $sale->end_date >= now();
-                                                            })
-                                                            ->sortByDesc('percentage')
+                                                        // بیشترین واریانت تخفیف خورده از بین واریانت های لود شده
+                                                        $bestVariant = $product->variants
+                                                            ->filter(fn($v) => $v->activeAmazingSale !== null)
+                                                            ->sortByDesc(fn($v) => $v->activeAmazingSale->percentage)
                                                             ->first();
 
-                                                        $variant = $product->variants->firstWhere(
-                                                            'id',
-                                                            optional($activeAmazingSale)->product_variant_id,
-                                                        );
-
-                                                        $price = $variant?->price ?? $product->base_price;
+                                                        $activeAmazingSale = $bestVariant?->activeAmazingSale;
+                                                        $price = $bestVariant?->price ?? $product->base_price;
 
                                                         $discount = $activeAmazingSale->percentage ?? 0;
 
@@ -347,7 +330,6 @@
                                                             ? $price - ($price * $discount) / 100
                                                             : $price;
                                                     @endphp
-
 
                                                     @if ($activeAmazingSale)
                                                         <span class="badge-amazing">
@@ -363,7 +345,7 @@
                                                     <img src="{{ asset($product->image['indexArray']['main']) }}"
                                                         alt="{{ $product->name }}">
 
-                                                    <a href="{{ route('customer.market.product', [$product->slug, 'variant' => $variant->id]) }}"
+                                                    <a href="{{ route('customer.market.product', [$product->slug, 'variant' => $bestVariant->id]) }}"
                                                         class="block2-btn flex-c-m stext-103 cl2 size-102 bg0 bor2 hov-btn1 p-lr-15 trans-04">
                                                         Shop Now
                                                     </a>
@@ -456,27 +438,21 @@
                                                 <div class="block2-pic hov-img0">
 
                                                     @php
-                                                        $availableVariants = $product->variants->filter(
-                                                            fn($variant) => $variant->warehouseVariants->sum('stock') >
-                                                                $variant->warehouseVariants->sum('reserved'),
-                                                        );
-
-                                                        $variant =
-                                                            $availableVariants
-                                                                ->sortByDesc(fn($v) => $v->orderItems->sum('quantity'))
-                                                                ->first() ??
-                                                            $product->variants
-                                                                ->sortByDesc(fn($v) => $v->orderItems->sum('quantity'))
-                                                                ->first();
+                                                        // پر فروش‌ ترین واریانت از بین واریانت‌ های لود شده
+                                                        $variant = $product->variants
+                                                            ->sortByDesc(fn($v) => $v->orderItems->sum('quantity'))
+                                                            ->first();
 
                                                         $price = $variant?->price;
                                                         $finalPrice = $price;
                                                         $discount = null;
                                                         $activeAmazingSale = null;
 
-                                                        $activeAmazingSale = $variant->has_amazing_sale
-                                                            ? $variant->amazingSale
-                                                            : null;
+                                                        // $activeAmazingSale = $variant->has_amazing_sale
+                                                        //     ? $variant->activeAmazingSale
+                                                        //     : null;
+
+                                                            $activeAmazingSale = $variant?->activeAmazingSale;
 
                                                         if ($activeAmazingSale) {
                                                             $discount = $variant->discount_percentage;
@@ -589,23 +565,21 @@
                                                 <div class="block2-pic hov-img0">
                                                     @php
                                                         // $variant
+                                                        //  پر فروش‌ ترین واریانت از بین واریانت‌ های لود شده محصولات جدید
                                                         $variant = $product->variants
-                                                            ->filter(function ($variant) {
-                                                                return $variant->warehouseVariants->sum('stock') >
-                                                                    $variant->warehouseVariants->sum('reserved');
-                                                            })
-                                                            ->sortByDesc(function ($variant) {
-                                                                return $variant->orderItems->sum('quantity');
-                                                            })
+                                                            ->sortByDesc(fn($v) => $v->orderItems->sum('quantity'))
                                                             ->first();
 
                                                         $price = $variant?->price;
                                                         $finalPrice = $price;
                                                         $discount = null;
 
-                                                        $activeAmazingSale = $variant->has_amazing_sale
-                                                            ? $variant->amazingSale
-                                                            : null;
+                                                        // $activeAmazingSale = $variant->has_amazing_sale
+                                                        //     ? $variant->activeAmazingSale
+                                                        //     : null;
+
+                                                            $activeAmazingSale = $variant?->activeAmazingSale;
+
 
                                                         if ($activeAmazingSale) {
                                                             $discount = $variant->discount_percentage;

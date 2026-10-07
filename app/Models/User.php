@@ -107,17 +107,6 @@ class User extends Authenticatable
         );
     }
 
-
-    public function accessibleCategories()
-    {
-        return $this->belongsToMany(
-            TicketCategory::class,
-            'ticket_admin_access',
-            'admin_id',
-            'category_id'
-        );
-    }
-
     public function updateLoyaltyLevel()
     {
         $total = $this->orders()

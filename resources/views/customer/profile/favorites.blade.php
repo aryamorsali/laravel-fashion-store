@@ -229,20 +229,14 @@
 
 
                                 @php
-                                    $variant =
-                                        $product->variants
-                                            ->filter(
-                                                fn($variant) => $variant->warehouseVariants->sum('stock') >
-                                                    $variant->warehouseVariants->sum('reserved'),
-                                            )
-                                            ->sortBy(fn($v) => $v->price)
-                                            ->first() ?? $product->variants->first();
-
+                                   // ارزانترین واریانت از بین واریانت های لود شده
+                                    $variant = $product->variants->sortBy(fn($v) => $v->final_price)->first() ?? $product->variants->first();
+                    
                                     $price = $variant?->price;
                                     $finalPrice = $price;
                                     $discount = null;
 
-                                    $activeAmazingSale = $variant->has_amazing_sale ? $variant->amazingSale : null;
+                                    $activeAmazingSale = $variant->has_amazing_sale ? $variant->activeAmazingSale : null;
 
                                     if ($activeAmazingSale) {
                                         $discount = $variant->discount_percentage;
@@ -277,7 +271,6 @@
                                             <span class="stext-105 cl3 text-decoration-line-through m-r-8 text-danger">
                                                 ${{ rtrim(rtrim(number_format($finalPrice, 2), '0'), '.') }}
                                             </span>
-
 
                                             <span class="stext-105 cl1" style=" text-decoration: line-through;">
                                                 ${{ rtrim(rtrim(number_format($price, 2), '0'), '.') }}

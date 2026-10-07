@@ -66,7 +66,16 @@ class ProfileController extends Controller
 
     public function myFavorites()
     {
-        $products = Auth::user()->favoriteProducts()->latest('likes.created_at')->paginate(10);
+        $products = Auth::user()->favoriteProducts()->with([
+            'productCategory',
+            'variants' => function ($q) {
+                $q->whereHas('warehouseVariants', function ($sub) {
+                    $sub->whereColumn('stock', '>', 'reserved');
+                });
+            },
+            'variants.warehouseVariants',
+            'variants.activeAmazingSale',
+        ])->latest('likes.created_at')->paginate(10);
 
 
         return view('customer.profile.favorites', compact('products'));

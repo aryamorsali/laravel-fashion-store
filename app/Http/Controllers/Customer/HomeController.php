@@ -34,9 +34,6 @@ class HomeController extends Controller
             'variants.warehouseVariants',
             'variants.activeAmazingSale',
             'variants.orderItems',
-            'variants.amazingSale' => function ($q) {
-                $q->where('is_active', true)->where('start_date', '<=', now())->where('end_date', '>=', now());
-            },
         ];
 
         $amazingProducts = Product::where('status', 'published')->where('published_at', '<=', now())
@@ -58,7 +55,7 @@ class HomeController extends Controller
             ->get()
             ->sortByDesc(function ($product) {
                 return $product->variants
-                    ->pluck('amazingSale.percentage')
+                    ->pluck('activeAmazingSale.percentage')
                     ->filter()
                     ->max() ?? 0;
             })

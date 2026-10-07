@@ -75,9 +75,17 @@ class ProfileTiketController extends Controller
 
 
                 // new ticket notification
-                $ticketAdmins = User::where('activation', 1)->get()->filter(function ($u) {
-                    return $u->is_owner || $u->hasPermissionTo('manage-tickets');
-                });
+                $ticketAdmins = User::where('activation', 1)->with(['roles', 'permissions'])
+                    ->where(function ($query) {
+                        $query->where('is_owner', 1)
+                            ->orWhereHas('permissions', function ($p) use ($query) {
+                                $p->where('name', 'manage-tickets');
+                            })
+                            // یا از طریق یکی از نقش‌ هایش دسترسی دارد
+                            ->orWhereHas('roles.permissions', function ($rp) {
+                                $rp->where('name', 'manage-tickets');
+                            });
+                    })->get();
 
                 foreach ($ticketAdmins as $admin) {
                     $admin->notify(new NewTicketRegisteredNotification($ticket));
