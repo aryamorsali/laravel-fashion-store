@@ -26,7 +26,7 @@ class ProductController extends Controller
 
         $search = $validated['search'] ?? null;
 
-        $query = Product::query();
+        $query = Product::query()->with('productCategory');
         if ($request->filled('search')) {
 
             $query->where(function ($q) use ($search) {

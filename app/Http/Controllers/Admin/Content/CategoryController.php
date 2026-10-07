@@ -22,7 +22,7 @@ class CategoryController extends Controller
 
         $search = $validated['search'] ?? null;
 
-        $query = PostCategory::query();
+        $query = PostCategory::query()->with('tags');
         if ($request->filled('search')) {
 
             $query->where('name', 'LIKE', '%' . $search . '%');

@@ -42,6 +42,7 @@ class PostFactory extends Factory
             'author_id'   => User::inRandomOrder()->value('id'),
             'category_id' => PostCategory::inRandomOrder()->value('id'),
             'status'      => 1,
+            'commentable'      => 1,
             'published_at' => now()->subDays(rand(1, 30)),
         ];
     }

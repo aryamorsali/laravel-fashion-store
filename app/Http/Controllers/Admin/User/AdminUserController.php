@@ -28,7 +28,7 @@ class AdminUserController extends Controller
             $q->whereHas('roles', function ($r) {
                 $r->where('name', 'admin');
             })->orWhere('is_owner', 1);
-        });
+        })->with(['roles', 'roles.permissions', 'permissions']);
 
         if ($request->filled('search')) {
 

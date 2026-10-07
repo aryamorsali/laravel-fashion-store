@@ -17,25 +17,57 @@ class BrandSeeder extends Seeder
             [
                 'id'             => 1,
                 'name'           => 'Nike',
-                'logo'           => 'images/brands/nike.png',
+                'logo' => [
+                    'indexArray' => [
+                        'large' => 'images/brand/seed/nike-logo.png',
+                        'main'  => 'images/brand/seed/nike-logo.png',
+                        'small' => 'images/brand/seed/nike-logo.png',
+                    ],
+                    'directory'    => 'images/brand/seed',
+                    'currentImage' => 'main',
+                ],
                 'status'         => 1,
             ],
             [
                 'id'             => 2,
                 'name'           => 'Adidas',
-                'logo'           => 'images/brands/adidas.png',
+                'logo' => [
+                    'indexArray' => [
+                        'large' => 'images/brand/seed/adidas-logo.png',
+                        'main'  => 'images/brand/seed/adidas-logo.png',
+                        'small' => 'images/brand/seed/adidas-logo.png',
+                    ],
+                    'directory'    => 'images/brand/seed',
+                    'currentImage' => 'main',
+                ],
                 'status'         => 1,
             ],
             [
                 'id'             => 3,
                 'name'           => 'Puma',
-                'logo'           => 'images/brands/puma.png',
+                'logo' => [
+                    'indexArray' => [
+                        'large' => 'images/brand/seed/puma-logo.png',
+                        'main'  => 'images/brand/seed/puma-logo.png',
+                        'small' => 'images/brand/seed/puma-logo.png',
+                    ],
+                    'directory'    => 'images/brand/seed',
+                    'currentImage' => 'main',
+                ],
                 'status'         => 1,
             ],
             [
                 'id'             => 4,
                 'name'           => 'Zara',
-                'logo'           => 'images/brands/zara.png',
+                'logo' => [
+                    'indexArray' => [
+                        'large' => 'images/brand/seed/zara-logo.png',
+                        'main'  => 'images/brand/seed/zara-logo.png',
+                        'small' => 'images/brand/seed/zara-logo.png',
+                    ],
+                    'directory'    => 'images/brand/seed',
+                    'currentImage' => 'main',
+                ],
                 'status'         => 1,
             ],
         ];

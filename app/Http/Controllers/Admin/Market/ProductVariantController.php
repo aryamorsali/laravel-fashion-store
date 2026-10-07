@@ -17,6 +17,7 @@ class ProductVariantController extends Controller
      */
     public function index(Product $product)
     {
+        $product->load(['variants', 'variants.color', 'variants.size']);
         return view('admin.market.product.variant.index', compact('product'));
     }
 

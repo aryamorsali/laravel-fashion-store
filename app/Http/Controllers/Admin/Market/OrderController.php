@@ -16,7 +16,7 @@ class OrderController extends Controller
 
         $search = $validated['search'] ?? null;
 
-        $query = Order::query()->with(['user', 'payments', 'orderItems']);
+        $query = Order::query()->with(['user', 'payments', 'orderItems', 'delivery']);
         if ($request->filled('search')) {
 
             $query->where(function ($q) use ($search) {

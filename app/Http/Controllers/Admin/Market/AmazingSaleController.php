@@ -26,6 +26,7 @@ class AmazingSaleController extends Controller
             'productVariant.product',
             'productVariant.color',
             'productVariant.size',
+            'productVariant.warehouseVariants',
         ]);
         if ($request->filled('search')) {
 

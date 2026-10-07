@@ -16,7 +16,7 @@ class PermissionController extends Controller
 
         $search = $validated['search'] ?? null;
 
-        $query = Permission::where('name', '!=', 'access-admin-panel');
+        $query = Permission::where('name', '!=', 'access-admin-panel')->with(['roles']);
 
 
         if ($request->filled('search')) {

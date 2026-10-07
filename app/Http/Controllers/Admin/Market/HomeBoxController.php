@@ -21,7 +21,7 @@ class HomeBoxController extends Controller
 
         $search = $validated['search'] ?? null;
 
-        $query = HomeBox::query();
+        $query = HomeBox::query()->with('category');
         if ($request->filled('search')) {
 
             $query->where(function ($q) use ($search) {

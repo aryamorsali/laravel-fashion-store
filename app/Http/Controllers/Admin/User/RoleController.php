@@ -21,7 +21,7 @@ class RoleController extends Controller
 
         $search = $validated['search'] ?? null;
 
-        $query = Role::where('is_system', 0);
+        $query = Role::where('is_system', 0)->with('permissions');
 
         if ($request->filled('search')) {
 

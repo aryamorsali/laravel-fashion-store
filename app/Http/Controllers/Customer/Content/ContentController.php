@@ -61,7 +61,7 @@ class ContentController extends Controller
 
     public function addComment(Request $request, Post $post)
     {
-        if ($post->commentable == 1) {
+        if ($post->commentable == 0) {
             return redirect()->back()->with(
                 'toast-error',
                 'This post does not have the ability to post comments.'

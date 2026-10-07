@@ -20,7 +20,7 @@ class CommentController extends Controller
 
         $search = $validated['search'] ?? null;
 
-        $query = Comment::query();
+        $query = Comment::query()->with('user');
         if ($request->filled('search')) {
 
             $query->where(function ($q) use ($search) {
