@@ -112,4 +112,13 @@ return [
 
     'password_timeout' => env('AUTH_PASSWORD_TIMEOUT', 10800),
 
+
+    /*
+    |--------------------------------------------------------------------------
+    | Demo / Testing Configurations
+    |--------------------------------------------------------------------------
+    */
+
+    'demo_otp_enabled' => env('DEMO_OTP_ENABLED', false),
+
 ];

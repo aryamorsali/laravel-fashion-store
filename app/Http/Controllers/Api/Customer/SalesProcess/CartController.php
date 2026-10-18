@@ -470,7 +470,7 @@ class CartController extends Controller
 
             new OA\Response(
                 response: 409,
-                description: 'Insufficient stock',
+                description: 'Cart item cannot be updated because it is locked or involved in a payment process',
                 content: new OA\JsonContent(
                     type: 'object',
                     properties: [
@@ -482,16 +482,61 @@ class CartController extends Controller
                         new OA\Property(
                             property: 'message',
                             type: 'string',
-                            example: 'Requested quantity is not available.'
-                        )
+                            example: 'This item is currently in the checkout process and cannot be updated. An update for this item will be available after the checkout period ends.'
+                        ),
+                        new OA\Property(
+                            property: 'status_code',
+                            type: 'number',
+                            example: 409
+                        ),
+                        new OA\Property(
+                            property: 'previous_value',
+                            type: 'number',
+                            example: 1
+                        ),
                     ]
                 )
             ),
+
             new OA\Response(
                 response: 422,
-                description: 'Validation error',
-                content: new OA\JsonContent(ref: '#/components/schemas/422ResponseSchema')
+                description: 'Unprocessable Entity: Insufficient stock OR Request validation error',
+                content: new OA\JsonContent(
+                    properties: [
+                        new OA\Property(property: 'status', type: 'string', example: 'error'),
+                        new OA\Property(property: 'message', type: 'string'),
+                        new OA\Property(property: 'available', type: 'integer', nullable: true, example: 2),
+                        new OA\Property(
+                            property: 'errors',
+                            type: 'object',
+                            nullable: true,
+                            example: ['quantity' => ['The quantity must be between 1 and 10.']]
+                        ),
+                    ],
+                    examples: [
+                        new OA\Examples(
+                            example: 'insufficient_stock',
+                            summary: 'Insufficient stock error',
+                            value: [
+                                'status'    => 'error',
+                                'message'   => 'Requested quantity is not available.',
+                                'available' => 2,
+                            ]
+                        ),
+                        new OA\Examples(
+                            example: 'validation_error',
+                            summary: 'Field validation error ',
+                            value: [
+                                'message' => 'The given data was invalid.',
+                                'errors'  => [
+                                    'quantity' => ['The quantity must be between 1 and 10.'],
+                                ],
+                            ]
+                        ),
+                    ]
+                )
             ),
+
 
         ],
     )]

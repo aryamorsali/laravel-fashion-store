@@ -3198,7 +3198,7 @@
                         }
                     },
                     "409": {
-                        "description": "Insufficient stock",
+                        "description": "Cart item cannot be updated because it is locked or involved in a payment process",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -3209,7 +3209,15 @@
                                         },
                                         "message": {
                                             "type": "string",
-                                            "example": "Requested quantity is not available."
+                                            "example": "This item is currently in the checkout process and cannot be updated. An update for this item will be available after the checkout period ends."
+                                        },
+                                        "status_code": {
+                                            "type": "number",
+                                            "example": 409
+                                        },
+                                        "previous_value": {
+                                            "type": "number",
+                                            "example": 1
                                         }
                                     },
                                     "type": "object"
@@ -3218,11 +3226,55 @@
                         }
                     },
                     "422": {
-                        "description": "Validation error",
+                        "description": "Unprocessable Entity: Insufficient stock OR Request validation error",
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/422ResponseSchema"
+                                    "properties": {
+                                        "status": {
+                                            "type": "string",
+                                            "example": "error"
+                                        },
+                                        "message": {
+                                            "type": "string"
+                                        },
+                                        "available": {
+                                            "type": "integer",
+                                            "example": 2,
+                                            "nullable": true
+                                        },
+                                        "errors": {
+                                            "type": "object",
+                                            "example": {
+                                                "quantity": [
+                                                    "The quantity must be between 1 and 10."
+                                                ]
+                                            },
+                                            "nullable": true
+                                        }
+                                    },
+                                    "type": "object"
+                                },
+                                "examples": {
+                                    "insufficient_stock": {
+                                        "summary": "Insufficient stock error",
+                                        "value": {
+                                            "status": "error",
+                                            "message": "Requested quantity is not available.",
+                                            "available": 2
+                                        }
+                                    },
+                                    "validation_error": {
+                                        "summary": "Field validation error ",
+                                        "value": {
+                                            "message": "The given data was invalid.",
+                                            "errors": {
+                                                "quantity": [
+                                                    "The quantity must be between 1 and 10."
+                                                ]
+                                            }
+                                        }
+                                    }
                                 }
                             }
                         }

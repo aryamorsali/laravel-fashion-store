@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Models\Market\CartItem;
+use App\Models\Market\InventoryAllocation;
 use App\Models\Market\WarehouseVariant;
 use Illuminate\Support\Facades\DB;
 use RuntimeException;
@@ -16,12 +17,21 @@ class CartInventoryAllocator
             throw new RuntimeException('Invalid quantity.');
         }
 
-        $cartItem->load('allocations');
+        $warehouseVariants = WarehouseVariant::query()
+            ->where('product_variant_id', $cartItem->product_variant_id)
+            ->orderBy('id')
+            ->lockForUpdate()
+            ->get()
+            ->keyBy('id');
 
-        foreach ($cartItem->allocations as $allocation) {
-            $warehouseVariant = WarehouseVariant::query()
-                ->lockForUpdate()
-                ->findOrFail($allocation->warehouse_variant_id);
+        $allocations = InventoryAllocation::where('cart_item_id', $cartItem->id)
+            ->whereNull('order_item_id')
+            ->orderBy('id')
+            ->lockForUpdate()
+            ->get();
+
+        foreach ($allocations as $allocation) {
+            $warehouseVariant = $warehouseVariants->get($allocation->warehouse_variant_id);
 
             $warehouseVariant->reserved = max(
                 0,
@@ -31,7 +41,7 @@ class CartInventoryAllocator
             $warehouseVariant->save();
         }
 
-        $cartItem->allocations()->delete();
+        InventoryAllocation::whereIn('id', $allocations->pluck('id'))->delete();
 
         $warehouseVariants = WarehouseVariant::query()
             ->where('product_variant_id', $cartItem->product_variant_id)

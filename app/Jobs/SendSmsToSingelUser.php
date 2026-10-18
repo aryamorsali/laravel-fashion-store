@@ -2,8 +2,8 @@
 
 namespace App\Jobs;
 
-use App\Http\Services\Message\MessageService;
-use App\Http\Services\Message\SMS\SmsService;
+use App\Services\Infrastructure\Message\MessageService;
+use App\Services\Infrastructure\Message\SMS\SmsService;
 use App\Models\Notification\SMS;
 use App\Models\User;
 use Illuminate\Bus\Batchable;

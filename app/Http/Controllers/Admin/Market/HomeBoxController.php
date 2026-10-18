@@ -5,7 +5,7 @@ namespace App\Http\Controllers\Admin\Market;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\Market\HomeBoxRequest;
 use App\Http\Requests\Admin\Market\SearchRequest;
-use App\Http\Services\Image\ImageService;
+use App\Services\Infrastructure\Image\ImageService;
 use App\Models\Market\HomeBox;
 use App\Models\Market\ProductCategory;
 use Illuminate\Http\Request;

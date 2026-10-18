@@ -554,6 +554,12 @@
                 })
                 .then(res => res.json())
                 .then(data => {
+                    // اگر آیتم سبد درحال پرداخت بود
+                    if (data.status === "error" && data.status_code === 409) {
+                        alert(data.message)
+                        input.value = data.previous_value
+                        return
+                    }
 
                     if (data.status === "error") {
                         alert("Only " + data.available + " left in stock")

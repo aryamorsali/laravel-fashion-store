@@ -21,7 +21,7 @@ class TagSeeder extends Seeder
             ['id' => 5,  'name' => 'Casual'],
 
             ['id' => 6,  'name' => 'Summer Collection'],
-            ['id' => 7,  'name' => 'Winter 2024'],
+            ['id' => 7,  'name' => 'Winter 2026'],
             ['id' => 8,  'name' => 'Spring Style'],
 
         ];

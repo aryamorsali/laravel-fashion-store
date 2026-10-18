@@ -7,7 +7,7 @@ use App\Http\Requests\Api\Payment\PaymentCallbackRequest;
 use App\Http\Requests\Api\Payment\PaymentRequest;
 use App\Http\Resources\OrderResource;
 use App\Services\CartCalculator;
-use App\Http\Services\Payment\PaymentService;
+use App\Services\Infrastructure\Payment\PaymentService;
 use App\Models\Market\Order;
 use App\Models\Market\Payment;
 use App\Services\PaymentCalculationService;

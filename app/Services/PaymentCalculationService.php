@@ -5,7 +5,7 @@ namespace App\Services;
 
 use App\Exceptions\EmptyCartException;
 use App\Http\Resources\OrderResource;
-use App\Http\Services\Payment\PaymentService;
+use App\Services\Infrastructure\Payment\PaymentService;
 use App\Models\Market\CommonDiscount;
 use App\Models\Market\Order;
 use App\Models\Market\Payment;
@@ -25,6 +25,7 @@ use App\Notifications\PaymentFailedNotification;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 
 class PaymentCalculationService
 {
@@ -36,106 +37,107 @@ class PaymentCalculationService
 
     public function payment($inputs, $cartCalculator, $couponCode = null)
     {
-        $code = $couponCode ?? session('applied_coupon');
+        $result = DB::transaction(function () use ($inputs, $cartCalculator, $couponCode) {
 
-        $userId = Auth::user()->id;
+            $code = $couponCode ?? session('applied_coupon');
 
-        $address = Address::with(['province', 'city'])->where('user_id', $userId)->findOrFail($inputs['address_id']);
+            $userId = Auth::user()->id;
 
-        $delivery = Delivery::findOrFail($inputs['delivery_id']);
+            $address = Address::with(['province', 'city'])->where('user_id', $userId)->findOrFail($inputs['address_id']);
 
-        // محاسبه سبد
-        $cartItems = CartItem::where('user_id', $userId)->with([
-            'productVariant',
-            'productVariant.product',
-            'productVariant.amazingSale',
-        ])->get();
+            $delivery = Delivery::findOrFail($inputs['delivery_id']);
 
-        if ($cartItems->isEmpty()) {
-            throw new EmptyCartException();
-        }
+            // محاسبه سبد
+            $cartItems = CartItem::where('user_id', $userId)->orderBy('id')->lockForUpdate()->with([
+                'productVariant',
+                'productVariant.product',
+                'productVariant.amazingSale',
+            ])->get();
 
-        $commonDiscount = CommonDiscount::where('status', 1)->where('start_date', '<=', now())->where('end_date', '>=', now())->first();
-
-        $coupon = null;
-        if ($code) {
-            $coupon = Coupon::where('code',  $code)->first();
-        }
-        $totals = $cartCalculator->calculateCartTotals($cartItems, $commonDiscount, $coupon?->code);
-
-
-        // create order
-        $addressSnapshot = [
-            'province' => $address->province->name,
-            'city' => $address->city->name,
-            'address' => $address->address,
-            'postal_code' => $address->postal_code,
-            'receiver' => $address->recipient_name,
-            'mobile' => $address->mobile,
-            'unit' => $address->unit,
-            'no' => $address->no,
-        ];
-
-        $deliverySnapshot = [
-            'name' => $delivery->name,
-            'delivery_cost' => $delivery->delivery_cost,
-            'delivery_days' => $delivery->delivery_days,
-        ];
-
-        // ممکن است کوپن در سرویس نامعتبر، منقضی یا قبلا استفاده شده باشد
-        $couponApplied = $coupon && $totals['couponDiscount'] > 0;
-
-        if (!$couponApplied) {
-            $coupon = null;
-            if (session()->has('applied_coupon')) {
-                session()->forget('applied_coupon');
+            if ($cartItems->isEmpty()) {
+                throw new EmptyCartException();
             }
-        }
 
-        $couponSnapshot = $coupon ? [
-            'code' => $coupon->code,
-            'amount' => $coupon->amount,
-            'amount_type' => $coupon->amount_type,     // درصدی یا عددی
-            'discount_ceiling' => $coupon->discount_ceiling,
-            'type' => $coupon->type,    // عمومی یا خصوصی
-            'user_id' => $coupon->user_id,
-            'status' => $coupon->status,
-            'start_date' => $coupon->start_date,
-            'end_date' => $coupon->end_date,
-        ] : null;
+            $commonDiscount = CommonDiscount::where('status', 1)->where('start_date', '<=', now())->where('end_date', '>=', now())->first();
 
-        $commonDiscountSnapshot = $commonDiscount ? [
-            'title' => $commonDiscount->title,
-            'status' => $commonDiscount->status,
-            'start_date' => $commonDiscount->start_date,
-            'end_date' => $commonDiscount->end_date,
-            'percentage' => $commonDiscount->percentage,
-            'discount_ceiling' => $commonDiscount->discount_ceiling,
-            'minimal_order_amount' => $commonDiscount->minimal_order_amount,
-        ] : null;
+            $coupon = null;
+            if ($code) {
+                $coupon = Coupon::where('code',  $code)->first();
+            }
+            $totals = $cartCalculator->calculateCartTotals($cartItems, $commonDiscount, $coupon?->code);
 
-        //  order data
-        $data = [
-            'user_id' => $userId,
-            'address_id' => $inputs['address_id'],
-            'address_snapshot' => $addressSnapshot,
-            'order_final_amount' => $totals['totalCartPrice'] + $delivery->delivery_cost,
-            'order_total_products_discount_amount' => $totals['productDiscounts'],
-            'order_discount_amount' => $totals['productDiscounts'] + $totals['commonDiscountAmount'] + $totals['couponDiscount'],
-            'delivery_id' => $inputs['delivery_id'],
-            'delivery_snapshot' => $deliverySnapshot,
-            'delivery_amount' => $delivery->delivery_cost,
-            'delivery_date' => $delivery->delivery_days ? now()->addDays($delivery->delivery_days) : null,
 
-            'coupon_id' => $coupon ? $coupon->id : null,
-            'coupon_snapshot' => $couponSnapshot,
-            'order_coupon_discount_amount' => $totals['couponDiscount'],
-            'common_discount_id' => $totals['commonDiscountAmount'] > 0 ? $commonDiscount?->id : null,
-            'common_discount_snapshot' => $commonDiscountSnapshot,
-            'order_common_discount_amount' => $totals['commonDiscountAmount'],
-        ];
+            // create order
+            $addressSnapshot = [
+                'province' => $address->province->name,
+                'city' => $address->city->name,
+                'address' => $address->address,
+                'postal_code' => $address->postal_code,
+                'receiver' => $address->recipient_name,
+                'mobile' => $address->mobile,
+                'unit' => $address->unit,
+                'no' => $address->no,
+            ];
 
-        $result = DB::transaction(function () use ($data, $cartItems, $userId) {
+            $deliverySnapshot = [
+                'name' => $delivery->name,
+                'delivery_cost' => $delivery->delivery_cost,
+                'delivery_days' => $delivery->delivery_days,
+            ];
+
+            // ممکن است کوپن در سرویس نامعتبر، منقضی یا قبلا استفاده شده باشد
+            $couponApplied = $coupon && $totals['couponDiscount'] > 0;
+
+            if (!$couponApplied) {
+                $coupon = null;
+                if (session()->has('applied_coupon')) {
+                    session()->forget('applied_coupon');
+                }
+            }
+
+            $couponSnapshot = $coupon ? [
+                'code' => $coupon->code,
+                'amount' => $coupon->amount,
+                'amount_type' => $coupon->amount_type,     // درصدی یا عددی
+                'discount_ceiling' => $coupon->discount_ceiling,
+                'type' => $coupon->type,    // عمومی یا خصوصی
+                'user_id' => $coupon->user_id,
+                'status' => $coupon->status,
+                'start_date' => $coupon->start_date,
+                'end_date' => $coupon->end_date,
+            ] : null;
+
+            $commonDiscountSnapshot = $commonDiscount ? [
+                'title' => $commonDiscount->title,
+                'status' => $commonDiscount->status,
+                'start_date' => $commonDiscount->start_date,
+                'end_date' => $commonDiscount->end_date,
+                'percentage' => $commonDiscount->percentage,
+                'discount_ceiling' => $commonDiscount->discount_ceiling,
+                'minimal_order_amount' => $commonDiscount->minimal_order_amount,
+            ] : null;
+
+            //  order data
+            $data = [
+                'user_id' => $userId,
+                'address_id' => $inputs['address_id'],
+                'address_snapshot' => $addressSnapshot,
+                'order_final_amount' => $totals['totalCartPrice'] + $delivery->delivery_cost,
+                'order_total_products_discount_amount' => $totals['productDiscounts'],
+                'order_discount_amount' => $totals['productDiscounts'] + $totals['commonDiscountAmount'] + $totals['couponDiscount'],
+                'delivery_id' => $inputs['delivery_id'],
+                'delivery_snapshot' => $deliverySnapshot,
+                'delivery_amount' => $delivery->delivery_cost,
+                'delivery_date' => $delivery->delivery_days ? now()->addDays($delivery->delivery_days) : null,
+
+                'coupon_id' => $coupon ? $coupon->id : null,
+                'coupon_snapshot' => $couponSnapshot,
+                'order_coupon_discount_amount' => $totals['couponDiscount'],
+                'common_discount_id' => $totals['commonDiscountAmount'] > 0 ? $commonDiscount?->id : null,
+                'common_discount_snapshot' => $commonDiscountSnapshot,
+                'order_common_discount_amount' => $totals['commonDiscountAmount'],
+            ];
+
             $order = Order::where('user_id', $userId)
                 ->whereIn('order_status', ['not_checked', 'awaiting_confirmation'])
                 ->whereIn('payment_status', ['unpaid', 'failed'])
@@ -255,7 +257,7 @@ class PaymentCalculationService
                 'order' => $order,
                 'payment' => $payment,
             ];
-        });
+        }, attempts: 3);
 
 
         return [
@@ -276,6 +278,20 @@ class PaymentCalculationService
         // اگر پرداخت موفقیت آمیز بود
 
         return DB::transaction(function () use ($order, $payment, $result, $request) {
+
+            $cartItemIds = InventoryAllocation::whereIn('order_item_id', $order->orderItems()->pluck('id'))
+                ->pluck('cart_item_id')
+                ->unique()
+                ->filter()
+                ->sort()
+                ->values();
+
+            if ($cartItemIds->isNotEmpty()) {
+                CartItem::whereIn('id', $cartItemIds)
+                    ->orderBy('id')
+                    ->lockForUpdate()
+                    ->get();
+            }
 
             $order = Order::lockForUpdate()->findOrFail($order->id);
             $payment = Payment::lockForUpdate()->findOrFail($payment->id);
@@ -314,6 +330,13 @@ class PaymentCalculationService
             // ----------------------------------
             if ($result['status'] === 'success') {
 
+                $orderItemIds = $order->orderItems->pluck('id');
+
+                $allocations = InventoryAllocation::whereIn('order_item_id', $orderItemIds)
+                    ->orderBy('id')
+                    ->lockForUpdate()
+                    ->get();
+
                 // بروزرسانی تراکنش پرداخت
                 $payment->update([
                     'status' => 'paid',
@@ -326,39 +349,69 @@ class PaymentCalculationService
                     'paid_at' => now(),
                 ]);
 
-                foreach ($order->orderItems as $orderItem) {
+                // پرداخت دیرهنگام: سفارش قبلا کنسل شده(اسکاچول سفارش ها رها شده) و رزروها آزاد شدن
+                // پول گرفته شده ولی موجودی تضمین نیست سفارش تایید نمیشه و باید دستی بررسی بشه
+                if ($order->order_status === 'canceled' || $allocations->isEmpty()) {
 
-                    // کم کردن موجودی و ثبت تراکنش
-                    foreach ($orderItem->allocations as $allocation) {
-                        $warehouseVariant = WarehouseVariant::query()
-                            ->lockForUpdate()
-                            ->findOrFail($allocation->warehouse_variant_id);
+                    $order->update([
+                        'payment_status' => 'paid',
+                    ]);
 
-                        // درست کردن موجودی انبار و واریانت
-                        $warehouseVariant->stock -= $allocation->quantity;
-                        $warehouseVariant->reserved = max(0, $warehouseVariant->reserved - $allocation->quantity);
-                        $warehouseVariant->sold += $allocation->quantity;
-                        $warehouseVariant->save();
+                    $message = 'Your payment was received, but the order has expired. Please contact support.';
 
-                        // ثبت تراکنش
-                        WarehouseTransaction::create([
-                            'warehouse_id' => $warehouseVariant->warehouse_id,
-                            'product_variant_id' => $orderItem->product_variant_id,
-                            'type' => 'out',
-                            'quantity' => $allocation->quantity,
-                            'unit_price' => $orderItem->final_product_price,
-                        ]);
+                    Log::critical('Late payment for canceled order', [
+                        'order_id' => $order->id,
+                        'payment_id' => $payment->id,
+                        'reference_id' => $result['reference_id'],
+                    ]);
+
+                    if ($request->expectsJson()) {
+                        return response()->json([
+                            'status' => 'late_payment',
+                            'message' => $message,
+                        ], 200);
                     }
-                    // حذف تخصیص داده شده ها و آیتم سبد کاربر
-                    $cartItemIds = $orderItem->allocations->pluck('cart_item_id')->unique()->filter();
+                    return redirect()->route('customer.home')->with('toast-error', $message);
+                }
 
-                    $orderItem->allocations()->delete();
+                $warehouseVariants = WarehouseVariant::whereIn(
+                    'id',
+                    $allocations->pluck('warehouse_variant_id')->unique()->sort()->values()
+                )
+                    ->orderBy('id')
+                    ->lockForUpdate()
+                    ->get()
+                    ->keyBy('id');
 
-                    if ($cartItemIds->isNotEmpty()) {
-                        CartItem::query()
-                            ->whereIn('id', $cartItemIds)
-                            ->delete();
-                    }
+
+                // کم کردن موجودی و ثبت تراکنش
+                foreach ($allocations as $allocation) {
+                    $warehouseVariant = $warehouseVariants->get($allocation->warehouse_variant_id);
+                    $orderItem = $order->orderItems->firstWhere('id', $allocation->order_item_id);
+
+                    // درست کردن موجودی انبار و واریانت
+                    $warehouseVariant->stock -= $allocation->quantity;
+                    $warehouseVariant->reserved = max(0, $warehouseVariant->reserved - $allocation->quantity);
+                    $warehouseVariant->sold += $allocation->quantity;
+
+                    // ثبت تراکنش
+                    WarehouseTransaction::create([
+                        'warehouse_id' => $warehouseVariant->warehouse_id,
+                        'product_variant_id' => $orderItem->product_variant_id,
+                        'type' => 'out',
+                        'quantity' => $allocation->quantity,
+                        'unit_price' => $orderItem->final_product_price,
+                    ]);
+                }
+                $warehouseVariants->each->save();
+
+                // حذف تخصیص داده شده ها و آیتم سبد کاربر
+                $cartItemIds = $allocations->pluck('cart_item_id')->unique()->filter();
+
+                InventoryAllocation::whereIn('id', $allocations->pluck('id'))->delete();
+
+                if ($cartItemIds->isNotEmpty()) {
+                    CartItem::whereIn('id', $cartItemIds)->delete();
                 }
 
                 // اگر کاربر از کوپن استفاده کرده بود
@@ -383,18 +436,21 @@ class PaymentCalculationService
                 });
 
                 foreach ($orderAdmins as $admin) {
-                    $admin->notify(new NewOrderRegisteredNotification($order->fresh()));
+                    DB::afterCommit(function () use ($admin, $order) {
+
+                        $admin->notify(new NewOrderRegisteredNotification($order->fresh()));
+                    });
                 }
 
                 // low stock notification
                 $lowStockItems = [];
                 $seenVariantIds = [];
-                
+
                 // پیدا کردن موجودی واریانت خریداری شده
                 // Order -> OrderItems -> InventoryAllocation -> WarehouseVariant -> stock
                 foreach ($order->orderItems as $item) {
                     foreach ($item->allocations as $allocation) {
-                        $warehouseVariant = $allocation->warehouseVariant;
+                        $warehouseVariant = $warehouseVariants->get($allocation->warehouse_variant_id);
 
                         // اگر موجودی زیر 5 تاست و قبلا آن را در لیست اضافه نکرده‌ایم
                         if ($warehouseVariant && $warehouseVariant->stock < 5) {
@@ -425,7 +481,12 @@ class PaymentCalculationService
                     });
 
                     foreach ($warehouseAdmins as $admin) {
-                        $admin->notify(new LowStockNotification($lowStockItems));
+                        // نوتیفیکیشن ها بعد از commit و بدون تاثیر روی ثبت پرداخت
+
+                        DB::afterCommit(function () use ($admin, $lowStockItems) {
+
+                            $admin->notify(new LowStockNotification($lowStockItems));
+                        });
                     }
                 }
 
@@ -474,6 +535,7 @@ class PaymentCalculationService
                 $order->update([
                     'payment_status' =>  'failed',
                     'order_status'   =>  'awaiting_confirmation',
+                    'delivery_status' => 'canceled'
                 ]);
 
                 // ثبت نوتیفیکیشن برای ادمین مورد نظر
@@ -482,7 +544,9 @@ class PaymentCalculationService
                 });
 
                 foreach ($admins as $admin) {
-                    $admin->notify(new PaymentFailedNotification($order->fresh(), $payment->fresh()));
+                    DB::afterCommit(function () use ($admin, $order, $payment) {
+                        $admin->notify(new PaymentFailedNotification($order->fresh(), $payment->fresh()));
+                    });
                 }
 
 

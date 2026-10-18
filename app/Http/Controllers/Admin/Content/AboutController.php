@@ -3,7 +3,7 @@
 namespace App\Http\Controllers\Admin\Content;
 
 use App\Http\Controllers\Controller;
-use App\Http\Services\Image\ImageService;
+use App\Services\Infrastructure\Image\ImageService;
 use App\Models\Content\About;
 use Illuminate\Http\Request;
 

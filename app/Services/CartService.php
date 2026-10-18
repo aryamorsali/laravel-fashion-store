@@ -3,11 +3,13 @@
 namespace App\Services;
 
 use App\Exceptions\CartException;
+use App\Exceptions\CartItemActiveGatewayException;
 use App\Exceptions\CouponException;
 use App\Models\Market\CartItem;
 use App\Models\Market\CommonDiscount;
 use App\Models\Market\Coupon;
 use App\Models\Market\CouponUser;
+use App\Models\Market\InventoryAllocation;
 use App\Models\Market\ProductVariant;
 use App\Models\Market\WarehouseVariant;
 use Exception;
@@ -39,6 +41,13 @@ class CartService
                 throw ValidationException::withMessages([
                     'quantity' => 'Sorry, there isn’t enough stock for this item.'
                 ])->redirectTo(route('customer.sales-process.add-to-cart'));
+            }
+
+            $existingCartItem = CartItem::where('user_id', Auth::id())->where('product_variant_id', $variant->id)->lockForUpdate()->first();
+
+            // اگر آیتم سبد خرید در درگاه پرداخت فعال بود
+            if ($existingCartItem && $existingCartItem->allocations()->whereNotNull('order_item_id')->exists()) {
+                throw new \DomainException('This item is currently in the checkout process and cannot be updated. An update for this item will be available after the checkout period ends.');
             }
 
 
@@ -119,14 +128,35 @@ class CartService
     {
         DB::transaction(function () use ($cartItem) {
 
+            $cartItem = CartItem::where('id', $cartItem->id)
+                ->where('user_id', Auth::id())
+                ->lockForUpdate()
+                ->firstOrFail();
+
             if ($cartItem->allocations()->whereNotNull('order_item_id')->exists()) {
-                throw new \DomainException('This item is in an active payment process and cannot be deleted at this time. If you wish to cancel, cancel the payment; otherwise, the item will be available for deletion after the payment deadline.');
+                throw new \DomainException('This item is in an active payment process and cannot be deleted at this time. 
+                If you wish to cancel, cancel the payment; otherwise, the item will be available for deletion after the payment deadline.');
             }
 
-            foreach ($cartItem->allocations as $allocation) {
-                $warehouseVariant = WarehouseVariant::query()
-                    ->lockForUpdate()
-                    ->findOrFail($allocation->warehouse_variant_id);
+            $allocations = InventoryAllocation::where('cart_item_id', $cartItem->id)
+                ->whereNull('order_item_id')
+                ->orderBy('id')
+                ->lockForUpdate()
+                ->get();
+
+
+            $warehouseVariants = WarehouseVariant::whereIn(
+                'id',
+                $allocations->pluck('warehouse_variant_id')->unique()->sort()->values()
+            )
+                ->orderBy('id')
+                ->lockForUpdate()
+                ->get()
+                ->keyBy('id');
+
+
+            foreach ($allocations as $allocation) {
+                $warehouseVariant = $warehouseVariants->get($allocation->warehouse_variant_id);
 
                 $warehouseVariant->reserved = max(
                     0,
@@ -149,14 +179,22 @@ class CartService
         return DB::transaction(function () use ($data, $couponCode) {
             $cartItem = CartItem::where('id', $data['cart_item_id'])
                 ->where('user_id', Auth::id())
+                ->lockForUpdate()
                 ->firstOrFail();
+
+            // اگر آیتم سبد خرید در درگاه پرداخت فعال بود
+            if ($cartItem && $cartItem->allocations()->whereNotNull('order_item_id')->exists()) {
+                throw new CartItemActiveGatewayException(
+                    message: 'This item is currently in the checkout process and cannot be updated. An update for this item will be available after the checkout period ends.',
+                    previousValue: $cartItem->quantity,
+                );
+            }
 
             $variant = $cartItem->productVariant;
 
             $newQuantity = (int) $data['quantity'];
 
             $oldQuantity = $cartItem->quantity;
-            $diff = $newQuantity - $oldQuantity;
 
             // -------------------------
             // محدودیت گزاشتن روی تعداد واریانت رزرو شده
@@ -170,19 +208,6 @@ class CartService
                     message: 'Requested quantity is not available.',
                     available: $maxAllowed
                 );
-            }
-            // -------------------------
-            // بررسی موجودی (فقط وقتی تعداد رو زیاد می‌کنیم)
-            // -------------------------
-
-            if ($diff > 0) {
-
-                if ($diff > $availableStock) {
-                    throw new CartException(
-                        message: 'Requested quantity is not available.',
-                        available: $availableStock + $oldQuantity
-                    );
-                }
             }
 
             // -------------------------
@@ -266,9 +291,6 @@ class CartService
             ];
         });
     }
-
-
-
 
 
 

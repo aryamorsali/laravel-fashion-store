@@ -89,7 +89,7 @@
                                     @endphp
 
                                     @if ($admin->is_owner)
-                                        <span class="text-success">Full discretion</span>
+                                        <span class="text-success">Full access</span>
                                     @elseif($permissions->isEmpty())
                                         <span class="text-danger">No permissions found.</span>
                                     @else

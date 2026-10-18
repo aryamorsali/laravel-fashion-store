@@ -16,42 +16,42 @@ class ProductColorSeeder extends Seeder
         $colors = [
             [
                 'id'       => 1,
-                'name'     => 'Midnight Black',
+                'name'     => 'Black',
                 'hex_code' => '#111111',
             ],
             [
                 'id'       => 2,
-                'name'     => 'Pure White',
+                'name'     => 'White',
                 'hex_code' => '#FFFFFF',
             ],
             [
                 'id'       => 3,
-                'name'     => 'Charcoal Gray',
+                'name'     => 'Gray',
                 'hex_code' => '#374151',
             ],
             [
                 'id'       => 4,
-                'name'     => 'Navy Blue',
+                'name'     => 'Blue',
                 'hex_code' => '#1E3A8A',
             ],
             [
                 'id'       => 5,
-                'name'     => 'Crimson Red',
+                'name'     => 'Red',
                 'hex_code' => '#DC2626',
             ],
             [
                 'id'       => 6,
-                'name'     => 'Olive Green',
+                'name'     => 'Green',
                 'hex_code' => '#4D7C0F',
             ],
             [
                 'id'       => 7,
-                'name'     => 'Camel Beige',
-                'hex_code' => '#D97706',
+                'name'     => 'Pink',
+                'hex_code' => '#ff83d2',
             ],
             [
                 'id'       => 8,
-                'name'     => 'Pastel Blue',
+                'name'     => 'Light Blue',
                 'hex_code' => '#93C5FD',
             ],
         ];

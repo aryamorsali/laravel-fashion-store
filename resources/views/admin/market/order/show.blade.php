@@ -118,7 +118,7 @@
                         </tr>
 
                         <tr class="border-bottom">
-                            <th>Order status :</th>
+                            <th>Payment status :</th>
                             <td class="text-left font-weight-bolder">
                                 {{ $order->payment_status }}
                             </td>

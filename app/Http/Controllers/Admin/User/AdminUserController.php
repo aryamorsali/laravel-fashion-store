@@ -5,7 +5,7 @@ namespace App\Http\Controllers\Admin\User;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\Market\SearchRequest;
 use App\Http\Requests\Admin\User\AdminUserRequest;
-use App\Http\Services\Image\ImageService;
+use App\Services\Infrastructure\Image\ImageService;
 use App\Models\User;
 use App\Models\User\Permission;
 use App\Models\User\Role;

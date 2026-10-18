@@ -44,7 +44,7 @@
                         </section>
                         <section class="col-12 col-md-5">
                             <div class="form-group">
-                                <label for="description">توضیح نقش</label>
+                                <label for="description">Role description</label>
                                 <input type="text"  id="description"class="form-control form-control-sm"
                                     value="{{ old('description', $role->description) }}" readonly
                                     style="background-color: white;

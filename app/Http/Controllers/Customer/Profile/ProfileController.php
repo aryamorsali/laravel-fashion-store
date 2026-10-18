@@ -4,7 +4,7 @@ namespace App\Http\Controllers\Customer\Profile;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Customer\Profile\UserProfileRequest;
-use App\Http\Services\Image\ImageService;
+use App\Services\Infrastructure\Image\ImageService;
 use App\Models\Market\Order;
 use App\Models\Market\Product;
 use App\Models\Market\Province;

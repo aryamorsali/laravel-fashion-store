@@ -4,7 +4,7 @@ namespace App\Http\Controllers\Admin\Notification;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\Notification\EmailFileRequest;
-use App\Http\Services\File\FileService;
+use App\Services\Infrastructure\File\FileService;
 use App\Models\Notification\Email;
 use App\Models\Notification\EmailFile;
 use Illuminate\Http\Request;

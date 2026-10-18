@@ -5,7 +5,7 @@ namespace App\Http\Controllers\Admin\Content;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\Content\BannerRequest;
 use App\Http\Requests\Admin\Market\SearchRequest;
-use App\Http\Services\Image\ImageService;
+use App\Services\Infrastructure\Image\ImageService;
 use App\Models\Content\Banner;
 use Illuminate\Http\Request;
 

@@ -3,7 +3,7 @@
 namespace App\Http\Controllers\Admin\Market;
 
 use App\Http\Controllers\Controller;
-use App\Http\Services\Image\ImageService;
+use App\Services\Infrastructure\Image\ImageService;
 use App\Models\Market\Gallery;
 use App\Models\Market\Product;
 use Illuminate\Http\Request;

@@ -430,7 +430,7 @@
 
                                 <div class="rating">
                                     <i class="fa fa-star"></i>
-                                    <span class="rating-number">{{ $aveRating }}</span>
+                                    <span class="rating-number">{{ number_format($aveRating, 1) }}</span>
                                 </div>
                             </div>
                         </div>

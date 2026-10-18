@@ -5,7 +5,7 @@ namespace App\Http\Controllers\Admin\Setting;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\Market\SearchRequest;
 use App\Http\Requests\Admin\Setting\SettingRequest;
-use App\Http\Services\Image\ImageService;
+use App\Services\Infrastructure\Image\ImageService;
 use Illuminate\Http\Request;
 use App\Models\Setting\Setting;
 

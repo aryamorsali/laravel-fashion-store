@@ -2,8 +2,8 @@
 
 namespace App\Jobs;
 
-use App\Http\Services\Message\Email\EmailService;
-use App\Http\Services\Message\MessageService;
+use App\Services\Infrastructure\Message\Email\EmailService;
+use App\Services\Infrastructure\Message\MessageService;
 use App\Models\Notification\Email;
 use App\Models\User;
 use Illuminate\Contracts\Queue\ShouldQueue;

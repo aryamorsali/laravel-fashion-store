@@ -11,7 +11,7 @@ class CartException extends Exception
     public function __construct(
         string $message,
         protected int $available,
-        protected int $statusCode = 409
+        protected int $statusCode = 422
     ) {
         parent::__construct($message);
     }

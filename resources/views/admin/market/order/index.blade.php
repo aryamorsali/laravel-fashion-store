@@ -53,8 +53,8 @@
                             <th scope="col">#</th>
                             <th>Order code</th>
                             <th>Total order amount (without discount + delivery cost)</th>
-                            <th>Total of all discounts</th>
                             <th>Discount amount (all products)</th>
+                            <th>Total of all discounts</th>
                             <th>Payable amount</th>
                             <th>Payment status</th>
                             <th>bank</th>
@@ -70,12 +70,12 @@
                             <tr>
                                 <th scope="row">{{ $loop->iteration }}</th>
                                 <td>{{ $order->id }}</td>
-                                <td>${{ number_format($order->order_final_amount + ($order->order_discount_amount ?? 0), 2) }}
-                                </td>
-                                <td>${{ number_format($order->order_discount_amount, 2) }}</td>
+                                <td>${{ number_format($order->order_final_amount + ($order->order_discount_amount ?? 0), 2) }}</td>
+                               
+                                 <td>${{ number_format($order->order_discount_amount, 2) }}</td>
                                 <td>${{ number_format($order->order_total_products_discount_amount, 2) }}</td>
-                                <td><span class="text-success">{{ number_format($order->order_final_amount, 2) }}</span>
-                                </td>
+
+                                <td><span class="text-success">{{ number_format($order->order_final_amount, 2) }}</span></td>
                                 <td>
                                     @switch($order->payment_status)
                                         @case('paid')

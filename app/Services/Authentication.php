@@ -2,9 +2,9 @@
 
 namespace App\Services;
 
-use App\Http\Services\Message\Email\EmailService;
-use App\Http\Services\Message\MessageService;
-use App\Http\Services\Message\SMS\SmsService;
+use App\Services\Infrastructure\Message\Email\EmailService;
+use App\Services\Infrastructure\Message\MessageService;
+use App\Services\Infrastructure\Message\SMS\SmsService;
 use App\Models\Otp;
 use App\Models\User;
 use App\Models\User\Role;
@@ -127,24 +127,22 @@ class Authentication
 
     public function loginConfirmStore($token, $data)
     {
+        DB::transaction(function () use ($data, $token) {
 
+            $otp = Otp::where('token', $token)->where('is_used', 0)->where('created_at', '>=', Carbon::now()->subMinutes(5))->lockForUpdate()->first();
+            if (!$otp) {
+                throw ValidationException::withMessages([
+                    'id' => 'The verification code is expired or invalid.'
+                ])->redirectTo(route('auth.login-register.form'));
+            }
+            $user = $otp->user;
 
-        $otp = Otp::where('token', $token)->where('is_used', 0)->where('created_at', '>=', Carbon::now()->subMinutes(5))->lockForUpdate()->first();
-        if (!$otp) {
-            throw ValidationException::withMessages([
-                'id' => 'The verification code is expired or invalid.'
-            ])->redirectTo(route('auth.login-register.form'));
-        }
-        $user = $otp->user;
+            // اگر ادمین های تستی ک ساخته بودیم بود
+            $testMobiles = ['09120000001', '09120000002', '09120000003'];
+            $testEmails  = ['owner@cozashop.com', 'warehouse@cozashop.com', 'support@cozashop.com'];
 
-        // اگر ادمین های تستی ک ساخته بودیم بود
-        $testMobiles = ['09120000001', '09120000002', '09120000003'];
-        $testEmails  = ['owner@cozashop.com', 'warehouse@cozashop.com', 'support@cozashop.com'];
-
-        $isTestAccount = in_array($user->mobile, $testMobiles) || in_array($user->email, $testEmails);
-        $isTestOtpMatch = $isTestAccount && ($data['otp'] === '111111');
-
-        DB::transaction(function () use ($otp, $data, $token, &$user, $isTestOtpMatch) {
+            $isTestAccount = in_array($user->mobile, $testMobiles) || in_array($user->email, $testEmails);
+            $isTestOtpMatch = config('auth.demo_otp_enabled') && $isTestAccount && ($data['otp'] === '111111');
 
             // check is otp match?
             if (!$isTestOtpMatch && !Hash::check($data['otp'], $otp->otp_code)) {

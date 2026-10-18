@@ -5,7 +5,7 @@ namespace App\Http\Controllers\Customer\SalesProcess;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Customer\Payment\PaymentCallbackRequest;
 use App\Http\Requests\Customer\Payment\PaymentRequest;
-use App\Http\Services\Payment\PaymentService;
+use App\Services\Infrastructure\Payment\PaymentService;
 use App\Models\Market\Order;
 use App\Models\Market\Payment;
 use App\Services\CartCalculator;
