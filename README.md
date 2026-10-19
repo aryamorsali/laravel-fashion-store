@@ -6,16 +6,11 @@ A fashion and clothing store built with **Laravel 11**. It features a variant-ba
   <!-- Core Stack -->
   <img src="https://img.shields.io/badge/PHP-8.2-777BB4?style=flat-square&logo=php&logoColor=white" alt="PHP 8.2" />
   <img src="https://img.shields.io/badge/Laravel-11-FF2D20?style=flat-square&logo=laravel&logoColor=white" alt="Laravel 11" />
-  <img src="https://img.shields.io/badge/Database-MySQL%20%2F%20MariaDB-4479A1?style=flat-square&logo=mysql&logoColor=white" alt="MySQL" />
+  <img src="https://img.shields.io/badge/Database-MySQL%20%2F%20MariaDB-4479A1?style=flat-square&logo=mysql&logoColor=white" alt="MySQL / MariaDB" />
 
   <!-- Security & API -->
   <img src="https://img.shields.io/badge/Auth-OTP%20%2F%20Sanctum-purple?style=flat-square" alt="Auth OTP / Sanctum" />
-  <img src="https://img.shields.io/badge/API-RESTful-green?style=flat-square" alt="REST API" />
   <img src="https://img.shields.io/badge/Docs-Swagger-85EA2D?style=flat-square&logo=swagger&logoColor=black" alt="Swagger" />
-  <img src="https://img.shields.io/badge/Debug-Laravel%20Telescope-8E44AD?style=flat-square&logo=laravel&logoColor=white" alt="Laravel Telescope" />
-
-  <!-- Project Status -->
-  <img src="https://img.shields.io/github/last-commit/aryamorsali/laravel-fashion-store?style=flat-square" alt="Last commit" />
 </p>
 
 **Contents:**
@@ -32,16 +27,17 @@ A fashion and clothing store built with **Laravel 11**. It features a variant-ba
 ## Features
 
 - **Variant-based catalog:** products with color and size variants, per-variant price and stock, attributes, brands and categories.
-- **Server-side shop filtering:** category, brand, color, size, price range, stock, discount, tags and sorting.
+- **Server-side shop filtering:** search, category, brand, color, size, price range, stock, discount, tags and sorting.
 - **Multi-warehouse inventory:** a variant can be fulfilled from several warehouses, and every reserved unit is traceable to its warehouse. [Details](#checkout-and-inventory-flow)
 - **Reservation model:** stock is reserved when an item enters the cart and released automatically when the cart or payment expires.
-- **Layered discounts:** product sale, then store-wide discount, then coupon, followed by shipping cost.
+- **Layered discounts:** amazing sale(time-limited per-variant discount), then store-wide discount, then coupon, followed by shipping cost.
 - **Safe checkout:** atomic order creation, pessimistic locking, deadlock retries and an idempotent ZarinPal callback.
 - **Admin panel:** dashboard, products and variants, warehouses and stock, orders, payments, deliveries, discounts, content (posts, FAQ, banners, categories, comments, ...), access levels, tickets, email/SMS notifications and settings.
 - **Role-based access control:** roles with fine-grained permissions (view, create, update and delete per resource) plus policies.
 - **Authentication:** SMS OTP login, with Laravel Sanctum for API tokens.
 - **Documented REST API:** Swagger (OpenAPI) docs for auth, products, cart, payment and likes.
 - **Background processing:** scheduled commands and queued jobs for cleanup and notifications.
+- **Query efficiency:** eager loading throughout the app to avoid N+1 queries.
 
 ---
 
@@ -53,7 +49,7 @@ A quick look at the project. Click an image to enlarge it. All screenshots were 
   <tr>
     <td width="33%">
       <a href="docs/screenshots/shopping-cart.png"><img src="docs/screenshots/shopping-cart.png" alt="Shopping cart with layered discounts" width="100%"></a>
-      <br><sub><b>Cart.</b> Layered discounts: product sale, store-wide discount and coupon.</sub>
+      <br><sub><b>Cart.</b> Layered discounts: amazing sale, store-wide discount and coupon.</sub>
     </td>
     <td width="33%">
       <a href="docs/screenshots/warehouse-variants.png"><img src="docs/screenshots/warehouse-variants.png" alt="Warehouse stock per variant" width="100%"></a>
@@ -87,7 +83,10 @@ A quick look at the project. Click an image to enlarge it. All screenshots were 
       <a href="docs/screenshots/product-detail.png"><img src="docs/screenshots/product-detail.png" alt="Product detail page with variants" width="100%"></a>
       <br><sub><b>Product detail.</b> Color and size variants, unavailable variants, low-stock warning and sale price.</sub>
     </td>
-    <td width="50%"></td>
+    <td width="50%">
+      <a href="docs/screenshots/home.png"><img src="docs/screenshots/home.png" alt="Home page with limited time deals and best sellers" width="100%"></a>
+     <br><sub><b>Home.</b> Limited time deals and best sellers sliders with sale badges and countdown timers.</sub>
+    </td>
   </tr>
 </table>
 
@@ -127,24 +126,24 @@ A quick look at the project. Click an image to enlarge it. All screenshots were 
 
 ## Tech Stack
 
-| Area | Technology |
-|---|---|
-| Backend | PHP 8.2+, Laravel 11 |
-| Database | MySQL |
-| Auth | Laravel Sanctum, SMS OTP login (Melipayamak) |
-| Payments | ZarinPal via `shetabit/multipay` |
-| Queue | Laravel queues (`database` driver) |
-| API docs | L5-Swagger (OpenAPI) |
-| Images | Intervention Image |
-| Dev tools | Laravel Telescope |
+| Area      | Technology                                   |
+| --------- | -------------------------------------------- |
+| Backend   | PHP 8.2+, Laravel 11                         |
+| Database  | MySQL / MariaDB                              |
+| Auth      | Laravel Sanctum, SMS OTP login (Melipayamak) |
+| Payments  | ZarinPal via `shetabit/multipay`             |
+| Queue     | Laravel queues (`database` driver)           |
+| API docs  | L5-Swagger (OpenAPI)                         |
+| Images    | Intervention Image                           |
+| Dev tools | Laravel Telescope                            |
 
-> About 90% of the front-end comes from a free template. The custom front-end work is limited to a few interactive parts: the live variant selector on the product page (price, total and availability update when the color or size changes) and the live cart (quantity changes and coupon codes update the totals without a page reload). The focus of this project is the back-end logic, the admin panel and the inventory and order system.
+> About 90% of the front-end comes from a free template. The custom front-end work is limited to a few interactive parts: the live variant selector on the product page (price, total and availability update when the color or size changes) and the live cart (quantity changes and coupon codes update the totals without a page reload). The main focus is the back end: inventory and stock reservation, orders and payments, layered pricing and discounts, server-side filtering, notifications, and an admin panel with role-based access.
 
 ---
 
 ## Architecture
 
-The code is organized in layers. Controllers stay thin, and the business logic lives in services, so the web and API controllers share the same code and nothing is duplicated.
+Logic shared by the web and API controllers lives in service classes. Web-only features, such as parts of the admin panel, still keep their logic in controllers and could be refactored the same way.
 
 <details>
 <summary><b>Project structure</b></summary>
@@ -288,22 +287,22 @@ flowchart TD
 
 ### Data model
 
-| Table | Responsibility |
-|---|---|
-| `warehouse_variants` | Stock of a variant in a specific warehouse: `stock`, `reserved`, `sold` |
-| `inventory_allocations` | Ledger of reserved units: `cart_item_id`, `order_item_id` (nullable), `warehouse_variant_id`, `quantity` |
-| `cart_items` | Cart lines with an `expires_at` (30 minutes, renewed on every change) |
-| `orders`, `order_items` | Orders, with snapshots of prices, discounts, address and delivery method |
-| `payments` | Payment attempts and gateway responses |
-| `warehouse_transactions` | Stock-out records written when a payment is confirmed |
+| Table                    | Responsibility                                                                                           |
+| ------------------------ | -------------------------------------------------------------------------------------------------------- |
+| `warehouse_variants`     | Stock of a variant in a specific warehouse: `stock`, `reserved`, `sold`                                  |
+| `inventory_allocations`  | Ledger of reserved units: `cart_item_id`, `order_item_id` (nullable), `warehouse_variant_id`, `quantity` |
+| `cart_items`             | Cart lines with an `expires_at` (30 minutes, renewed on every change)                                    |
+| `orders`, `order_items`  | Orders, with snapshots of prices, discounts, address and delivery method                                 |
+| `payments`               | Payment attempts and gateway responses                                                                   |
+| `warehouse_transactions` | Stock-out records written when a payment is confirmed                                                    |
 
 **Stock accounting.** Available stock is `stock - reserved`. State transitions:
 
-| Event | `stock` | `reserved` | `sold` |
-|---|---|---|---|
-| Add to cart / change quantity | | `+qty` (old reservation released first) | |
-| Cart expires / item removed / payment canceled and cart expires | | `-qty` | |
-| Payment confirmed | `-qty` | `-qty` | `+qty` |
+| Event                                                           | `stock` | `reserved`                              | `sold` |
+| --------------------------------------------------------------- | ------- | --------------------------------------- | ------ |
+| Add to cart / change quantity                                   |         | `+qty` (old reservation released first) |        |
+| Cart expires / item removed / payment canceled and cart expires |         | `-qty`                                  |        |
+| Payment confirmed                                               | `-qty`  | `-qty`                                  | `+qty` |
 
 **The `order_item_id` field is the state switch of an allocation row.**
 `order_item_id = NULL` means the units are reserved for a cart item. A non-null value means they belong to an order that is in checkout. This lets the same row move between "cart" and "order" states without copying data, and it lets the cleanup job tell apart reservations it may release from reservations that are being paid for.
@@ -317,7 +316,7 @@ In one transaction the service locks the product variant, rejects the request if
 3. walks the warehouses in id order and takes `min(remaining, available)` from each until the requested quantity is met,
 4. writes one `inventory_allocations` row per warehouse, and throws if stock is insufficient.
 
-The stock check inside the allocator runs after the locks are held, so it is the authoritative check. Any earlier availability check only provides quick feedback to the user.
+The stock check runs after the locks are acquired and is the authoritative one. Earlier checks only give quick feedback.
 
 ### 2. Cart and pricing
 
@@ -340,29 +339,29 @@ Cart items that are in checkout cannot be updated or removed.
 
 ### 4. Payment outcomes
 
-| Outcome | What happens |
-|---|---|
-| **Success** | Verify with the gateway, then in one transaction: mark payment and order as paid, move `stock`/`reserved`/`sold`, write `warehouse_transactions` rows, delete the allocations and cart items, record the coupon use, commit, and then notify admins (including a low-stock alert). |
-| **User cancels** | Order becomes `canceled` and allocations go back to `order_item_id = NULL`. The cart cleanup job releases the reservation when the cart expires. |
-| **Abandoned** | After 15 minutes the scheduled job cancels the order and reverts the allocations, exactly like a user cancel. |
-| **Verification failed** | Payment is marked `failed`, the order returns to `awaiting_confirmation`, and admins are notified. |
-| **Late payment** | If the order was already canceled (reservations released) and the user pays anyway, the payment is recorded but the order is **not** confirmed, because stock is no longer guaranteed. It needs manual review or a refund. |
+| Outcome                 | What happens                                                                                                                                                                                                                                                                       |
+| ----------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Success**             | Verify with the gateway, then in one transaction: mark payment and order as paid, move `stock`/`reserved`/`sold`, write `warehouse_transactions` rows, delete the allocations and cart items, record the coupon use, commit, and then notify admins (including a low-stock alert). |
+| **User cancels**        | Order becomes `canceled` and allocations go back to `order_item_id = NULL`. The cart cleanup job releases the reservation when the cart expires.                                                                                                                                   |
+| **Abandoned**           | After 15 minutes the scheduled job cancels the order and reverts the allocations, exactly like a user cancel.                                                                                                                                                                      |
+| **Verification failed** | Payment is marked `failed`, the order returns to `awaiting_confirmation`, and admins are notified.                                                                                                                                                                                 |
+| **Late payment**        | If the order was already canceled (reservations released) and the user pays anyway, the payment is recorded but the order is **not** confirmed, because stock is no longer guaranteed. It needs manual review or a refund.                                                         |
 
 ### Concurrency and consistency
 
 - **Pessimistic locking.** Every stock change runs inside a transaction and uses `lockForUpdate()` on the rows involved.
 - **Consistent lock ordering.** Rows within a table are always locked in ascending `id` order, and every flow starts from the cart item (add, update, remove, checkout, payment callback, cleanup job), which prevents lock cycles between flows.
-- **Re-check after locking.** The cleanup job selects allocations with `whereNull('order_item_id')` *inside* the locking query, so an item that moved into checkout a moment earlier is skipped instead of released.
+- **Re-check after locking.** The cleanup job selects allocations with `whereNull('order_item_id')` _inside_ the locking query, so an item that moved into checkout a moment earlier is skipped instead of released.
 - **Deadlock retries.** Deadlocks cannot be ruled out completely, so the checkout transaction uses `attempts: 3`. A rolled-back attempt leaves no partial state, so a retry is safe.
 - **Idempotent callback.** The callback locks the order and the payment, and returns early if both are already paid.
 - **Side effects after commit.** Admin notifications are sent with `DB::afterCommit()`, so a notification failure cannot roll back a successful payment.
 
 ### Scheduled jobs
 
-| Command | Schedule rule | Action |
-|---|---|---|
+| Command                     | Schedule rule                         | Action                                                                                                                                                    |
+| --------------------------- | ------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `carts:clear-expired-carts` | Cart items past `expires_at` (30 min) | For each item, in its own transaction: lock it, lock its unassigned allocations and warehouse rows, decrement `reserved`, delete allocations and the item |
-| `orders:abandoned-expired` | Unpaid orders older than 15 min | Cancel the order and set `order_item_id = NULL` on its allocations |
+| `orders:abandoned-expired`  | Unpaid orders older than 15 min       | Cancel the order and set `order_item_id = NULL` on its allocations                                                                                        |
 
 The project also contains commands for expiring discounts and for sending scheduled email and SMS notifications (see `app/Console/Commands`).
 
@@ -379,7 +378,7 @@ The project also contains commands for expiring discounts and for sending schedu
 ### Requirements
 
 - PHP 8.2 or higher and Composer
-- MySQL
+- MySQL or MariaDB
 
 ### Installation
 
@@ -418,12 +417,12 @@ php artisan serve
 
 ### Local URLs
 
-| Page | URL |
-|---|---|
-| Storefront | http://127.0.0.1:8000 |
-| Admin panel | http://127.0.0.1:8000/admin |
-| API base | http://127.0.0.1:8000/api |
-| Swagger UI | http://127.0.0.1:8000/api/documentation |
+| Page        | URL                                     |
+| ----------- | --------------------------------------- |
+| Storefront  | http://127.0.0.1:8000                   |
+| Admin panel | http://127.0.0.1:8000/admin             |
+| API base    | http://127.0.0.1:8000/api               |
+| Swagger UI  | http://127.0.0.1:8000/api/documentation |
 
 ### Background processes
 
@@ -452,10 +451,10 @@ Payments go through `shetabit/multipay`. Set your ZarinPal merchant ID in the pa
 
 ### Other optional settings
 
-| Setting | Default | Notes |
-|---|---|---|
-| `MAIL_MAILER` | `log` | Set your SMTP details in `.env` to send real emails. With the default `log` mailer, emails are only written to the log, so no SMTP account is needed locally. |
-| `SMS_USERNAME`, `SMS_PASSWORD`, `SMS_OTP_FROM` | empty | Melipayamak credentials, only needed to send real OTP messages. |
+| Setting                                        | Default | Notes                                                                                                                                                         |
+| ---------------------------------------------- | ------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `MAIL_MAILER`                                  | `log`   | Set your SMTP details in `.env` to send real emails. With the default `log` mailer, emails are only written to the log, so no SMTP account is needed locally. |
+| `SMS_USERNAME`, `SMS_PASSWORD`, `SMS_OTP_FROM` | empty   | Melipayamak credentials, only needed to send real OTP messages.                                                                                               |
 
 ---
 
@@ -463,11 +462,13 @@ Payments go through `shetabit/multipay`. Set your ZarinPal merchant ID in the pa
 
 Test credentials for local use only.
 
-| Role | Mobile | Email | OTP Code | Access |
-| :--- | :--- | :--- | :--- | :--- |
-| **Owner (Super Admin)** | `09120000001` | `owner@cozashop.com` | `111111` | Full access (`is_owner = 1`), settings, role management |
-| **Warehouse Manager** | `09120000002` | `warehouse@cozashop.com` | `111111` | Products, stock and inventory only |
-| **Support Agent** | `09120000003` | `support@cozashop.com` | `111111` | Tickets and user inquiries only |
+| Role                    | Mobile        | Email                    | OTP Code | Access                                                  |
+| :---------------------- | :------------ | :----------------------- | :------- | :------------------------------------------------------ |
+| **Owner (Super Admin)** | `09120000001` | `owner@cozashop.com`     | `111111` | Full access (`is_owner = 1`), settings, role management |
+| **Warehouse Manager**   | `09120000002` | `warehouse@cozashop.com` | `111111` | Products, stock and inventory only                      |
+| **Support Agent**       | `09120000003` | `support@cozashop.com`   | `111111` | Tickets and user inquiries only                         |
+
+> **Warning:** The fixed OTP `111111` is controlled by `DEMO_OTP_ENABLED` in `.env`. Set it to `true` only on your local machine. In production, set `DEMO_OTP_ENABLED=false` or remove it, and never use demo accounts on a public server.
 
 ---
 

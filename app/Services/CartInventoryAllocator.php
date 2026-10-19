@@ -30,6 +30,7 @@ class CartInventoryAllocator
             ->lockForUpdate()
             ->get();
 
+        //  کم کردن مقدار رزرو شده قبلی 
         foreach ($allocations as $allocation) {
             $warehouseVariant = $warehouseVariants->get($allocation->warehouse_variant_id);
 
@@ -40,9 +41,11 @@ class CartInventoryAllocator
 
             $warehouseVariant->save();
         }
-
+        // حذف allocation
         InventoryAllocation::whereIn('id', $allocations->pluck('id'))->delete();
 
+
+        // رزرو مقادیر جدید
         $warehouseVariants = WarehouseVariant::query()
             ->where('product_variant_id', $cartItem->product_variant_id)
             ->orderBy('id')
